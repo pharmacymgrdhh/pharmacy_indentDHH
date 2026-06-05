@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function addMedicine() {
+function addMedicine() {
         const medInput = document.getElementById('medicineName').value.trim();
         const qty = document.getElementById('quantity').value.trim();
 
@@ -228,18 +228,22 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        // नाव क्लीन करणे
         let cleanMedicineName = medInput;
         if(medInput.includes("[")) {
-            // कंस आणि डॅश दोन्ही काढून टाकण्यासाठी
             cleanMedicineName = medInput.split("[")[0].replace(/-$/, "").trim();
         }
+
+        // --- इथे बदल केला आहे (displayName मध्ये cleanMedicineName टाकले) ---
         indentList.push({ 
-            displayName: medInput, 
+            displayName: cleanMedicineName, 
             cleanName: cleanMedicineName, 
             quantity: qty 
         });
+        
         updateTable();
 
+        // बॉक्स रिकामा करणे
         document.getElementById('medicineName').value = '';
         document.getElementById('quantity').value = '';
         document.getElementById('medicineName').focus();
