@@ -177,7 +177,17 @@
 
 <script>
     let indentList = [];
-
+// --- नवीन कोड: फक्त Brand Name दाखवण्यासाठी ---
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('medicineName').addEventListener('input', function(e) {
+            let val = e.target.value;
+            // जर निवडलेल्या नावात "-[" असेल, तर सिस्टीम तात्काळ तो भाग काढून टाकेल
+            if (val.includes("-[")) {
+                e.target.value = val.split("-[")[0].trim();
+            }
+        });
+    });
+    // ----------------------------------------------
     // १. मास्टर डेटा गुगल शीटमधून ओढणे (Doctors & Medicines)
     function fetchMasterData() {
         document.getElementById('docLoader').style.display = 'inline';
