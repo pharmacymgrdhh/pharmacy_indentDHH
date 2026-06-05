@@ -180,9 +180,9 @@
 document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('medicineName').addEventListener('input', function(e) {
             let val = e.target.value;
-            // '[" हा कंस दिसल्यास, त्याच्या आधीचा भाग घेईल आणि उरलेला डॅश काढून टाकेल
             if (val.includes("[")) {
-                e.target.value = val.split("[")[0].replace(/-$/, "").trim();
+                // आधी स्पेस काढेल, मग डॅश काढेल आणि एकदम क्लीन नाव देईल
+                e.target.value = val.split("[")[0].trim().replace(/-$/, "").trim();
             }
         });
     });
@@ -231,7 +231,8 @@ function addMedicine() {
         // नाव क्लीन करणे
         let cleanMedicineName = medInput;
         if(medInput.includes("[")) {
-            cleanMedicineName = medInput.split("[")[0].replace(/-$/, "").trim();
+            // इथेही तोच अचूक फॉर्म्युला
+            cleanMedicineName = medInput.split("[")[0].trim().replace(/-$/, "").trim();
         }
 
         // --- इथे बदल केला आहे (displayName मध्ये cleanMedicineName टाकले) ---
