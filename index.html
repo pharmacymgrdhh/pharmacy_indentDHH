@@ -12,7 +12,7 @@
             padding: 20px;
         }
         .container {
-            max-width: 600px;
+            max-width: 650px;
             margin: 0 auto;
             background: #fff;
             padding: 20px;
@@ -25,7 +25,13 @@
             border-bottom: 2px solid #3498db;
             padding-bottom: 10px;
         }
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
         .form-group {
+            flex: 1;
             margin-bottom: 15px;
         }
         label {
@@ -33,6 +39,7 @@
             margin-bottom: 5px;
             font-weight: bold;
             color: #34495e;
+            font-size: 14px;
         }
         input[type="text"], input[type="number"], select {
             width: 100%;
@@ -40,6 +47,7 @@
             border: 1px solid #ccc;
             border-radius: 4px;
             box-sizing: border-box;
+            font-size: 14px;
         }
         .btn {
             background-color: #3498db;
@@ -52,29 +60,25 @@
             font-size: 16px;
             margin-top: 10px;
         }
-        .btn:hover {
-            background-color: #2980b9;
-        }
+        .btn:hover { background-color: #2980b9; }
         .btn-submit {
             background-color: #27ae60;
             margin-top: 20px;
+            font-weight: bold;
         }
-        .btn-submit:hover {
-            background-color: #2196f3;
-        }
+        .btn-submit:hover { background-color: #2196f3; }
         table {
             width: 100%;
             margin-top: 20px;
             border-collapse: collapse;
+            font-size: 14px;
         }
         th, td {
             padding: 10px;
             border: 1px solid #ddd;
             text-align: left;
         }
-        th {
-            background-color: #f2f2f2;
-        }
+        th { background-color: #f2f2f2; }
         .delete-btn {
             color: red;
             cursor: pointer;
@@ -85,21 +89,37 @@
             border-top: 1px dashed #ccc;
             margin: 20px 0;
         }
+        .loading-text {
+            color: #e67e22;
+            font-size: 12px;
+            font-weight: normal;
+            display: none;
+        }
     </style>
 </head>
-<body>
+<body onload="fetchMasterData()">
 
 <div class="container">
     <h2>🏥 Nursing Station Indent</h2>
     
-    <div class="form-group">
-        <label for="wardName">वॉर्ड / नर्सिंग स्टेशन:</label>
-        <select id="wardName">
-            <option value="ICU">ICU</option>
-            <option value="General Ward">General Ward</option>
-            <option value="Emergency">Emergency</option>
-            <option value="Private Room">Private Room</option>
-        </select>
+    <div class="form-row">
+        <div class="form-group">
+            <label for="unitName">युनिट (Unit):</label>
+            <select id="unitName">
+                <option value="BMCCU">BMCCU</option>
+                <option value="DHIMSR">DHIMSR</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="wardName">वॉर्ड (Ward):</label>
+            <select id="wardName">
+                <option value="ICU">ICU</option>
+                <option value="General Ward">General Ward</option>
+                <option value="Emergency">Emergency</option>
+                <option value="Private Room">Private Room</option>
+                <option value="NICU">NICU</option>
+            </select>
+        </div>
     </div>
 
     <div class="form-group">
@@ -108,20 +128,34 @@
     </div>
 
     <div class="form-group">
-        <label for="prescribedBy">डॉक्टरांचे नाव (Prescribed By):</label>
-        <input type="text" id="prescribedBy" placeholder="उदा. डॉ. शर्मा">
+        <label for="prescribedBy">
+            डॉक्टरांचे नाव (Prescribed By): <span id="docLoader" class="loading-text">⏳ Loading...</span>
+        </label>
+        <input type="text" id="prescribedBy" list="doctorList" placeholder="नाव शोधा किंवा टाईप करा...">
+        <datalist id="doctorList">
+            <option value="Dr. Sharma">
+            <option value="Dr. Kulkarni">
+        </datalist>
     </div>
 
     <div class="section-divider"></div>
 
-    <div class="form-group">
-        <label for="medicineName">औषधाचे नाव:</label>
-        <input type="text" id="medicineName" placeholder="उदा. Paracetamol 500mg">
-    </div>
-
-    <div class="form-group">
-        <label for="quantity">संख्या (Quantity):</label>
-        <input type="number" id="quantity" placeholder="उदा. 10" min="1">
+    <div class="form-row">
+        <div class="form-group" style="flex: 2;">
+            <label for="medicineName">
+                औषध (Medicine / Consumable): <span id="medLoader" class="loading-text">⏳ Loading...</span>
+            </label>
+            <input type="text" id="medicineName" list="medicineList" placeholder="औषध शोधा किंवा नवीन नाव टाका...">
+            <datalist id="medicineList">
+                <option value="Paracetamol 500mg-[Paracetamol]">
+                <option value="Ceftriaxone 1gm Injection">
+            </datalist>
+        </div>
+        
+        <div class="form-group" style="flex: 1;">
+            <label for="quantity">संख्या (Qty):</label>
+            <input type="number" id="quantity" placeholder="उदा. 10" min="1">
+        </div>
     </div>
 
     <button class="btn" onclick="addMedicine()">+ लिस्टमध्ये जोडा (Add to List)</button>
@@ -144,16 +178,35 @@
 <script>
     let indentList = [];
 
+    function fetchMasterData() {
+        document.getElementById('docLoader').style.display = 'inline';
+        document.getElementById('medLoader').style.display = 'inline';
+
+       setTimeout(() => {
+           document.getElementById('docLoader').style.display = 'none';
+           document.getElementById('medLoader').style.display = 'none';
+       }, 1500);
+    }
+
     function addMedicine() {
-        const medName = document.getElementById('medicineName').value.trim();
+        const medInput = document.getElementById('medicineName').value.trim();
         const qty = document.getElementById('quantity').value.trim();
 
-        if(medName === "" || qty === "") {
+        if(medInput === "" || qty === "") {
             alert("कृपया औषधाचे नाव आणि संख्या दोन्ही टाका.");
             return;
         }
 
-        indentList.push({ name: medName, quantity: qty });
+        let cleanMedicineName = medInput;
+        if(medInput.includes("-[")) {
+            cleanMedicineName = medInput.split("-[")[0].trim();
+        }
+
+        indentList.push({ 
+            displayName: medInput, 
+            cleanName: cleanMedicineName, 
+            quantity: qty 
+        });
         updateTable();
 
         document.getElementById('medicineName').value = '';
@@ -167,7 +220,7 @@
 
         indentList.forEach((item, index) => {
             let row = `<tr>
-                <td>${item.name}</td>
+                <td>${item.displayName}</td>
                 <td>${item.quantity}</td>
                 <td class="delete-btn" onclick="removeMedicine(${index})">❌</td>
             </tr>`;
@@ -181,69 +234,51 @@
     }
 
     function submitIndent() {
+        const unit = document.getElementById('unitName').value;
         const ward = document.getElementById('wardName').value;
         const patientName = document.getElementById('patientName').value.trim();
         const prescribedBy = document.getElementById('prescribedBy').value.trim();
 
-        // 1. Validation (रुग्णाचे नाव आणि औषध आहे का ते तपासणे)
         if(patientName === "") {
-            alert("कृपया रुग्णाचे नाव टाका. रुग्णाच्या नावाशिवाय Indent पाठवता येणार नाही.");
+            alert("कृपया रुग्णाचे नाव टाका.");
             document.getElementById('patientName').focus();
             return;
         }
-
+        if(prescribedBy === "") {
+            alert("कृपया डॉक्टरांचे नाव टाका किंवा निवडा.");
+            document.getElementById('prescribedBy').focus();
+            return;
+        }
         if(indentList.length === 0) {
             alert("लिस्टमध्ये कोणतेही औषध नाही. कृपया आधी औषधे जोडा.");
             document.getElementById('medicineName').focus();
             return;
         }
         
-        // 2. UX Update (बटण लॉक करणे जेणेकरून डबल क्लिक होणार नाही)
         const submitBtn = document.querySelector('.btn-submit');
         submitBtn.innerHTML = "⏳ पाठवत आहे... (Sending...)";
         submitBtn.disabled = true;
 
-        // 3. Payload (डेटा तयार करणे)
+        const unitWardCombined = unit + " - " + ward;
+
         const payload = {
-            ward: ward,
+            unitWard: unitWardCombined,
             patientName: patientName,
             prescribedBy: prescribedBy,
-            items: indentList
+            items: indentList 
         };
 
-        // 4. API URL
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbzpys4bkLf01rEpmhlpCJK3jMwlzhlfkWPMguRbFW8HgACP_ZBBGCKfylGrgLIGk9W0/exec'; 
+        const scriptURL = 'YOUR_APP_SCRIPT_URL'; 
 
-        // 5. Fetch API (डेटा पाठवणे)
-        fetch(scriptURL, {
-            method: 'POST',
-            mode: 'no-cors', 
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        })
-        .then(() => {
-            // 6. Success Action (डेटा गेल्यानंतर)
-            alert("✅ " + patientName + " (" + ward + ") यांचा Indent यशस्वीरित्या फार्मसीला पाठवला गेला!");
-            
-            // फॉर्म रिसेट करणे
-            indentList = [];
-            updateTable();
-            document.getElementById('patientName').value = '';
-            document.getElementById('prescribedBy').value = '';
-            
-            // बटण पूर्ववत करणे
-            submitBtn.innerHTML = "✅ फार्मसीला पाठवा (Submit Indent)";
-            submitBtn.disabled = false;
-        })
-        .catch(error => {
-            // 7. Error Action (काही एरर आल्यास)
-            console.error('Error!', error.message);
-            alert("❌ काहीतरी चूक झाली. कृपया पुन्हा प्रयत्न करा.");
-            submitBtn.innerHTML = "✅ फार्मसीला पाठवा (Submit Indent)";
-            submitBtn.disabled = false;
-        });
+        console.log("Payload Ready to Send:", payload);
+        alert("✅ " + patientName + " यांचा Indent यशस्वीरित्या तयार झाला! (Test Mode)");
+        
+        indentList = [];
+        updateTable();
+        document.getElementById('patientName').value = '';
+        document.getElementById('prescribedBy').value = '';
+        submitBtn.innerHTML = "✅ फार्मसीला पाठवा (Submit Indent)";
+        submitBtn.disabled = false;
     }
 </script>
 
