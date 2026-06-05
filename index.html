@@ -177,17 +177,15 @@
 
 <script>
     let indentList = [];
-// --- नवीन कोड: फक्त Brand Name दाखवण्यासाठी ---
-    document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('medicineName').addEventListener('input', function(e) {
             let val = e.target.value;
-            // जर निवडलेल्या नावात "-[" असेल, तर सिस्टीम तात्काळ तो भाग काढून टाकेल
-            if (val.includes("-[")) {
-                e.target.value = val.split("-[")[0].trim();
+            // '[" हा कंस दिसल्यास, त्याच्या आधीचा भाग घेईल आणि उरलेला डॅश काढून टाकेल
+            if (val.includes("[")) {
+                e.target.value = val.split("[")[0].replace(/-$/, "").trim();
             }
         });
     });
-    // ----------------------------------------------
     // १. मास्टर डेटा गुगल शीटमधून ओढणे (Doctors & Medicines)
     function fetchMasterData() {
         document.getElementById('docLoader').style.display = 'inline';
@@ -231,10 +229,10 @@
         }
 
         let cleanMedicineName = medInput;
-        if(medInput.includes("-[")) {
-            cleanMedicineName = medInput.split("-[")[0].trim();
+        if(medInput.includes("[")) {
+            // कंस आणि डॅश दोन्ही काढून टाकण्यासाठी
+            cleanMedicineName = medInput.split("[")[0].replace(/-$/, "").trim();
         }
-
         indentList.push({ 
             displayName: medInput, 
             cleanName: cleanMedicineName, 
