@@ -386,28 +386,32 @@
 
     // ४. उजव्या बाजूला डिटेल्स दाखवणे
     function showIndentDetails(indent) {
-        currentSelectedIndent = indent.indentNo;
-
-        document.getElementById('placeholder').style.display = 'none';
-        document.getElementById('detailsContainer').style.display = 'block';
-
-        document.getElementById('lblIndentNo').innerText = indent.indentNo;
-        document.getElementById('lblDate').innerText = indent.date;
-        document.getElementById('lblWard').innerText = indent.ward;
-        document.getElementById('lblPatient').innerText = indent.patientName;
+        // ... (तुमचा जुना कोड तसाच राहील) ...
         document.getElementById('lblDoctor').innerText = indent.doctor;
 
+        // ... (टेबल अपडेट करण्याचा जुना कोड) ...
         const tbody = document.getElementById('medicineTableBody');
         tbody.innerHTML = '';
-        indent.medicines.forEach((med, index) => {
-            tbody.innerHTML += `
+        // ...
+
+        // ---- नवीन कोड: प्रिंट टेम्पलेटमध्ये डेटा टाकण्यासाठी ----
+        document.getElementById('prtPatient').innerText = indent.patientName;
+        document.getElementById('prtWard').innerText = indent.ward;
+        document.getElementById('prtDate').innerText = indent.date;
+        document.getElementById('prtIndentNo').innerText = indent.indentNo;
+        document.getElementById('prtDoctor').innerText = indent.doctor;
+
+        const prtBody = document.getElementById('prtMedicineList');
+        prtBody.innerHTML = '';
+        indent.medicines.forEach(med => {
+            prtBody.innerHTML += `
                 <tr>
-                    <td>${index + 1}</td>
-                    <td><b>${med.name}</b></td>
-                    <td>${med.qty}</td>
+                    <td colspan="3" style="font-weight: bold;">${med.name}</td>
+                    <td style="text-align: center;">${med.qty}</td>
                 </tr>
             `;
         });
+        // --------------------------------------------------------
     }
 
     // ५. डिस्पॅच मार्क करणे
