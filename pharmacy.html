@@ -384,17 +384,25 @@
         });
     }
 
-    // ४. उजव्या बाजूला डिटेल्स दाखवणे
+    // ४. उजव्या बाजूला आणि प्रिंट टेम्पलेटमध्ये डिटेल्स दाखवणे
     function showIndentDetails(indent) {
         currentSelectedIndent = indent.indentNo;
 
-        // पॅनेल दाखवणे
         document.getElementById('placeholder').style.display = 'none';
         document.getElementById('detailsContainer').style.display = 'block';
 
+        // 🕒 तारीख आणि वेळ सुंदर फॉरमॅटमध्ये बदलणे
+        let formattedDate = indent.date;
+        try {
+            let d = new Date(indent.date);
+            if (!isNaN(d.getTime())) {
+                formattedDate = d.toLocaleString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
+            }
+        } catch(e) {}
+
         // --- अ) उजव्या बाजूच्या स्क्रीनवर डेटा टाकणे ---
         document.getElementById('lblIndentNo').innerText = indent.indentNo;
-        document.getElementById('lblDate').innerText = indent.date;
+        document.getElementById('lblDate').innerText = formattedDate; // इथे बदल केला
         document.getElementById('lblWard').innerText = indent.ward;
         document.getElementById('lblPatient').innerText = indent.patientName;
         document.getElementById('lblDoctor').innerText = indent.doctor;
@@ -414,7 +422,7 @@
         // --- ब) 🖨️ लपलेल्या प्रिंट टेम्पलेटमध्ये डेटा टाकणे ---
         document.getElementById('prtPatient').innerText = indent.patientName;
         document.getElementById('prtWard').innerText = indent.ward;
-        document.getElementById('prtDate').innerText = indent.date;
+        document.getElementById('prtDate').innerText = formattedDate; // इथे बदल केला
         document.getElementById('prtIndentNo').innerText = indent.indentNo;
         document.getElementById('prtDoctor').innerText = indent.doctor;
 
