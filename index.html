@@ -178,14 +178,37 @@
 <script>
     let indentList = [];
 
+    // १. मास्टर डेटा गुगल शीटमधून ओढणे (Doctors & Medicines)
     function fetchMasterData() {
         document.getElementById('docLoader').style.display = 'inline';
         document.getElementById('medLoader').style.display = 'inline';
 
-       setTimeout(() => {
-           document.getElementById('docLoader').style.display = 'none';
-           document.getElementById('medLoader').style.display = 'none';
-       }, 1500);
+        // 🔴 इथे तुमची Apps Script ची URL टाका 🔴
+        const scriptURL = 'YOUR_APP_SCRIPT_URL_HERE?action=getDropdownData'; 
+        
+        fetch(scriptURL)
+            .then(response => response.json())
+            .then(data => {
+                populateDatalist('doctorList', data.doctors);
+                populateDatalist('medicineList', data.medicines);
+                document.getElementById('docLoader').style.display = 'none';
+                document.getElementById('medLoader').style.display = 'none';
+            })
+            .catch(error => {
+                console.error("Data Fetch Error: ", error);
+                document.getElementById('docLoader').innerText = "❌ Error";
+                document.getElementById('medLoader').innerText = "❌ Error";
+            });
+    }
+
+    function populateDatalist(listId, itemsArray) {
+        const dataList = document.getElementById(listId);
+        dataList.innerHTML = ''; 
+        itemsArray.forEach(item => {
+            let option = document.createElement('option');
+            option.value = item;
+            dataList.appendChild(option);
+        });
     }
 
     function addMedicine() {
@@ -268,17 +291,33 @@
             items: indentList 
         };
 
+        // 🔴 इथे तुमची Apps Script ची URL पुन्हा टाका 🔴
         const scriptURL = 'https://script.google.com/macros/s/AKfycbzymM_BdjSLBvGuwwVDWk04P31MRV8jLa50nDpNWnnsdRGLva6IVjmEA0xxnAz4ywYS/exec'; 
 
-        console.log("Payload Ready to Send:", payload);
-        alert("✅ " + patientName + " यांचा Indent यशस्वीरित्या तयार झाला! (Test Mode)");
-        
-        indentList = [];
-        updateTable();
-        document.getElementById('patientName').value = '';
-        document.getElementById('prescribedBy').value = '';
-        submitBtn.innerHTML = "✅ फार्मसीला पाठवा (Submit Indent)";
-        submitBtn.disabled = false;
+        fetch(scriptURL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(() => {
+            alert("✅ " + patientName + " यांचा Indent यशस्वीरित्या फार्मसीला पाठवला गेला!");
+            
+            indentList = [];
+            updateTable();
+            document.getElementById('patientName').value = '';
+            // prescribedBy क्लियर करत नाहीयोत, कारण एकाच डॉक्टरचे एकामागोमाग पेशंट असू शकतात.
+            submitBtn.innerHTML = "✅ फार्मसीला पाठवा (Submit Indent)";
+            submitBtn.disabled = false;
+        })
+        .catch(error => {
+            console.error('Error!', error);
+            alert("❌ काहीतरी चूक झाली. कृपया पुन्हा प्रयत्न करा.");
+            submitBtn.innerHTML = "✅ फार्मसीला पाठवा (Submit Indent)";
+            submitBtn.disabled = false;
+        });
     }
 </script>
 
