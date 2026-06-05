@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operation Errorless - Indent Portal</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #34495e;
+        }
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .btn {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        .btn-submit {
+            background-color: #27ae60;
+            margin-top: 20px;
+        }
+        .btn-submit:hover {
+            background-color: #2196f3;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .delete-btn {
+            color: red;
+            cursor: pointer;
+            font-weight: bold;
+            text-align: center;
+        }
+        .section-divider {
+            border-top: 1px dashed #ccc;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🏥 Nursing Station Indent</h2>
+    
+    <div class="form-group">
+        <label for="wardName">वॉर्ड / नर्सिंग स्टेशन:</label>
+        <select id="wardName">
+            <option value="ICU">ICU</option>
+            <option value="General Ward">General Ward</option>
+            <option value="Emergency">Emergency</option>
+            <option value="Private Room">Private Room</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="patientName">रुग्णाचे नाव (Patient Name):</label>
+        <input type="text" id="patientName" placeholder="उदा. रमेश पाटील">
+    </div>
+
+    <div class="form-group">
+        <label for="prescribedBy">डॉक्टरांचे नाव (Prescribed By):</label>
+        <input type="text" id="prescribedBy" placeholder="उदा. डॉ. शर्मा">
+    </div>
+
+    <div class="section-divider"></div>
+
+    <div class="form-group">
+        <label for="medicineName">औषधाचे नाव:</label>
+        <input type="text" id="medicineName" placeholder="उदा. Paracetamol 500mg">
+    </div>
+
+    <div class="form-group">
+        <label for="quantity">संख्या (Quantity):</label>
+        <input type="number" id="quantity" placeholder="उदा. 10" min="1">
+    </div>
+
+    <button class="btn" onclick="addMedicine()">+ लिस्टमध्ये जोडा (Add to List)</button>
+
+    <table id="indentTable">
+        <thead>
+            <tr>
+                <th>औषध</th>
+                <th>संख्या</th>
+                <th>काढा</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            </tbody>
+    </table>
+
+    <button class="btn btn-submit" onclick="submitIndent()">✅ फार्मसीला पाठवा (Submit Indent)</button>
+</div>
+
+<script>
+    let indentList = [];
+
+    function addMedicine() {
+        const medName = document.getElementById('medicineName').value.trim();
+        const qty = document.getElementById('quantity').value.trim();
+
+        if(medName === "" || qty === "") {
+            alert("कृपया औषधाचे नाव आणि संख्या दोन्ही टाका.");
+            return;
+        }
+
+        indentList.push({ name: medName, quantity: qty });
+        updateTable();
+
+        document.getElementById('medicineName').value = '';
+        document.getElementById('quantity').value = '';
+        document.getElementById('medicineName').focus();
+    }
+
+    function updateTable() {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = ''; 
+
+        indentList.forEach((item, index) => {
+            let row = `<tr>
+                <td>${item.name}</td>
+                <td>${item.quantity}</td>
+                <td class="delete-btn" onclick="removeMedicine(${index})">❌</td>
+            </tr>`;
+            tbody.innerHTML += row;
+        });
+    }
+
+    function removeMedicine(index) {
+        indentList.splice(index, 1);
+        updateTable();
+    }
+
+    function submitIndent() {
+        const ward = document.getElementById('wardName').value;
+        const patientName = document.getElementById('patientName').value.trim();
+        const prescribedBy = document.getElementById('prescribedBy').value.trim();
+
+        // 1. Validation (रुग्णाचे नाव आणि औषध आहे का ते तपासणे)
+        if(patientName === "") {
+            alert("कृपया रुग्णाचे नाव टाका. रुग्णाच्या नावाशिवाय Indent पाठवता येणार नाही.");
+            document.getElementById('patientName').focus();
+            return;
+        }
+
+        if(indentList.length === 0) {
+            alert("लिस्टमध्ये कोणतेही औषध नाही. कृपया आधी औषधे जोडा.");
+            document.getElementById('medicineName').focus();
+            return;
+        }
+        
+        // 2. UX Update (बटण लॉक करणे जेणेकरून डबल क्लिक होणार नाही)
+        const submitBtn = document.querySelector('.btn-submit');
+        submitBtn.innerHTML = "⏳ पाठवत आहे... (Sending...)";
+        submitBtn.disabled = true;
+
+        // 3. Payload (डेटा तयार करणे)
+        const payload = {
+            ward: ward,
+            patientName: patientName,
+            prescribedBy: prescribedBy,
+            items: indentList
+        };
+
+        // 4. API URL
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbzpys4bkLf01rEpmhlpCJK3jMwlzhlfkWPMguRbFW8HgACP_ZBBGCKfylGrgLIGk9W0/exec'; 
+
+        // 5. Fetch API (डेटा पाठवणे)
+        fetch(scriptURL, {
+            method: 'POST',
+            mode: 'no-cors', 
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(() => {
+            // 6. Success Action (डेटा गेल्यानंतर)
+            alert("✅ " + patientName + " (" + ward + ") यांचा Indent यशस्वीरित्या फार्मसीला पाठवला गेला!");
+            
+            // फॉर्म रिसेट करणे
+            indentList = [];
+            updateTable();
+            document.getElementById('patientName').value = '';
+            document.getElementById('prescribedBy').value = '';
+            
+            // बटण पूर्ववत करणे
+            submitBtn.innerHTML = "✅ फार्मसीला पाठवा (Submit Indent)";
+            submitBtn.disabled = false;
+        })
+        .catch(error => {
+            // 7. Error Action (काही एरर आल्यास)
+            console.error('Error!', error.message);
+            alert("❌ काहीतरी चूक झाली. कृपया पुन्हा प्रयत्न करा.");
+            submitBtn.innerHTML = "✅ फार्मसीला पाठवा (Submit Indent)";
+            submitBtn.disabled = false;
+        });
+    }
+</script>
+
+</body>
+</html>
