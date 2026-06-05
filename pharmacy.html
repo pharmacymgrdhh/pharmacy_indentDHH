@@ -167,13 +167,27 @@
         }
 
         /* A5 Print CSS (फक्त प्रिंट काढताना हे ॲक्टिव्ह होईल) */
+/* A5/A4 Print CSS - Official Template */
+        #printTemplate { display: none; }
         @media print {
-            body { background-color: white; }
-            .header, .left-panel, .action-bar { display: none !important; }
-            .main-container { margin: 0; height: auto; display: block; }
-            .right-panel { width: 100%; padding: 0; background: white; }
-            .details-container { box-shadow: none; display: block; }
-            @page { size: A5; margin: 10mm; }
+            body { background-color: white; margin: 0; padding: 0; }
+            .header, .main-container, .action-bar { display: none !important; }
+            #printTemplate { display: block !important; width: 100%; font-family: Arial, sans-serif; }
+            
+            .print-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+            .print-table td { border: 1px solid #b2ebf2; padding: 6px; }
+            .print-table .label { font-weight: bold; background-color: #f4f4f4; width: 20%; -webkit-print-color-adjust: exact; }
+            .print-table .blue-bg { 
+                background-color: #4a86e8 !important; 
+                color: white !important; 
+                font-weight: bold; 
+                text-align: center;
+                -webkit-print-color-adjust: exact; 
+                color-adjust: exact;
+            }
+            .print-table .logo-td { width: 25%; text-align: center; padding: 5px; border: 1px solid #4a86e8;}
+            
+            @page { margin: 10mm; }
         }
     </style>
 </head>
