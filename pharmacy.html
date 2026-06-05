@@ -242,67 +242,74 @@
     </div>
 
 <script>
-    // डेमो डेटा (गुगल शीट कनेक्ट करण्यापूर्वी डिझाईन तपासण्यासाठी)
-    const dummyData = [
-        {
-            indentNo: "IND-260605162709",
-            date: "05/06/2026 16:27",
-            ward: "BMCCU - ICU",
-            patientName: "TEST",
-            doctor: "Dr. Ankit Ambad",
-            medicines: [
-                { name: "DIFIDOX INJ", qty: 1 }
-            ]
-        },
-        {
-            indentNo: "IND-260605172855",
-            date: "05/06/2026 17:28",
-            ward: "DHIMSR - Emergency",
-            patientName: "VAIBHAV",
-            doctor: "Dr. Sharma",
-            medicines: [
-                { name: "DIFIDOX INJ", qty: 5 },
-                { name: "PARACETAMOL 500MG TAB", qty: 10 }
-            ]
-        }
-    ];
+    // 🔴 इथे तुमची Apps Script ची लिंक टाका 🔴
+    const SCRIPT_URL = 'YOUR_APP_SCRIPT_URL_HERE';
 
     let currentSelectedIndent = null;
+    let allIndents = [];
 
-    // पेज लोड झाल्यावर लिस्ट दाखवण्यासाठी
-    let currentSelectedIndent = null;
-    let allIndents = []; // सर्व इंडेंट्स इथे सेव्ह राहतील
-
-    // पेज लोड झाल्यावर
     window.onload = function() {
-        allIndents = dummyData; // नंतर आपण इथे Google Sheet चा डेटा टाकू
-        filterIndents(); // सुरुवातीला सर्व डेटा दाखवण्यासाठी
+        fetchPendingIndents();
     };
 
-    // ड्रॉपडाऊनमधून युनिट निवडल्यावर लिस्ट फिल्टर करण्यासाठी
+    // १. गुगल शीटमधून डेटा ओढणे
+    function fetchPendingIndents() {
+        const container = document.getElementById('indentListContainer');
+        container.innerHTML = '<p style="text-align:center; color:#e67e22; margin-top:20px;">लोड करत आहे... (Loading...)</p>';
+
+        fetch(SCRIPT_URL + "?action=getPendingIndents")
+            .then(response => response.json())
+            .then(data => {
+                allIndents = data;
+                filterIndents(); // डेटा आल्यावर ड्रॉपडाऊननुसार फिल्टर करणे
+            })
+            .catch(error => {
+                console.error("Error fetching data:", error);
+                container.innerHTML = '<p style="text-align:center; color:red;">❌ एरर: डेटा लोड होऊ शकला नाही.</p>';
+            });
+    }
+
+    // २. ड्रॉपडाऊननुसार फिल्टर करणे
     function filterIndents() {
         const selectedBranch = document.getElementById('branchFilter').value;
         let filteredData = allIndents;
 
-        // जर All निवडले नसेल, तर फक्त निवडलेल्या युनिटचा डेटा वेगळा करणे
         if (selectedBranch !== "All") {
             filteredData = allIndents.filter(indent => indent.ward.includes(selectedBranch));
         }
 
         renderIndentList(filteredData);
         
-        // युनिट बदलल्यावर उजव्या बाजूचे पॅनेल रिसेट करणे
+        // पॅनेल रिसेट
         document.getElementById('detailsContainer').style.display = 'none';
         document.getElementById('placeholder').style.display = 'block';
         currentSelectedIndent = null;
     }
-        indents.forEach((indent, index) => {
+
+    // ३. कार्ड्स दाखवणे
+    function renderIndentList(indents) {
+        const container = document.getElementById('indentListContainer');
+        container.innerHTML = ''; 
+
+        if(!indents || indents.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:#27ae60; margin-top:20px;">कोणतेही पेंडिंग इंडेंट नाहीत! 🎉</p>';
+            return;
+        }
+
+        indents.forEach((indent) => {
             const card = document.createElement('div');
             card.className = 'indent-card';
+            
+            // फक्त वेळ वेगळा काढणे
+            let timeOnly = indent.date;
+            if(indent.date && indent.date.includes(" ")) {
+                timeOnly = indent.date.split(" ")[1]; 
+            }
+
             card.innerHTML = `
                 <div class="indent-header">
                     <span>${indent.indentNo}</span>
-                    <span style="color:#e67e22;">${indent.date.split(' ')[1]}</span>
+                    <span style="color:#e67e22;">${timeOnly}</span>
                 </div>
                 <div class="indent-details">
                     <strong>${indent.patientName}</strong> (${indent.ward})<br>
@@ -310,9 +317,7 @@
                 </div>
             `;
             
-            // कार्डवर क्लिक केल्यावर डिटेल्स उजवीकडे दाखवणे
             card.onclick = function() {
-                // Remove active class from all cards
                 document.querySelectorAll('.indent-card').forEach(c => c.classList.remove('active'));
                 card.classList.add('active');
                 showIndentDetails(indent);
@@ -322,21 +327,19 @@
         });
     }
 
+    // ४. उजव्या बाजूला डिटेल्स दाखवणे
     function showIndentDetails(indent) {
         currentSelectedIndent = indent.indentNo;
 
-        // Hide placeholder, show details
         document.getElementById('placeholder').style.display = 'none';
         document.getElementById('detailsContainer').style.display = 'block';
 
-        // Set Labels
         document.getElementById('lblIndentNo').innerText = indent.indentNo;
         document.getElementById('lblDate').innerText = indent.date;
         document.getElementById('lblWard').innerText = indent.ward;
         document.getElementById('lblPatient').innerText = indent.patientName;
         document.getElementById('lblDoctor').innerText = indent.doctor;
 
-        // Populate Table
         const tbody = document.getElementById('medicineTableBody');
         tbody.innerHTML = '';
         indent.medicines.forEach((med, index) => {
@@ -350,24 +353,46 @@
         });
     }
 
+    // ५. डिस्पॅच मार्क करणे
     function markAsDispatched() {
         if(!currentSelectedIndent) return;
         
-        // इथे आपण नंतर गुगल शीटला अपडेट करण्यासाठी API कॉल करू
-        alert(currentSelectedIndent + " यशस्वीरित्या Dispatched मार्क झाला! (Test Mode)");
-        
-        // डिस्पॅच झाल्यावर डॅशबोर्ड रिसेट करणे
-        document.getElementById('detailsContainer').style.display = 'none';
-        document.getElementById('placeholder').style.display = 'block';
-        currentSelectedIndent = null;
-        
-        // लिस्ट रिफ्रेश करू
-        // fetchPendingIndents();
-    }
+        const btn = document.querySelector('.btn-dispatch');
+        btn.innerHTML = "⏳ Update करत आहे...";
+        btn.disabled = true;
 
-    function fetchPendingIndents() {
-        // हे फंक्शन आपण गुगल शीटशी कनेक्ट करताना अपडेट करू
-        alert("गुगल शीटमधून नवीन इंडेंट्स लोड करत आहे...");
+        const payload = {
+            action: "markDispatched",
+            indentNo: currentSelectedIndent
+        };
+
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(() => {
+            alert(currentSelectedIndent + " यशस्वीरित्या Dispatched मार्क झाला!");
+            
+            document.getElementById('detailsContainer').style.display = 'none';
+            document.getElementById('placeholder').style.display = 'block';
+            currentSelectedIndent = null;
+            
+            btn.innerHTML = "✅ Mark as Dispatched";
+            btn.disabled = false;
+
+            // लिस्ट रिफ्रेश करा
+            fetchPendingIndents();
+        })
+        .catch(error => {
+            console.error('Error!', error);
+            alert("❌ काहीतरी चूक झाली. कृपया पुन्हा प्रयत्न करा.");
+            btn.innerHTML = "✅ Mark as Dispatched";
+            btn.disabled = false;
+        });
     }
 </script>
 
