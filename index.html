@@ -102,12 +102,16 @@
 <div class="container">
     <h2>🏥 Nursing Station Indent</h2>
     
+    <!-- युनिट आणि वॉर्ड माहिती -->
     <div class="form-row">
         <div class="form-group">
             <label for="unitName">युनिट (Unit):</label>
             <select id="unitName">
-                <option value="BMCCU">BMCCU</option>
-                <option value="DHIMSR">DHIMSR</option>
+                <option value="Medicine">Medicine Unit</option>
+                <option value="Surgery">Surgery Unit</option>
+                <option value="Ortho">Ortho Unit</option>
+                <option value="Gynec">Gynec Unit</option>
+                <option value="Pediatric">Pediatric Unit</option>
             </select>
         </div>
         <div class="form-group">
@@ -122,6 +126,7 @@
         </div>
     </div>
 
+    <!-- रुग्ण आणि डॉक्टर माहिती -->
     <div class="form-group">
         <label for="patientName">रुग्णाचे नाव (Patient Name):</label>
         <input type="text" id="patientName" placeholder="उदा. रमेश पाटील">
@@ -132,7 +137,9 @@
             डॉक्टरांचे नाव (Prescribed By): <span id="docLoader" class="loading-text">⏳ Loading...</span>
         </label>
         <input type="text" id="prescribedBy" list="doctorList" placeholder="नाव शोधा किंवा टाईप करा...">
+        <!-- डॉक्टरांची लिस्ट गुगल शीटमधून इथे येईल -->
         <datalist id="doctorList">
+            <!-- Example fallback options -->
             <option value="Dr. Sharma">
             <option value="Dr. Kulkarni">
         </datalist>
@@ -140,13 +147,16 @@
 
     <div class="section-divider"></div>
 
+    <!-- औषधांची माहिती -->
     <div class="form-row">
         <div class="form-group" style="flex: 2;">
             <label for="medicineName">
                 औषध (Medicine / Consumable): <span id="medLoader" class="loading-text">⏳ Loading...</span>
             </label>
             <input type="text" id="medicineName" list="medicineList" placeholder="औषध शोधा किंवा नवीन नाव टाका...">
+            <!-- औषधांची लिस्ट गुगल शीटमधून (Column C) इथे येईल -->
             <datalist id="medicineList">
+                <!-- Example fallback options -->
                 <option value="Paracetamol 500mg-[Paracetamol]">
                 <option value="Ceftriaxone 1gm Injection">
             </datalist>
@@ -169,7 +179,8 @@
             </tr>
         </thead>
         <tbody id="tableBody">
-            </tbody>
+            <!-- Added medicines will appear here -->
+        </tbody>
     </table>
 
     <button class="btn btn-submit" onclick="submitIndent()">✅ फार्मसीला पाठवा (Submit Indent)</button>
@@ -178,15 +189,42 @@
 <script>
     let indentList = [];
 
+    // --- नवीन: मास्टर डेटा गुगल शीटमधून ओढणे (Fetch) ---
     function fetchMasterData() {
         document.getElementById('docLoader').style.display = 'inline';
         document.getElementById('medLoader').style.display = 'inline';
 
+        // टीप: जेव्हा आपण Apps Script मध्ये doGet() बनवू, तेव्हा त्याची URL इथे टाकावी लागेल.
+        // सध्या हे फक्त UI दाखवण्यासाठी आहे.
+        /*
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbzymM_BdjSLBvGuwwVDWk04P31MRV8jLa50nDpNWnnsdRGLva6IVjmEA0xxnAz4ywYS/exec?action=getDropdownData';
+        fetch(scriptURL)
+            .then(response => response.json())
+            .then(data => {
+                populateDatalist('doctorList', data.doctors);
+                populateDatalist('medicineList', data.medicines);
+                document.getElementById('docLoader').style.display = 'none';
+                document.getElementById('medLoader').style.display = 'none';
+            });
+        */
+       
+       // डेमोसाठी लोडर लपवणे
        setTimeout(() => {
            document.getElementById('docLoader').style.display = 'none';
            document.getElementById('medLoader').style.display = 'none';
        }, 1500);
     }
+
+    function populateDatalist(listId, itemsArray) {
+        const dataList = document.getElementById(listId);
+        dataList.innerHTML = ''; // जुना डेटा काढणे
+        itemsArray.forEach(item => {
+            let option = document.createElement('option');
+            option.value = item;
+            dataList.appendChild(option);
+        });
+    }
+    // ----------------------------------------------------
 
     function addMedicine() {
         const medInput = document.getElementById('medicineName').value.trim();
@@ -197,14 +235,16 @@
             return;
         }
 
+        // जर औषधाच्या नावात Composition (उदा. -[Paracetamol]) असेल, तर ते वेगळे करणे
+        // जेणेकरून IndentLog मध्ये Column F मध्ये फक्त 'Clean Name' जाईल.
         let cleanMedicineName = medInput;
         if(medInput.includes("-[")) {
             cleanMedicineName = medInput.split("-[")[0].trim();
         }
 
         indentList.push({ 
-            displayName: medInput, 
-            cleanName: cleanMedicineName, 
+            displayName: medInput, // UI मध्ये पूर्ण नाव दाखवण्यासाठी
+            cleanName: cleanMedicineName, // शीटमध्ये पाठवण्यासाठी
             quantity: qty 
         });
         updateTable();
@@ -259,20 +299,25 @@
         submitBtn.innerHTML = "⏳ पाठवत आहे... (Sending...)";
         submitBtn.disabled = true;
 
+        // Unit आणि Ward एकत्र करून Column C साठी तयार करणे
         const unitWardCombined = unit + " - " + ward;
 
+        // Payload
         const payload = {
             unitWard: unitWardCombined,
             patientName: patientName,
             prescribedBy: prescribedBy,
-            items: indentList 
+            items: indentList // यात cleanName आणि quantity आहे
         };
 
+        // इथे तुमची Google Apps Script ची URL टाकायची आहे
         const scriptURL = 'https://script.google.com/macros/s/AKfycbzymM_BdjSLBvGuwwVDWk04P31MRV8jLa50nDpNWnnsdRGLva6IVjmEA0xxnAz4ywYS/exec'; 
 
+        // डेमो अलर्ट (स्क्रिप्ट URL टाकल्यानंतर fetch कोड ऍक्टिव्ह करा)
         console.log("Payload Ready to Send:", payload);
         alert("✅ " + patientName + " यांचा Indent यशस्वीरित्या तयार झाला! (Test Mode)");
         
+        // फॉर्म रिसेट
         indentList = [];
         updateTable();
         document.getElementById('patientName').value = '';
