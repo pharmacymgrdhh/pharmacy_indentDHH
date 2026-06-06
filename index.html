@@ -404,11 +404,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function addMedicine() {
         const medInput = document.getElementById('medicineName').value.trim();
-        const qty = document.getElementById('quantity').value.trim();
+        let qty = document.getElementById('quantity').value.trim();
+        const ward = document.getElementById('wardName').value;
 
-        if(medInput === "" || qty === "") {
-            alert("कृपया औषधाचे नाव आणि संख्या दोन्ही टाका.");
+        if(medInput === "") {
+            alert("कृपया औषधाचे नाव टाका.");
             return;
+        }
+        
+        // जर वॉर्ड OPD नसेल, तरच संख्येची (Qty) सक्ती करा
+        if(ward !== "OPD" && qty === "") {
+            alert("कृपया औषधाची संख्या टाका.");
+            return;
+        }
+
+        // OPD साठी Qty रिकामी असल्यास टेबलमध्ये दिसण्यासाठी डॅश '-' टाका
+        if(ward === "OPD" && qty === "") {
+            qty = "-";
         }
 
         // नाव क्लीन करणे
