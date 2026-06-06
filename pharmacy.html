@@ -544,6 +544,29 @@
             btn.disabled = false;
         });
     }
+    /* 🔔 Silent Toast Notification CSS */
+        #toastAlert {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #27ae60; /* हिरवा रंग */
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 10000;
+            bottom: 30px;
+            right: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: visibility 0s, opacity 0.5s linear;
+            opacity: 0;
+        }
+        #toastAlert.show {
+            visibility: visible;
+            opacity: 1;
+        }
 </script>
 
 </body>
