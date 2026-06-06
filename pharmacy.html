@@ -416,11 +416,15 @@
             const card = document.createElement('div');
             card.className = 'indent-card';
             
-            // फक्त वेळ वेगळा काढणे
+            // 🕒 वेळ अचूक आणि सुंदर फॉरमॅटमध्ये काढणे
             let timeOnly = indent.date;
-            if(indent.date && indent.date.includes(" ")) {
-                timeOnly = indent.date.split(" ")[1]; 
-            }
+            try {
+                let d = new Date(indent.date);
+                if (!isNaN(d.getTime())) {
+                    // उदा. 12:41 PM असे दिसण्यासाठी
+                    timeOnly = d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+                }
+            } catch(e) {}
 
             card.innerHTML = `
                 <div class="indent-header">
