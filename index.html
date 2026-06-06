@@ -349,13 +349,20 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }); 
 
-        // २. OPD निवडल्यावर नवीन बॉक्स दाखवण्याचे लॉजिक
+        // २. OPD निवडल्यावर नवीन बॉक्स दाखवणे आणि Qty लॉक (Inactive) करणे
         document.getElementById('wardName').addEventListener('change', function() {
             const opdSection = document.getElementById('opdFields');
+            const qtyInput = document.getElementById('quantity'); // Qty चा बॉक्स
+
             if (this.value === "OPD") {
                 opdSection.style.display = 'flex';
+                qtyInput.disabled = true; // 🔒 बॉक्स इनॲक्टिव्ह (Lock) करा
+                qtyInput.value = ''; // बॉक्समधील जुनी संख्या पुसून टाका
+                qtyInput.style.backgroundColor = '#ecf0f1'; // लॉक दिसण्यासाठी राखाडी रंग
             } else {
                 opdSection.style.display = 'none';
+                qtyInput.disabled = false; // 🔓 बॉक्स पुन्हा ॲक्टिव्ह करा
+                qtyInput.style.backgroundColor = '#fff'; // मूळ पांढरा रंग
             }
         });
         
