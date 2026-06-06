@@ -533,9 +533,21 @@
             const prtBody = document.getElementById('prtMedicineList');
             prtBody.innerHTML = '';
             indentList.forEach(item => {
+                let medName = item.displayName;
+                let opdInfo = "";
+                
+                // जर नावात OPD ची माहिती (ब्रॅकेट) असेल, तर ती वेगळी करून खालील ओळीवर दाखवा
+                if(medName.includes("[")) {
+                    let parts = medName.split("[");
+                    medName = parts[0].trim();
+                    opdInfo = `<br><span style="font-size: 13px; font-weight: normal; color: #555;">[${parts[1]}</span>`;
+                }
+
                 prtBody.innerHTML += `
                     <tr>
-                        <td colspan="3" style="font-weight: bold; border: 1px solid #b2ebf2; padding: 6px;">${item.displayName}</td>
+                        <td colspan="3" style="font-weight: bold; border: 1px solid #b2ebf2; padding: 6px;">
+                            ${medName} ${opdInfo}
+                        </td>
                         <td style="text-align: center; font-weight: bold; border: 1px solid #b2ebf2; padding: 6px;">${item.quantity}</td>
                     </tr>
                 `;
