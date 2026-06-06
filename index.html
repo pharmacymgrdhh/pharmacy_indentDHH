@@ -41,6 +41,22 @@
             color: #34495e;
             font-size: 14px;
         }
+	.round-cb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            vertical-align: middle;
+            accent-color: #f39c12;
+            cursor: pointer;
+        }
+        .opd-section {
+            display: none; /* सुरुवातीला लपवलेले असेल */
+            background: #e8f8f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #1abc9c;
+        }
         input[type="text"], input[type="number"], select {
             width: 100%;
             padding: 10px;
@@ -168,6 +184,7 @@
                 <option value="Emergency">Emergency</option>
                 <option value="Private Room">Private Room</option>
                 <option value="NICU">NICU</option>
+		<option value="OPD">OPD (बाह्यरुग्ण विभाग)</option>
             </select>
         </div>
     </div>
@@ -207,7 +224,30 @@
             <input type="number" id="quantity" placeholder="उदा. 10" min="1">
         </div>
     </div>
-
+<div id="opdFields" class="form-row opd-section">
+        <div class="form-group" style="flex: 1.5;">
+            <label>डोस (Dose):</label>
+            <div style="display: flex; gap: 15px; align-items: center; margin-top: 10px;">
+                <label><input type="checkbox" id="doseM" class="round-cb"> M (सकाळ)</label>
+                <label><input type="checkbox" id="doseA" class="round-cb"> A (दुपार)</label>
+                <label><input type="checkbox" id="doseN" class="round-cb"> N (रात्र)</label>
+            </div>
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label for="medDuration">किती दिवस? (Days):</label>
+            <input type="number" id="medDuration" placeholder="उदा. 5" min="1">
+        </div>
+        <div class="form-group" style="flex: 1.5;">
+            <label for="medDirection">कधी घ्यायचे? (Direction):</label>
+            <select id="medDirection">
+                <option value="">-- निवडा --</option>
+                <option value="जेवणापूर्वी (Empty Stomach)">जेवणापूर्वी (Empty Stomach)</option>
+                <option value="जेवणानंतर (Post Meal)">जेवणानंतर (Post Meal)</option>
+                <option value="झोपताना (Bedtime)">झोपताना (Bedtime)</option>
+                <option value="गरज पडल्यास (SOS)">गरज पडल्यास (SOS)</option>
+            </select>
+        </div>
+    </div>
     <button class="btn" onclick="addMedicine()">+ लिस्टमध्ये जोडा (Add to List)</button>
 
     <table id="indentTable">
@@ -306,6 +346,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 // आधी स्पेस काढेल, मग डॅश काढेल आणि एकदम क्लीन नाव देईल
                 e.target.value = val.split("[")[0].trim().replace(/-$/, "").trim();
             }
+    // OPD निवडल्यावरच नवीन बॉक्स दिसतील
+    document.getElementById('wardName').addEventListener('change', function() {
+        const opdSection = document.getElementById('opdFields');
+        if (this.value === "OPD") {
+            opdSection.style.display = 'flex';
+        } else {
+            opdSection.style.display = 'none';
+        }
+    });
         });
     });
     // १. मास्टर डेटा गुगल शीटमधून ओढणे (Doctors & Medicines)
@@ -353,25 +402,54 @@ function addMedicine() {
         // नाव क्लीन करणे
         let cleanMedicineName = medInput;
         if(medInput.includes("[")) {
-            // इथेही तोच अचूक फॉर्म्युला
             cleanMedicineName = medInput.split("[")[0].trim().replace(/-$/, "").trim();
         }
 
-        // --- इथे बदल केला आहे (displayName मध्ये cleanMedicineName टाकले) ---
+        // 🟢 OPD निवडले असेल, तर डोसची माहिती नावाला जोडणे
+        const ward = document.getElementById('wardName').value;
+        let finalMedicineName = cleanMedicineName;
+
+        if (ward === "OPD") {
+            let m = document.getElementById('doseM').checked ? "M" : "-";
+            let a = document.getElementById('doseA').checked ? "A" : "-";
+            let n = document.getElementById('doseN').checked ? "N" : "-";
+            let duration = document.getElementById('medDuration').value.trim();
+            let direction = document.getElementById('medDirection').value;
+            
+            let opdDetails = [];
+            // जर डोस सिलेक्ट केला असेल तर
+            if (m !== "-" || a !== "-" || n !== "-") opdDetails.push(`Dose: ${m}-${a}-${n}`);
+            // जर दिवस टाकले असतील तर
+            if (duration !== "") opdDetails.push(`${duration} Days`);
+            // जर वेळ निवडली असेल तर
+            if (direction !== "") opdDetails.push(direction);
+            
+            // सर्व माहिती औषधाच्या नावापुढे जोडणे
+            if(opdDetails.length > 0) {
+                finalMedicineName = `${cleanMedicineName} [${opdDetails.join(" | ")}]`;
+            }
+
+            // ऍड केल्यावर OPD चे बॉक्स पुन्हा रिकामे करणे
+            document.getElementById('doseM').checked = false;
+            document.getElementById('doseA').checked = false;
+            document.getElementById('doseN').checked = false;
+            document.getElementById('medDuration').value = '';
+            document.getElementById('medDirection').value = '';
+        }
+
+        // लिस्टमध्ये फायनल नाव जोडणे
         indentList.push({ 
-            displayName: cleanMedicineName, 
-            cleanName: cleanMedicineName, 
+            displayName: finalMedicineName, 
+            cleanName: finalMedicineName, 
             quantity: qty 
         });
         
         updateTable();
 
-        // बॉक्स रिकामा करणे
+        // मुख्य बॉक्स रिकामा करणे
         document.getElementById('medicineName').value = '';
         document.getElementById('quantity').value = '';
         document.getElementById('medicineName').focus();
-    }
-
     function updateTable() {
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = ''; 
