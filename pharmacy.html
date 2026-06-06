@@ -326,6 +326,7 @@
             // आपोआप BMCCU फिल्टर करण्यासाठी (जर ड्रॉपडाऊन असेल तर)
             if(filterDropdown) {
                 filterDropdown.value = "BMCCU";
+                filterDropdown.disabled = true;
                 filterDropdown.dispatchEvent(new Event('change')); // लिस्ट अपडेट करण्यासाठी
             }
         } 
@@ -336,6 +337,7 @@
             // आपोआप DHIMSR फिल्टर करण्यासाठी
             if(filterDropdown) {
                 filterDropdown.value = "DHIMSR";
+                filterDropdown.disabled = true;
                 filterDropdown.dispatchEvent(new Event('change'));
             }
         } 
