@@ -286,6 +286,18 @@
             document.getElementById('passcodeInput').value = ''; // बॉक्स रिकामा करणे
         }
     }
+    // --- Enter की (Key) दाबल्यावर लॉग-इन होण्याची सुविधा (Nursing Station) ---
+    document.addEventListener('DOMContentLoaded', function() {
+        const passInput = document.getElementById('passcodeInput');
+        if(passInput) {
+            passInput.addEventListener("keypress", function(event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    checkPasscode(); // Enter दाबल्यावर हे फंक्शन कॉल होईल
+                }
+            });
+        }
+    });
     let indentList = [];
 document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('medicineName').addEventListener('input', function(e) {
