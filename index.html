@@ -340,14 +340,26 @@
     });
     let indentList = [];
 document.addEventListener('DOMContentLoaded', function() {
+        
+        // १. औषधाचे नाव क्लीन करण्याचे लॉजिक
         document.getElementById('medicineName').addEventListener('input', function(e) {
             let val = e.target.value;
             if (val.includes("[")) {
-                // आधी स्पेस काढेल, मग डॅश काढेल आणि एकदम क्लीन नाव देईल
                 e.target.value = val.split("[")[0].trim().replace(/-$/, "").trim();
             }
-    // OPD निवडल्यावरच नवीन बॉक्स दिसतील
-    document.getElementById('wardName').addEventListener('change', function() {
+        }); // 🔴 हा कंस (Bracket) इथे बंद व्हायला हवा, जो आधी खाली राहिला होता.
+
+        // २. OPD निवडल्यावर नवीन बॉक्स दाखवण्याचे लॉजिक
+        document.getElementById('wardName').addEventListener('change', function() {
+            const opdSection = document.getElementById('opdFields');
+            if (this.value === "OPD") {
+                opdSection.style.display = 'flex';
+            } else {
+                opdSection.style.display = 'none';
+            }
+        });
+        
+    });
         const opdSection = document.getElementById('opdFields');
         if (this.value === "OPD") {
             opdSection.style.display = 'flex';
