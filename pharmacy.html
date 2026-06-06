@@ -475,10 +475,19 @@
         const tbody = document.getElementById('medicineTableBody');
         tbody.innerHTML = '';
         indent.medicines.forEach((med, index) => {
+            let medName = med.name;
+            let opdInfo = "";
+            // डोसची माहिती असेल तर केशरी रंगात वेगळी दाखवा
+            if(medName.includes("[")) {
+                let parts = medName.split("[");
+                medName = parts[0].trim();
+                opdInfo = `<br><span style="font-size: 13.5px; font-weight: normal; color: #e67e22;">[${parts[1]}</span>`;
+            }
+
             tbody.innerHTML += `
                 <tr>
                     <td>${index + 1}</td>
-                    <td><b>${med.name}</b></td>
+                    <td><b>${medName}</b> ${opdInfo}</td>
                     <td>${med.qty}</td>
                 </tr>
             `;
@@ -487,16 +496,26 @@
         // --- ब) 🖨️ लपलेल्या प्रिंट टेम्पलेटमध्ये डेटा टाकणे ---
         document.getElementById('prtPatient').innerText = indent.patientName;
         document.getElementById('prtWard').innerText = indent.ward;
-        document.getElementById('prtDate').innerText = formattedDate; // इथे बदल केला
+        document.getElementById('prtDate').innerText = formattedDate; 
         document.getElementById('prtIndentNo').innerText = indent.indentNo;
         document.getElementById('prtDoctor').innerText = indent.doctor;
 
         const prtBody = document.getElementById('prtMedicineList');
         prtBody.innerHTML = '';
         indent.medicines.forEach(med => {
+            let medName = med.name;
+            let opdInfo = "";
+            if(medName.includes("[")) {
+                let parts = medName.split("[");
+                medName = parts[0].trim();
+                opdInfo = `<br><span style="font-size: 13px; font-weight: normal; color: #555;">[${parts[1]}</span>`;
+            }
+
             prtBody.innerHTML += `
                 <tr>
-                    <td colspan="3" style="font-weight: bold; border: 1px solid #b2ebf2; padding: 6px;">${med.name}</td>
+                    <td colspan="3" style="font-weight: bold; border: 1px solid #b2ebf2; padding: 6px;">
+                        ${medName} ${opdInfo}
+                    </td>
                     <td style="text-align: center; font-weight: bold; border: 1px solid #b2ebf2; padding: 6px;">${med.qty}</td>
                 </tr>
             `;
