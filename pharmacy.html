@@ -310,19 +310,39 @@
     </div>
 
 <script>
-    // --- डॅशबोर्ड पासकोड तपासणारी सिस्टीम ---
+    // --- डॅशबोर्ड पासकोड तपासणारी सिस्टीम (दोन फार्मसी युनिट्ससाठी) ---
     function checkPharmacyPasscode() {
         const code = document.getElementById('passcodeInput').value.trim();
         const errorMsg = document.getElementById('loginError');
+        
+        // 💡 टीप: जर तुमच्या डॅशबोर्डवर 'All Units' फिल्टर करण्याचा ड्रॉपडाऊन असेल, 
+        // आणि त्याचा ID 'unitFilter' असेल, तर हा कोड आपोआप ते युनिट सिलेक्ट करेल.
+        const filterDropdown = document.getElementById('unitFilter'); 
 
-        // 🔴 फार्मसी डॅशबोर्डचा पासकोड (सध्या 8888 ठेवला आहे, तुम्ही बदलू शकता)
-        if (code === "8888") { 
-            document.getElementById('loginOverlay').style.display = 'none'; // लॉक स्क्रीन हटवणे
+        // 🔴 १. BMCCU फार्मसीचा पासकोड (सध्या 2222 ठेवला आहे)
+        if (code === "2222") { 
+            document.getElementById('loginOverlay').style.display = 'none'; 
+            
+            // आपोआप BMCCU फिल्टर करण्यासाठी (जर ड्रॉपडाऊन असेल तर)
+            if(filterDropdown) {
+                filterDropdown.value = "BMCCU";
+                filterDropdown.dispatchEvent(new Event('change')); // लिस्ट अपडेट करण्यासाठी
+            }
+        } 
+        // 🔴 २. DHIMSR फार्मसीचा पासकोड (सध्या 4444 ठेवला आहे)
+        else if (code === "4444") {
+            document.getElementById('loginOverlay').style.display = 'none';
+            
+            // आपोआप DHIMSR फिल्टर करण्यासाठी
+            if(filterDropdown) {
+                filterDropdown.value = "DHIMSR";
+                filterDropdown.dispatchEvent(new Event('change'));
+            }
         } 
         // चुकीचा पासकोड असल्यास
         else {
             errorMsg.style.display = 'block';
-            document.getElementById('passcodeInput').value = ''; // बॉक्स रिकामा करणे
+            document.getElementById('passcodeInput').value = ''; 
         }
     }
     
