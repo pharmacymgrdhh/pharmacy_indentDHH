@@ -308,13 +308,13 @@
         const errorMsg = document.getElementById('loginError');
         const unitDropdown = document.getElementById('unitName');
 
-        // 🔴 BMCCU चा पासकोड (तुम्ही हा बदलू शकता)
+        // 🔴 BMCCU चा पासकोड
         if (code === "2222") { 
-            document.getElementById('loginOverlay').style.display = 'none'; // लॉक स्क्रीन हटवणे
-            unitDropdown.value = "BMCCU"; // आपोआप BMCCU सिलेक्ट करणे
-            unitDropdown.disabled = true; // ड्रॉपडाऊन लॉक करणे
+            document.getElementById('loginOverlay').style.display = 'none'; 
+            unitDropdown.value = "BMCCU"; 
+            unitDropdown.disabled = true; 
         } 
-        // 🔴 DHIMSR चा पासकोड (तुम्ही हा बदलू शकता)
+        // 🔴 DHIMSR चा पासकोड
         else if (code === "1111") {
             document.getElementById('loginOverlay').style.display = 'none';
             unitDropdown.value = "DHIMSR";
@@ -323,25 +323,27 @@
         // चुकीचा पासकोड असल्यास
         else {
             errorMsg.style.display = 'block';
-            document.getElementById('passcodeInput').value = ''; // बॉक्स रिकामा करणे
+            document.getElementById('passcodeInput').value = ''; 
         }
     }
-    // --- Enter की (Key) दाबल्यावर लॉग-इन होण्याची सुविधा (Nursing Station) ---
+
+    let indentList = [];
+
+    // --- पेज लोड झाल्यावरचे इव्हेंट्स ---
     document.addEventListener('DOMContentLoaded', function() {
+        
+        // Enter की दाबल्यावर लॉग-इन होण्याची सुविधा
         const passInput = document.getElementById('passcodeInput');
         if(passInput) {
             passInput.addEventListener("keypress", function(event) {
                 if (event.key === "Enter") {
                     event.preventDefault();
-                    checkPasscode(); // Enter दाबल्यावर हे फंक्शन कॉल होईल
+                    checkPasscode(); 
                 }
             });
         }
-    });
-    let indentList = [];
-document.addEventListener('DOMContentLoaded', function() {
-        
-        // १. औषधाचे नाव क्लीन करण्याचे लॉजिक
+
+        // औषधाचे नाव क्लीन करण्याचे लॉजिक
         document.getElementById('medicineName').addEventListener('input', function(e) {
             let val = e.target.value;
             if (val.includes("[")) {
@@ -349,32 +351,23 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }); 
 
-        // २. OPD निवडल्यावर नवीन बॉक्स दाखवणे आणि Qty लॉक (Inactive) करणे
+        // OPD निवडल्यावर नवीन बॉक्स दाखवण्याचे लॉजिक
         document.getElementById('wardName').addEventListener('change', function() {
             const opdSection = document.getElementById('opdFields');
-            const qtyInput = document.getElementById('quantity'); // Qty चा बॉक्स
-
             if (this.value === "OPD") {
                 opdSection.style.display = 'flex';
-                qtyInput.disabled = true; // 🔒 बॉक्स इनॲक्टिव्ह (Lock) करा
-                qtyInput.value = ''; // बॉक्समधील जुनी संख्या पुसून टाका
-                qtyInput.style.backgroundColor = '#ecf0f1'; // लॉक दिसण्यासाठी राखाडी रंग
             } else {
                 opdSection.style.display = 'none';
-                qtyInput.disabled = false; // 🔓 बॉक्स पुन्हा ॲक्टिव्ह करा
-                qtyInput.style.backgroundColor = '#fff'; // मूळ पांढरा रंग
             }
         });
         
     });
 
-    // १. मास्टर डेटा गुगल शीटमधून ओढणे (Doctors & Medicines)
+    // --- १. मास्टर डेटा गुगल शीटमधून ओढणे ---
     function fetchMasterData() {
-        // ... (पुढचा कोड तसाच राहील)
         document.getElementById('docLoader').style.display = 'inline';
         document.getElementById('medLoader').style.display = 'inline';
 
-        // 🔴 इथे तुमची Apps Script ची URL टाका 🔴
         const scriptURL = 'https://script.google.com/macros/s/AKfycbzymM_BdjSLBvGuwwVDWk04P31MRV8jLa50nDpNWnnsdRGLva6IVjmEA0xxnAz4ywYS/exec?action=getDropdownData'; 
         
         fetch(scriptURL)
@@ -402,40 +395,38 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-function addMedicine() {
+    // --- २. औषध लिस्टमध्ये जोडणे ---
+    function addMedicine() {
         const medInput = document.getElementById('medicineName').value.trim();
         let qty = document.getElementById('quantity').value.trim();
         const ward = document.getElementById('wardName').value;
 
-        // १. औषधाचे नाव टाकले आहे का ते तपासणे (हे सर्वांसाठी सक्तीचे आहे)
+        // औषधाचे नाव सक्तीचे
         if(medInput === "") {
             alert("कृपया औषधाचे नाव टाका.");
             return;
         }
 
-        // २. जर वॉर्ड OPD 'नसेल' (उदा. ICU, General), तरच Qty ची सक्ती करा
+        // वॉर्ड OPD नसेल, तरच Qty ची सक्ती करा
         if(ward !== "OPD" && qty === "") {
             alert("कृपया औषधाची संख्या (Qty) टाका.");
             return;
         }
 
-        // ३. जर वॉर्ड OPD असेल आणि Qty रिकामी सोडली असेल, तर तिथे डॅश '-' टाका
+        // OPD साठी Qty रिकामी असल्यास डॅश '-' टाका
         if(ward === "OPD" && qty === "") {
             qty = "-";
         }
 
-        // --- इथून पुढे तुमचा जुना 'नाव क्लीन करणे' चा कोड चालू राहील ---
+        // नाव क्लीन करणे
         let cleanMedicineName = medInput;
         if(medInput.includes("[")) {
             cleanMedicineName = medInput.split("[")[0].trim().replace(/-$/, "").trim();
         }
-        
-        // ... (बाकीचा OPD डोसचा कोड तसाच राहील)
 
-        // 🟢 OPD निवडले असेल, तर डोसची माहिती नावाला जोडणे
-        const ward = document.getElementById('wardName').value;
         let finalMedicineName = cleanMedicineName;
 
+        // OPD निवडले असेल, तर डोसची माहिती नावाला जोडणे
         if (ward === "OPD") {
             let m = document.getElementById('doseM').checked ? "M" : "-";
             let a = document.getElementById('doseA').checked ? "A" : "-";
@@ -444,19 +435,15 @@ function addMedicine() {
             let direction = document.getElementById('medDirection').value;
             
             let opdDetails = [];
-            // जर डोस सिलेक्ट केला असेल तर
             if (m !== "-" || a !== "-" || n !== "-") opdDetails.push(`Dose: ${m}-${a}-${n}`);
-            // जर दिवस टाकले असतील तर
             if (duration !== "") opdDetails.push(`${duration} Days`);
-            // जर वेळ निवडली असेल तर
             if (direction !== "") opdDetails.push(direction);
             
-            // सर्व माहिती औषधाच्या नावापुढे जोडणे
             if(opdDetails.length > 0) {
                 finalMedicineName = `${cleanMedicineName} [${opdDetails.join(" | ")}]`;
             }
 
-            // ऍड केल्यावर OPD चे बॉक्स पुन्हा रिकामे करणे
+            // ऍड केल्यावर OPD चे बॉक्स रिकामे करणे
             document.getElementById('doseM').checked = false;
             document.getElementById('doseA').checked = false;
             document.getElementById('doseN').checked = false;
@@ -477,7 +464,9 @@ function addMedicine() {
         document.getElementById('medicineName').value = '';
         document.getElementById('quantity').value = '';
         document.getElementById('medicineName').focus();
-		}
+    }
+
+    // --- ३. टेबल अपडेट करणे ---
     function updateTable() {
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = ''; 
@@ -497,6 +486,7 @@ function addMedicine() {
         updateTable();
     }
 
+    // --- ४. इंडेंट सबमिट करणे ---
     function submitIndent() {
         const unit = document.getElementById('unitName').value;
         const ward = document.getElementById('wardName').value;
@@ -532,7 +522,6 @@ function addMedicine() {
             items: indentList 
         };
 
-        // 🔴 इथे तुमची Apps Script ची URL पुन्हा टाका 🔴
         const scriptURL = 'https://script.google.com/macros/s/AKfycbzymM_BdjSLBvGuwwVDWk04P31MRV8jLa50nDpNWnnsdRGLva6IVjmEA0xxnAz4ywYS/exec'; 
 
         fetch(scriptURL, {
@@ -546,7 +535,6 @@ function addMedicine() {
         .then(() => {
             alert("✅ " + patientName + " यांचा Indent यशस्वीरित्या फार्मसीला पाठवला गेला!");
             
-            // --- 🖨️ प्रिंट टेम्पलेटमध्ये डेटा भरणे ---
             let now = new Date();
             let formattedDate = now.toLocaleString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
             
@@ -565,12 +553,9 @@ function addMedicine() {
                     </tr>
                 `;
             });
-            // ------------------------------------------
 
-            // प्रिंट बटण दाखवणे
             document.getElementById('btnPrint').style.display = 'block';
             
-            // स्क्रीनवरील जुना डेटा साफ करणे
             indentList = [];
             updateTable();
             document.getElementById('patientName').value = '';
