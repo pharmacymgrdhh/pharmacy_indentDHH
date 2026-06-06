@@ -212,7 +212,43 @@
             </tbody>
     </table>
 
-    <button class="btn btn-submit" onclick="submitIndent()">✅ फार्मसीला पाठवा (Submit Indent)</button><button class="btn-print-nursing" onclick="window.print()" style="background-color: #95a5a6; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; margin-top: 10px; width: 100%;">🖨️ प्रिंट काढा (Print Indent)</button>
+    <button class="btn btn-submit" onclick="submitIndent()">✅ फार्मसीला पाठवा (Submit Indent)</button>
+    <button id="btnPrint" class="btn-print-nursing" onclick="window.print()">🖨️ प्रिंट काढा (Print Indent)</button>
+</div> <div id="printTemplate">
+    <table class="print-table">
+        <tr>
+            <td class="logo-td">
+                <img src="dhh.png" style="height: 50px;">
+            </td>
+            <td colspan="3" class="blue-bg" style="font-size: 18px;">
+                Dr Hedgewar hospital & Bharani Critical Care Unit
+            </td>
+        </tr>
+        <tr>
+            <td class="label">Patient Name:</td>
+            <td colspan="3" id="prtPatient"></td>
+        </tr>
+        <tr>
+            <td class="label">Ward:</td>
+            <td id="prtWard"></td>
+            <td class="label">Date & Time:</td>
+            <td id="prtDate"></td>
+        </tr>
+        <tr>
+            <td class="label">Indent No:</td>
+            <td colspan="3" id="prtIndentNo">नर्सिंग स्टेशन प्रिंट (Pending)</td>
+        </tr>
+        <tr>
+            <td class="label">Prescribed By:</td>
+            <td colspan="3" id="prtDoctor"></td>
+        </tr>
+        <tr>
+            <td colspan="3" class="blue-bg">Medicine/ Consumables</td>
+            <td class="blue-bg" style="width: 15%;">Qty</td>
+        </tr>
+        <tbody id="prtMedicineList">
+            </tbody>
+    </table>
 </div>
 
 <script>
