@@ -378,10 +378,18 @@
 
         fetch(SCRIPT_URL + "?action=getPendingIndents")
             .then(response => response.json())
-            .then(data => {
-                allIndents = data;
-                filterIndents(); // डेटा आल्यावर ड्रॉपडाऊननुसार फिल्टर करणे
-            })
+        .then(data => {
+            allIndents = data;
+
+            // --- 🔔 सायलेंट पॉप-अप लॉजिक ---
+            if (previousIndentCount !== -1 && allIndents.length > previousIndentCount) {
+                showToastAlert(); // जर जुन्या संख्येपेक्षा नवीन इंडेंट्सची संख्या जास्त असेल, तर पॉप-अप दाखवा
+            }
+            previousIndentCount = allIndents.length; // जुनी संख्या अपडेट करा
+            // ---------------------------------
+
+            filterIndents(); // डेटा आल्यावर ड्रॉपडाऊननुसार फिल्टर करणे
+        })
             .catch(error => {
                 console.error("Error fetching data:", error);
                 container.innerHTML = '<p style="text-align:center; color:red;">❌ एरर: डेटा लोड होऊ शकला नाही.</p>';
