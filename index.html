@@ -347,7 +347,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (val.includes("[")) {
                 e.target.value = val.split("[")[0].trim().replace(/-$/, "").trim();
             }
-        }); // 🔴 हा कंस (Bracket) इथे बंद व्हायला हवा, जो आधी खाली राहिला होता.
+        }); 
 
         // २. OPD निवडल्यावर नवीन बॉक्स दाखवण्याचे लॉजिक
         document.getElementById('wardName').addEventListener('change', function() {
@@ -360,17 +360,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
     });
-        const opdSection = document.getElementById('opdFields');
-        if (this.value === "OPD") {
-            opdSection.style.display = 'flex';
-        } else {
-            opdSection.style.display = 'none';
-        }
-    });
-        });
-    });
+
     // १. मास्टर डेटा गुगल शीटमधून ओढणे (Doctors & Medicines)
     function fetchMasterData() {
+        // ... (पुढचा कोड तसाच राहील)
         document.getElementById('docLoader').style.display = 'inline';
         document.getElementById('medLoader').style.display = 'inline';
 
