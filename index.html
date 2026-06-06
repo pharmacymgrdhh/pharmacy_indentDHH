@@ -407,27 +407,30 @@ function addMedicine() {
         let qty = document.getElementById('quantity').value.trim();
         const ward = document.getElementById('wardName').value;
 
+        // १. औषधाचे नाव टाकले आहे का ते तपासणे (हे सर्वांसाठी सक्तीचे आहे)
         if(medInput === "") {
             alert("कृपया औषधाचे नाव टाका.");
             return;
         }
-        
-        // जर वॉर्ड OPD नसेल, तरच संख्येची (Qty) सक्ती करा
+
+        // २. जर वॉर्ड OPD 'नसेल' (उदा. ICU, General), तरच Qty ची सक्ती करा
         if(ward !== "OPD" && qty === "") {
-            alert("कृपया औषधाची संख्या टाका.");
+            alert("कृपया औषधाची संख्या (Qty) टाका.");
             return;
         }
 
-        // OPD साठी Qty रिकामी असल्यास टेबलमध्ये दिसण्यासाठी डॅश '-' टाका
+        // ३. जर वॉर्ड OPD असेल आणि Qty रिकामी सोडली असेल, तर तिथे डॅश '-' टाका
         if(ward === "OPD" && qty === "") {
             qty = "-";
         }
 
-        // नाव क्लीन करणे
+        // --- इथून पुढे तुमचा जुना 'नाव क्लीन करणे' चा कोड चालू राहील ---
         let cleanMedicineName = medInput;
         if(medInput.includes("[")) {
             cleanMedicineName = medInput.split("[")[0].trim().replace(/-$/, "").trim();
         }
+        
+        // ... (बाकीचा OPD डोसचा कोड तसाच राहील)
 
         // 🟢 OPD निवडले असेल, तर डोसची माहिती नावाला जोडणे
         const ward = document.getElementById('wardName').value;
