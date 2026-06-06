@@ -193,6 +193,17 @@
 </head>
 <body>
 <body>
+    <!-- 🔒 Login Overlay (Pharmacy Dashboard Passcode Screen) -->
+    <div id="loginOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #2c3e50; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;">
+        <img src="dhh.png" alt="Hospital Logo" style="height: 70px; margin-bottom: 20px; background-color: white; padding: 5px; border-radius: 5px;">
+        <h2 style="color: white; border-bottom: none; margin-bottom: 20px;">फार्मसी डॅशबोर्ड - सुरक्षित प्रवेश</h2>
+        
+        <input type="password" id="passcodeInput" placeholder="पासकोड टाका" style="padding: 12px; font-size: 18px; text-align: center; border-radius: 5px; border: none; margin-bottom: 15px; width: 250px; outline: none; color: black;">
+        
+        <button onclick="checkPharmacyPasscode()" style="padding: 12px 20px; font-size: 18px; background-color: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer; width: 250px; font-weight: bold;">लॉग-इन करा</button>
+        
+        <p id="loginError" style="color: #e74c3c; margin-top: 15px; display: none; background-color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;">❌ चुकीचा पासकोड!</p>
+    </div>
     <div id="printTemplate">
         <table class="print-table">
             <tr>
@@ -299,6 +310,34 @@
     </div>
 
 <script>
+    // --- डॅशबोर्ड पासकोड तपासणारी सिस्टीम ---
+    function checkPharmacyPasscode() {
+        const code = document.getElementById('passcodeInput').value.trim();
+        const errorMsg = document.getElementById('loginError');
+
+        // 🔴 फार्मसी डॅशबोर्डचा पासकोड (सध्या 8888 ठेवला आहे, तुम्ही बदलू शकता)
+        if (code === "8888") { 
+            document.getElementById('loginOverlay').style.display = 'none'; // लॉक स्क्रीन हटवणे
+        } 
+        // चुकीचा पासकोड असल्यास
+        else {
+            errorMsg.style.display = 'block';
+            document.getElementById('passcodeInput').value = ''; // बॉक्स रिकामा करणे
+        }
+    }
+    
+    // Enter बटण दाबल्यावरही लॉग-इन व्हावे यासाठी सुविधा
+    document.addEventListener('DOMContentLoaded', function() {
+        const passInput = document.getElementById('passcodeInput');
+        if(passInput) {
+            passInput.addEventListener("keypress", function(event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    checkPharmacyPasscode();
+                }
+            });
+        }
+    });
     // 🔴 इथे तुमची Apps Script ची लिंक टाका 🔴
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzymM_BdjSLBvGuwwVDWk04P31MRV8jLa50nDpNWnnsdRGLva6IVjmEA0xxnAz4ywYS/exec';
 
