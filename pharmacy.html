@@ -553,6 +553,16 @@
             btn.disabled = false;
         });
     }
+    // 🔔 पॉप-अप दाखवणारे फंक्शन
+    function showToastAlert() {
+        const toast = document.getElementById("toastAlert");
+        toast.className = "show";
+        // ४ सेकंदांनंतर पॉप-अप आपोआप गायब होईल
+        setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 4000);
+    }
+
+    // 🔄 Auto-Refresh: दर ६० सेकंदांनी (१ मिनिटाने) सिस्टीम आपोआप नवीन इंडेंट्स चेक करेल
+    setInterval(fetchPendingIndents, 60000);
     /* 🔔 Silent Toast Notification CSS */
         #toastAlert {
             visibility: hidden;
