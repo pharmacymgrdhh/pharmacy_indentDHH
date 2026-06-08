@@ -474,7 +474,7 @@
         fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
         .then(res => res.json())
         .then(() => { setTimeout(() => location.reload(), 800); })
-        .catch(() => { alert("❌ स्टेटस बदलताना एरर आला."); location.reload(); });
+        .catch(() => { alert("❌ स्टेटस बदलताना एरर आला."); fetchAdminData(); });
     }
 
     function editPasscode(unitName) {
