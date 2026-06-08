@@ -50,7 +50,7 @@
             cursor: pointer;
         }
         .opd-section {
-            display: none; /* सुरुवातीला लपवलेले असेल */
+            display: none; 
             background: #e8f8f5;
             padding: 15px;
             border-radius: 8px;
@@ -111,6 +111,18 @@
             font-weight: normal;
             display: none;
         }
+
+        /* 🔴 Custom Dropdown CSS (Brand & Composition Design) */
+        .autocomplete-items {
+            position: absolute; border: 1px solid #d4d4d4; border-radius: 4px;
+            z-index: 99; top: 100%; left: 0; right: 0; max-height: 250px; overflow-y: auto;
+            background-color: #fff; display: none; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .autocomplete-items div { padding: 10px; cursor: pointer; border-bottom: 1px solid #eee; transition: 0.2s; }
+        .autocomplete-items div:hover { background-color: #ebf5fb; }
+        .med-brand { font-weight: bold; color: #2c3e50; font-size: 14px; }
+        .med-comp { font-size: 12px; color: #7f8c8d; margin-top: 3px; }
+
         /* A5/A4 Print CSS - Official Template */
         #printTemplate { display: none; }
         @media print {
@@ -134,7 +146,6 @@
             @page { margin: 10mm; }
         }
         
-        /* नवीन प्रिंट बटणासाठी स्टाईल */
         .btn-print-nursing {
             background-color: #f39c12;
             color: white;
@@ -146,7 +157,7 @@
             cursor: pointer;
             width: 100%;
             margin-top: 15px;
-            display: none; /* सुरुवातीला लपवलेले असेल */
+            display: none; 
         }
         .btn-print-nursing:hover { background-color: #d68910; }
     </style>
@@ -191,14 +202,14 @@
 
     <div class="form-group">
         <label for="patientName">रुग्णाचे नाव (Patient Name):</label>
-        <input type="text" id="patientName" placeholder="उदा. रमेश पाटील">
+        <input type="text" id="patientName" placeholder="उदा. रमेश पाटील" autocomplete="off">
     </div>
 
     <div class="form-group">
         <label for="prescribedBy">
             डॉक्टरांचे नाव (Prescribed By): <span id="docLoader" class="loading-text">⏳ Loading...</span>
         </label>
-        <input type="text" id="prescribedBy" list="doctorList" placeholder="नाव शोधा किंवा टाईप करा...">
+        <input type="text" id="prescribedBy" list="doctorList" placeholder="नाव शोधा किंवा टाईप करा..." autocomplete="off">
         <datalist id="doctorList">
             <option value="Dr. Sharma">
             <option value="Dr. Kulkarni">
@@ -208,15 +219,12 @@
     <div class="section-divider"></div>
 
     <div class="form-row">
-        <div class="form-group" style="flex: 2;">
+        <div class="form-group" style="flex: 2; position: relative;">
             <label for="medicineName">
                 औषध (Medicine / Consumable): <span id="medLoader" class="loading-text">⏳ Loading...</span>
             </label>
-            <input type="text" id="medicineName" list="medicineList" placeholder="औषध शोधा किंवा नवीन नाव टाका...">
-            <datalist id="medicineList">
-                <option value="Paracetamol 500mg-[Paracetamol]">
-                <option value="Ceftriaxone 1gm Injection">
-            </datalist>
+            <input type="text" id="medicineName" placeholder="औषध शोधा किंवा नवीन नाव टाका..." autocomplete="off">
+            <div id="medDropdown" class="autocomplete-items"></div>
         </div>
         
         <div class="form-group" style="flex: 1;">
@@ -306,13 +314,13 @@
 
     let loggedInUnit = "";
     let indentList = [];
+    let globalMedicines = []; // 🔴 औषधांचा डेटा स्टोर करण्यासाठी
 
     // Enter की दाबल्यावर लॉग-इन
     document.getElementById('passcodeInput').addEventListener("keypress", function(e) {
         if (e.key === "Enter") checkPasscode();
     });
 
-    // --- १. पासकोड तपासणारी सिस्टीम (Crash-Free Update) ---
     function checkPasscode() {
         const code = document.getElementById('passcodeInput').value.trim();
         const errorMsg = document.getElementById('loginError');
@@ -329,7 +337,6 @@
                 document.getElementById('loginOverlay').style.display = 'none';
                 loggedInUnit = data.unit; 
                 
-                // युनिट बॉक्समध्ये अचूक नाव टाकून ते लॉक करणे
                 const unitSelect = document.getElementById('unitName');
                 if(![...unitSelect.options].some(opt => opt.value === loggedInUnit)) {
                     let newOpt = document.createElement("option");
@@ -352,7 +359,6 @@
         });
     }
 
-    // --- २. मास्टर डेटा ओढणे (Strictly Live Data Only) ---
     function fetchMasterData() {
         const docLoader = document.getElementById('docLoader');
         const medLoader = document.getElementById('medLoader');
@@ -373,7 +379,6 @@
                         let wName = typeof w === 'object' ? w.name : w;
                         let wUnit = typeof w === 'object' ? w.unit : loggedInUnit;
                         
-                        // 🔴 इथे फक्त गुगल शीटचेच वॉर्ड्स येतील. OPD मॅन्युअली ऍड करण्याचा कोड पूर्ण काढून टाकला आहे!
                         if (wUnit === loggedInUnit) {
                             let opt = document.createElement('option');
                             opt.value = wName; 
@@ -384,7 +389,9 @@
                 }
 
                 populateDatalist('doctorList', data.doctors);
-                populateDatalist('medicineList', data.medicines);
+                
+                // 🔴 औषधांचा डेटा ग्लोबल व्हेरिएबलमध्ये सेव्ह करणे (Custom Dropdown साठी)
+                if (data.medicines) globalMedicines = data.medicines;
                 
                 if(docLoader) docLoader.style.display = 'none';
                 if(medLoader) medLoader.style.display = 'none';
@@ -407,27 +414,72 @@
         }
     }
 
-    // --- ३. औषधाचे नाव आणि OPD बॉक्स लॉजिक ---
-    document.getElementById('medicineName').addEventListener('input', function(e) {
-        let val = e.target.value;
-        if (val.includes("[")) { e.target.value = val.split("[")[0].trim().replace(/-$/, "").trim(); }
-    }); 
+    // --- ३. स्मार्ट औषध सर्च (Custom Dropdown) आणि OPD बॉक्स लॉजिक ---
+    const medInput = document.getElementById('medicineName');
+    const medDropdown = document.getElementById('medDropdown');
+
+    medInput.addEventListener('input', function(e) {
+        let val = this.value;
+        // जर युजरने मॅन्युअली जुने ब्रॅकेट्स टाईप केले तर काढणे
+        if (val.includes("[")) { 
+            this.value = val.split("[")[0].trim().replace(/-$/, "").trim(); 
+            val = this.value;
+        }
+        
+        val = val.toUpperCase();
+        medDropdown.innerHTML = '';
+        
+        if (!val) { 
+            medDropdown.style.display = 'none'; 
+            return; 
+        }
+
+        let count = 0;
+        for (let i = 0; i < globalMedicines.length; i++) {
+            if (globalMedicines[i].toUpperCase().includes(val)) {
+                let parts = globalMedicines[i].split("|");
+                let brandName = parts[0].trim();
+                let composition = parts[1] ? parts[1].trim() : "";
+
+                let div = document.createElement('div');
+                div.innerHTML = `<div class="med-brand">${brandName}</div>`;
+                if (composition) {
+                    div.innerHTML += `<div class="med-comp">${composition}</div>`;
+                }
+
+                div.addEventListener('click', function() {
+                    // क्लिक केल्यावर फक्त ब्रँड नेम इनपुटमध्ये जाईल
+                    medInput.value = brandName; 
+                    medDropdown.style.display = 'none';
+                });
+
+                medDropdown.appendChild(div);
+                count++;
+            }
+            if (count > 40) break; // खूप जास्त रिझल्ट्स लोड न होण्यासाठी लिमीट
+        }
+        medDropdown.style.display = count > 0 ? 'block' : 'none';
+    });
+
+    // ड्रॉपडाऊनच्या बाहेर क्लिक केल्यास ते लपवणे
+    document.addEventListener('click', function(e) {
+        if (e.target !== medInput) medDropdown.style.display = 'none';
+    });
 
     document.getElementById('wardName').addEventListener('change', function() {
         const opdSection = document.getElementById('opdFields');
-        // 🔴 वॉर्डच्या नावात कुठेही "OPD" हा शब्द आला की डोस बॉक्स उघडेल 
         let isOPD = this.value.toUpperCase().includes("OPD");
         opdSection.style.display = isOPD ? 'flex' : 'none';
     });
 
-    // --- ४. सुधारित औषध लिस्टमध्ये जोडणे (OPD & Search Friendly) ---
+    // --- ४. औषध लिस्टमध्ये जोडणे ---
     function addMedicine() {
-        const medInput = document.getElementById('medicineName').value.trim();
+        const medInputVal = document.getElementById('medicineName').value.trim();
         let qty = document.getElementById('quantity').value.trim();
         const ward = document.getElementById('wardName').value;
 
         // सर्च इंजिनमधील '|' पार्ट काढून टाकणे (फक्त नाव शुद्ध करण्यासाठी)
-        let baseName = medInput.split("|")[0].trim();
+        let baseName = medInputVal.split("|")[0].trim();
         
         // जर नावात आधीपासूनच ब्रॅकेटमधील जुने काही असेल तर ते काढणे
         if (baseName.includes("[")) {
@@ -459,7 +511,6 @@
                 finalMedicineName = `${baseName} [${opdDetails.join(" | ")}]`;
             }
 
-            // इनपुट रिसेट करणे
             document.getElementById('doseM').checked = false;
             document.getElementById('doseA').checked = false;
             document.getElementById('doseN').checked = false;
