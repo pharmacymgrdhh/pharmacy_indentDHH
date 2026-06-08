@@ -420,21 +420,27 @@
         opdSection.style.display = isOPD ? 'flex' : 'none';
     });
 
-    // --- ४. औषध लिस्टमध्ये जोडणे ---
+    // --- ४. सुधारित औषध लिस्टमध्ये जोडणे (OPD & Search Friendly) ---
     function addMedicine() {
         const medInput = document.getElementById('medicineName').value.trim();
         let qty = document.getElementById('quantity').value.trim();
         const ward = document.getElementById('wardName').value;
 
+        // सर्च इंजिनमधील '|' पार्ट काढून टाकणे (फक्त नाव शुद्ध करण्यासाठी)
+        let baseName = medInput.split("|")[0].trim();
+        
+        // जर नावात आधीपासूनच ब्रॅकेटमधील जुने काही असेल तर ते काढणे
+        if (baseName.includes("[")) {
+            baseName = baseName.split("[")[0].trim().replace(/-$/, "").trim();
+        }
+
         let isOPD = ward.toUpperCase().includes("OPD");
 
-        if(medInput === "") { alert("कृपया औषधाचे नाव टाका."); return; }
+        if(baseName === "") { alert("कृपया औषधाचे नाव टाका."); return; }
         if(!isOPD && qty === "") { alert("कृपया औषधाची संख्या (Qty) टाका."); return; }
         if(isOPD && qty === "") { qty = "-"; }
 
-        let cleanMedicineName = medInput;
-        if(medInput.includes("[")) { cleanMedicineName = medInput.split("[")[0].trim().replace(/-$/, "").trim(); }
-        let finalMedicineName = cleanMedicineName;
+        let finalMedicineName = baseName;
 
         if (isOPD) {
             let m = document.getElementById('doseM').checked ? "M" : "-";
@@ -448,14 +454,24 @@
             if (duration !== "") opdDetails.push(`${duration} Days`);
             if (direction !== "") opdDetails.push(direction);
             
-            if(opdDetails.length > 0) { finalMedicineName = `${cleanMedicineName} [${opdDetails.join(" | ")}]`; }
+            // आता OPD चे डिटेल्स औषधाच्या नावासोबत व्यवस्थित जोडले जातील
+            if(opdDetails.length > 0) {
+                finalMedicineName = `${baseName} [${opdDetails.join(" | ")}]`;
+            }
 
-            document.getElementById('doseM').checked = false; document.getElementById('doseA').checked = false;
-            document.getElementById('doseN').checked = false; document.getElementById('medDuration').value = '';
+            // इनपुट रिसेट करणे
+            document.getElementById('doseM').checked = false;
+            document.getElementById('doseA').checked = false;
+            document.getElementById('doseN').checked = false;
+            document.getElementById('medDuration').value = '';
             document.getElementById('medDirection').value = '';
         }
 
-        indentList.push({ displayName: finalMedicineName, cleanName: finalMedicineName, quantity: qty });
+        indentList.push({ 
+            displayName: finalMedicineName, 
+            quantity: qty 
+        });
+        
         updateTable();
 
         document.getElementById('medicineName').value = '';
