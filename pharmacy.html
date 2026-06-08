@@ -5,286 +5,122 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pharmacy Dashboard - Operation Errorless</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            background-color: #f0f2f5;
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
-        /* Header */
-        .header {
-            background-color: #2c3e50;
-            color: white;
-            padding: 15px 20px;
-            width: 100%;
-            position: fixed;
-            top: 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 1000;
-        }
-        .header h2 { margin: 0; font-size: 20px; }
-        .refresh-btn {
-            background-color: #e67e22;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .refresh-btn:hover { background-color: #d35400; }
-
-        /* Main Layout */
-        .main-container {
-            display: flex;
-            width: 100%;
-            margin-top: 60px; /* Space for header */
-            height: calc(100vh - 60px);
-        }
-
-        /* Left Panel - Pending Indents */
-        .left-panel {
-            width: 35%;
-            background-color: #ffffff;
-            border-right: 2px solid #ddd;
-            overflow-y: auto;
-            padding: 15px;
-        }
-        .left-panel h3 {
-            margin-top: 0;
-            color: #e74c3c;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-        }
-        .indent-card {
-            background-color: #fdfefe;
-            border: 1px solid #dcdde1;
-            border-left: 5px solid #3498db;
-            border-radius: 4px;
-            padding: 10px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .indent-card:hover, .indent-card.active {
-            background-color: #ebf5fb;
-            border-color: #3498db;
-        }
-        .indent-header {
-            display: flex;
-            justify-content: space-between;
-            font-weight: bold;
-            font-size: 16px; /* अक्षर थोडे मोठे केले */
-            margin-bottom: 5px;
-            color: #2c3e50;
-        }
-        .indent-details { 
-            font-size: 14.5px; /* अक्षर थोडे मोठे केले */
-            color: #555; 
-            line-height: 1.4;
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f0f2f5; display: flex; height: 100vh; overflow: hidden; }
+        
+        /* 🛠️ Refresh Button बाहेरील बाजूस जाण्याचा प्रॉब्लेम इथे 'box-sizing' मुळे फिक्स केला आहे */
+        .header { 
+            background-color: #2c3e50; 
+            color: white; 
+            padding: 15px 20px; 
+            width: 100%; 
+            box-sizing: border-box; /* 👈 यामुळे बटण स्क्रीनच्या आत राहील */
+            position: fixed; 
+            top: 0; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            z-index: 1000; 
         }
         
-        /* ड्रॉपडाऊन डिझाईन */
-        .branch-filter {
-            padding: 5px 10px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-            font-size: 14px;
-            font-weight: bold;
-            color: #2c3e50;
-            outline: none;
-            cursor: pointer;
-        }
-        .details-container {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-            display: none; /* सुरुवातीला लपवलेले असेल */
-        }
-        .action-bar {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 15px;
-        }
-        .btn-print {
-            background-color: transparent;
-            color: #3498db;
-            border: 2px solid #3498db;
-            border-radius: 50%; /* गोल बटणासाठी */
-            width: 45px;
-            height: 45px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .btn-print:hover { 
-            background-color: #3498db; 
-            color: white;
-        }
-        }
+        .header h2 { margin: 0; font-size: 20px; }
+        .refresh-btn { background-color: #e67e22; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .refresh-btn:hover { background-color: #d35400; }
+        .main-container { display: flex; width: 100%; margin-top: 60px; height: calc(100vh - 60px); }
+        .left-panel { width: 35%; background-color: #ffffff; border-right: 2px solid #ddd; overflow-y: auto; padding: 15px; }
+        .left-panel h3 { margin-top: 0; color: #e74c3c; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .indent-card { background-color: #fdfefe; border: 1px solid #dcdde1; border-left: 5px solid #3498db; border-radius: 4px; padding: 10px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
+        .indent-card:hover, .indent-card.active { background-color: #ebf5fb; border-color: #3498db; }
+        .indent-header { display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; margin-bottom: 5px; color: #2c3e50; }
+        .indent-details { font-size: 14.5px; color: #555; line-height: 1.4; }
+        .unit-badge { padding: 5px 10px; background: #3498db; color: white; border-radius: 4px; font-size: 14px; font-weight: bold; }
+        .details-container { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); display: none; }
+        .right-panel { flex: 1; padding: 20px; overflow-y: auto; }
+        .action-bar { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        .btn-print { background-color: transparent; color: #3498db; border: 2px solid #3498db; border-radius: 50%; width: 45px; height: 45px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.3s; }
+        .btn-print:hover { background-color: #3498db; color: white; }
+        .btn-dispatch { background-color: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.3s; }
         .btn-dispatch:hover { background-color: #2196f3; }
-
-        .patient-info {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 4px;
-        }
+        .patient-info { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; background-color: #f9f9f9; padding: 15px; border-radius: 4px; }
         .info-group { margin: 0; font-size: 14px; }
         .info-group strong { color: #2c3e50; }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        th, td {
-            padding: 10px;
-            border: 1px solid #ddd;
-            text-align: left;
-            font-size: 14px;
-        }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; font-size: 14px; }
         th { background-color: #34495e; color: white; }
+        .placeholder-text { text-align: center; color: #999; margin-top: 20%; font-size: 18px; }
 
-        .placeholder-text {
-            text-align: center;
-            color: #999;
-            margin-top: 20%;
-            font-size: 18px;
-        }
-
-        /* A5 Print CSS (फक्त प्रिंट काढताना हे ॲक्टिव्ह होईल) */
-/* A5/A4 Print CSS - Official Template */
+        /* Print CSS */
         #printTemplate { display: none; }
         @media print {
             body { background-color: white; margin: 0; padding: 0; }
-            .header, .main-container, .action-bar { display: none !important; }
+            .header, .main-container, .action-bar, #loginOverlay { display: none !important; }
             #printTemplate { display: block !important; width: 100%; font-family: Arial, sans-serif; }
-            
             .print-table { width: 100%; border-collapse: collapse; font-size: 14px; }
             .print-table td { border: 1px solid #b2ebf2; padding: 6px; }
             .print-table .label { font-weight: bold; background-color: #f4f4f4; width: 20%; -webkit-print-color-adjust: exact; }
-            .print-table .blue-bg { 
-                background-color: #4a86e8 !important; 
-                color: white !important; 
-                font-weight: bold; 
-                text-align: center;
-                -webkit-print-color-adjust: exact; 
-                color-adjust: exact;
-            }
+            .print-table .blue-bg { background-color: #4a86e8 !important; color: white !important; font-weight: bold; text-align: center; -webkit-print-color-adjust: exact; }
             .print-table .logo-td { width: 25%; text-align: center; padding: 5px; border: 1px solid #4a86e8;}
-            
             @page { margin: 10mm; }
         }
     </style>
 </head>
 <body>
-<body>
-    <!-- 🔒 Login Overlay (Pharmacy Dashboard Passcode Screen) -->
+
+    <!-- 🔒 Live Login Overlay -->
     <div id="loginOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #2c3e50; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;">
         <img src="dhh.png" alt="Hospital Logo" style="height: 70px; margin-bottom: 20px; background-color: white; padding: 5px; border-radius: 5px;">
         <h2 style="color: white; border-bottom: none; margin-bottom: 20px;">फार्मसी डॅशबोर्ड - सुरक्षित प्रवेश</h2>
-        
-        <input type="password" id="passcodeInput" placeholder="पासकोड टाका" style="padding: 12px; font-size: 18px; text-align: center; border-radius: 5px; border: none; margin-bottom: 15px; width: 250px; outline: none; color: black;">
-        
-        <button onclick="checkPharmacyPasscode()" style="padding: 12px 20px; font-size: 18px; background-color: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer; width: 250px; font-weight: bold;">लॉग-इन करा</button>
-        
+        <input type="password" id="passcodeInput" placeholder="तुमचा पासकोड टाका" style="padding: 12px; font-size: 18px; text-align: center; border-radius: 5px; border: none; margin-bottom: 15px; width: 250px; outline: none; color: black; letter-spacing: 5px;">
+        <button id="loginBtn" onclick="checkPharmacyPasscode()" style="padding: 12px 20px; font-size: 18px; background-color: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer; width: 250px; font-weight: bold;">लॉग-इन करा</button>
         <p id="loginError" style="color: #e74c3c; margin-top: 15px; display: none; background-color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;">❌ चुकीचा पासकोड!</p>
     </div>
+
+    <!-- Print Template -->
     <div id="printTemplate">
         <table class="print-table">
             <tr>
-                <td class="logo-td">
-                    <img src="dhh.png" style="height: 50px;">
-                </td>
-                <td colspan="3" class="blue-bg" style="font-size: 18px;">
-                    Dr Hedgewar hospital & Bharani Critical Care Unit
-                </td>
+                <td class="logo-td"><img src="dhh.png" style="height: 50px;"></td>
+                <td colspan="3" class="blue-bg" style="font-size: 18px;">Dr Hedgewar hospital & Bharani Critical Care Unit</td>
             </tr>
-            <tr>
-                <td class="label">Patient Name:</td>
-                <td colspan="3" id="prtPatient"></td>
-            </tr>
-            <tr>
-                <td class="label">Ward:</td>
-                <td id="prtWard"></td>
-                <td class="label">Date & Time:</td>
-                <td id="prtDate"></td>
-            </tr>
-            <tr>
-                <td class="label">Indent No:</td>
-                <td colspan="3" id="prtIndentNo"></td>
-            </tr>
-            <tr>
-                <td class="label">Prescribed By:</td>
-                <td colspan="3" id="prtDoctor"></td>
-            </tr>
-            <tr>
-                <td colspan="3" class="blue-bg">Medicine/ Consumables</td>
-                <td class="blue-bg" style="width: 15%;">Qty</td>
-            </tr>
-            <tbody id="prtMedicineList">
-                </tbody>
+            <tr><td class="label">Patient Name:</td><td colspan="3" id="prtPatient"></td></tr>
+            <tr><td class="label">Ward:</td><td id="prtWard"></td><td class="label">Date & Time:</td><td id="prtDate"></td></tr>
+            <tr><td class="label">Indent No:</td><td colspan="3" id="prtIndentNo"></td></tr>
+            <tr><td class="label">Prescribed By:</td><td colspan="3" id="prtDoctor"></td></tr>
+            <tr><td colspan="3" class="blue-bg">Medicine/ Consumables</td><td class="blue-bg" style="width: 15%;">Qty</td></tr>
+            <tbody id="prtMedicineList"></tbody>
         </table>
     </div>
 
     <!-- Header -->
     <div class="header">
         <div style="display: flex; align-items: center;">
-            <!-- 🔴 इथे तुमचा लोगो जोडला आहे 🔴 -->
-            <img src="dhh.png" alt="Hospital Logo" style="height: 40px; width: auto; margin-right: 15px; border-radius: 4px; background-color: white; padding: 2px;">
-            
+            <img src="dhh.png" alt="Logo" style="height: 40px; margin-right: 15px; border-radius: 4px; background-color: white; padding: 2px;">
             <h2>🏥 Pharmacy Dashboard</h2>
         </div>
-        <button class="refresh-btn" onclick="fetchPendingIndents()">🔄 Refresh List</button>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <span id="displayUnitName" class="unit-badge">Unit: -</span>
+            <button class="refresh-btn" onclick="fetchPendingIndents()">🔄 Refresh</button>
+        </div>
     </div>
 
     <div class="main-container">
-        
+        <!-- Left Panel -->
         <div class="left-panel">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
                 <h3 style="margin: 0; color: #e74c3c; border: none; padding: 0;">⏳ Pending Indents</h3>
-                <select id="branchFilter" class="branch-filter" onchange="filterIndents()">
-                    <option value="All">All Units</option>
-                    <option value="BMCCU">BMCCU</option>
-                    <option value="DHIMSR">DHIMSR</option>
-                </select>
             </div>
-            
             <div id="indentListContainer">
-                <p style="text-align:center; color:#7f8c8d; margin-top:20px;">लोड करत आहे... (Loading...)</p>
+                <p style="text-align:center; color:#7f8c8d; margin-top:20px;">लोड करत आहे...</p>
             </div>
         </div>
 
+        <!-- Right Panel -->
         <div class="right-panel">
-            
-            <div id="placeholder" class="placeholder-text">
-                👈 डावीकडील लिस्ट मधून एक इंडेंट निवडा.
-            </div>
-
+            <div id="placeholder" class="placeholder-text">👈 डावीकडील लिस्ट मधून एक इंडेंट निवडा.</div>
             <div id="detailsContainer" class="details-container">
                 <div class="action-bar">
-                    <button class="btn-print" onclick="window.print()" title="Print Indent">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M18 3H6v4h12V3zM19 9H5c-1.1 0-2 .9-2 2v6h4v4h10v-4h4v-6c0-1.1-.9-2-2-2zm-3 9H8v-5h8v5zm3-4.5c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z"/>
-                        </svg>
-                    </button>
+                    <button class="btn-print" onclick="window.print()" title="Print Indent">🖨️</button>
                     <button class="btn-dispatch" onclick="markAsDispatched()">✅ Mark as Dispatched</button>
                 </div>
-
                 <div class="patient-info">
                     <div class="info-group"><strong>Indent No:</strong> <span id="lblIndentNo"></span></div>
                     <div class="info-group"><strong>Date Time:</strong> <span id="lblDate"></span></div>
@@ -292,119 +128,97 @@
                     <div class="info-group"><strong>Patient Name:</strong> <span id="lblPatient"></span></div>
                     <div class="info-group" style="grid-column: span 2;"><strong>Prescribed By:</strong> <span id="lblDoctor"></span></div>
                 </div>
-
                 <table>
-                    <thead>
-                        <tr>
-                            <th>Sr. No.</th>
-                            <th>Medicine / Consumable</th>
-                            <th>Quantity</th>
-                        </tr>
-                    </thead>
-                    <tbody id="medicineTableBody">
-                        </tbody>
+                    <thead><tr><th>Sr. No.</th><th>Medicine / Consumable</th><th>Quantity</th></tr></thead>
+                    <tbody id="medicineTableBody"></tbody>
                 </table>
             </div>
         </div>
-
     </div>
 
 <script>
-    // --- डॅशबोर्ड पासकोड तपासणारी सिस्टीम (दोन फार्मसी युनिट्ससाठी) ---
-    function checkPharmacyPasscode() {
-        const code = document.getElementById('passcodeInput').value.trim();
-        const errorMsg = document.getElementById('loginError');
-        
-        // 💡 टीप: जर तुमच्या डॅशबोर्डवर 'All Units' फिल्टर करण्याचा ड्रॉपडाऊन असेल, 
-        // आणि त्याचा ID 'unitFilter' असेल, तर हा कोड आपोआप ते युनिट सिलेक्ट करेल.
-        const filterDropdown = document.getElementById('branchFilter'); 
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwkxbyHQMljgU6AaEHj95UH2K5C2RXRdScUOzZrF8PSMuzw2kmLlHaMvrzVMG4dL88I/exec';
 
-        // 🔴 १. BMCCU फार्मसीचा पासकोड (सध्या 2222 ठेवला आहे)
-        if (code === "2222") { 
-            document.getElementById('loginOverlay').style.display = 'none'; 
-            
-            // आपोआप BMCCU फिल्टर करण्यासाठी (जर ड्रॉपडाऊन असेल तर)
-            if(filterDropdown) {
-                filterDropdown.value = "BMCCU";
-                filterDropdown.disabled = true;
-                filterDropdown.dispatchEvent(new Event('change')); // लिस्ट अपडेट करण्यासाठी
-            }
-        } 
-        // 🔴 २. DHIMSR फार्मसीचा पासकोड (सध्या 4444 ठेवला आहे)
-        else if (code === "4444") {
-            document.getElementById('loginOverlay').style.display = 'none';
-            
-            // आपोआप DHIMSR फिल्टर करण्यासाठी
-            if(filterDropdown) {
-                filterDropdown.value = "DHIMSR";
-                filterDropdown.disabled = true;
-                filterDropdown.dispatchEvent(new Event('change'));
-            }
-        } 
-        // चुकीचा पासकोड असल्यास
-        else {
-            errorMsg.style.display = 'block';
-            document.getElementById('passcodeInput').value = ''; 
-        }
-    }
-    
-    // Enter बटण दाबल्यावरही लॉग-इन व्हावे यासाठी सुविधा
-    document.addEventListener('DOMContentLoaded', function() {
-        const passInput = document.getElementById('passcodeInput');
-        if(passInput) {
-            passInput.addEventListener("keypress", function(event) {
-                if (event.key === "Enter") {
-                    event.preventDefault();
-                    checkPharmacyPasscode();
-                }
-            });
-        }
-    });
-    // 🔴 इथे तुमची Apps Script ची लिंक टाका 🔴
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzymM_BdjSLBvGuwwVDWk04P31MRV8jLa50nDpNWnnsdRGLva6IVjmEA0xxnAz4ywYS/exec';
-
+    let loggedInUnit = ""; 
     let currentSelectedIndent = null;
     let allIndents = [];
 
-    window.onload = function() {
-        fetchPendingIndents();
-    };
+    document.getElementById('passcodeInput').addEventListener("keypress", function(e) {
+        if (e.key === "Enter") checkPharmacyPasscode();
+    });
 
-    // १. गुगल शीटमधून डेटा ओढणे
+    function checkPharmacyPasscode() {
+        const code = document.getElementById('passcodeInput').value.trim();
+        const errorMsg = document.getElementById('loginError');
+        const btn = document.getElementById('loginBtn');
+        
+        if(!code) return;
+
+        btn.innerText = "तпасत आहे...";
+        btn.disabled = true;
+        errorMsg.style.display = 'none';
+
+        fetch(SCRIPT_URL + "?action=verifyPasscode&code=" + encodeURIComponent(code))
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.unit.toLowerCase() !== 'admin') {
+                loggedInUnit = data.unit; 
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('displayUnitName').innerText = "📍 " + loggedInUnit;
+                fetchPendingIndents(); 
+            } else {
+                throw new Error("Invalid Passcode");
+            }
+        })
+        .catch(err => {
+            errorMsg.style.display = 'block';
+            document.getElementById('passcodeInput').value = '';
+            btn.innerText = "लॉग-इन करा";
+            btn.disabled = false;
+        });
+    }
+
     function fetchPendingIndents() {
         const container = document.getElementById('indentListContainer');
-        container.innerHTML = '<p style="text-align:center; color:#e67e22; margin-top:20px;">लोड करत आहे... (Loading...)</p>';
+        container.innerHTML = '<p style="text-align:center; color:#e67e22; margin-top:20px;">लोड करत आहे...</p>';
 
         fetch(SCRIPT_URL + "?action=getPendingIndents")
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
-                allIndents = data;
-                filterIndents(); // डेटा आल्यावर ड्रॉपडाऊननुसार फिल्टर करणे
+                let grouped = {};
+                data.forEach(row => {
+                    if(!grouped[row.indentNo]) {
+                        grouped[row.indentNo] = {
+                            indentNo: row.indentNo, date: row.date, ward: row.ward,
+                            patientName: row.patient, doctor: row.doctor, medicines: []
+                        };
+                    }
+                    if(row.medicine) {
+                        grouped[row.indentNo].medicines.push({ name: row.medicine, qty: row.qty });
+                    }
+                });
+                
+                allIndents = Object.values(grouped);
+                filterIndents(); 
             })
             .catch(error => {
-                console.error("Error fetching data:", error);
                 container.innerHTML = '<p style="text-align:center; color:red;">❌ एरर: डेटा लोड होऊ शकला नाही.</p>';
             });
     }
 
-    // २. ड्रॉपडाऊननुसार फिल्टर करणे
     function filterIndents() {
-        const selectedBranch = document.getElementById('branchFilter').value;
         let filteredData = allIndents;
-
-        if (selectedBranch !== "All") {
-            filteredData = allIndents.filter(indent => indent.ward.includes(selectedBranch));
+        if (loggedInUnit) {
+            let filterText = loggedInUnit.replace("-PHARMACY", "").replace("-pharmacy", "").trim();
+            filteredData = allIndents.filter(ind => String(ind.ward).toUpperCase().includes(filterText.toUpperCase()));
         }
 
         renderIndentList(filteredData);
-        
-        // पॅनेल रिसेट
         document.getElementById('detailsContainer').style.display = 'none';
         document.getElementById('placeholder').style.display = 'block';
         currentSelectedIndent = null;
     }
 
-    // ३. कार्ड्स दाखवणे
     function renderIndentList(indents) {
         const container = document.getElementById('indentListContainer');
         container.innerHTML = ''; 
@@ -418,15 +232,18 @@
             const card = document.createElement('div');
             card.className = 'indent-card';
             
-            // 🕒 वेळ अचूक आणि सुंदर फॉरमॅटमध्ये काढणे
-            let timeOnly = indent.date;
+            // 🕒 🎯 फक्त TIME (वेळ) काढण्यासाठी फिक्स केलेले अचूक कोड लॉजिक
+            let timeOnly = "";
             try {
-                let d = new Date(indent.date);
-                if (!isNaN(d.getTime())) {
-                    // उदा. 12:41 PM असे दिसण्यासाठी
-                    timeOnly = d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+                let parts = indent.date.trim().split(/\s+/); // "dd/MM/yyyy", "hh:mm", "am/pm" चे तुकडे करणे
+                if (parts.length >= 2) {
+                    timeOnly = parts[1] + (parts[2] ? " " + parts[2] : ""); // फक्त वेळ + AM/PM एकत्र करणे
+                } else {
+                    timeOnly = indent.date; 
                 }
-            } catch(e) {}
+            } catch(e) {
+                timeOnly = indent.date;
+            }
 
             card.innerHTML = `
                 <div class="indent-header">
@@ -444,30 +261,19 @@
                 card.classList.add('active');
                 showIndentDetails(indent);
             };
-
             container.appendChild(card);
         });
     }
 
-    // ४. उजव्या बाजूला आणि प्रिंट टेम्पलेटमध्ये डिटेल्स दाखवणे
     function showIndentDetails(indent) {
         currentSelectedIndent = indent.indentNo;
-
         document.getElementById('placeholder').style.display = 'none';
         document.getElementById('detailsContainer').style.display = 'block';
 
-        // 🕒 तारीख आणि वेळ सुंदर फॉरमॅटमध्ये बदलणे
         let formattedDate = indent.date;
-        try {
-            let d = new Date(indent.date);
-            if (!isNaN(d.getTime())) {
-                formattedDate = d.toLocaleString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
-            }
-        } catch(e) {}
 
-        // --- अ) उजव्या बाजूच्या स्क्रीनवर डेटा टाकणे ---
         document.getElementById('lblIndentNo').innerText = indent.indentNo;
-        document.getElementById('lblDate').innerText = formattedDate; // इथे बदल केला
+        document.getElementById('lblDate').innerText = formattedDate; 
         document.getElementById('lblWard').innerText = indent.ward;
         document.getElementById('lblPatient').innerText = indent.patientName;
         document.getElementById('lblDoctor').innerText = indent.doctor;
@@ -475,25 +281,14 @@
         const tbody = document.getElementById('medicineTableBody');
         tbody.innerHTML = '';
         indent.medicines.forEach((med, index) => {
-            let medName = med.name;
-            let opdInfo = "";
-            // डोसची माहिती असेल तर केशरी रंगात वेगळी दाखवा
+            let medName = med.name; let opdInfo = "";
             if(medName.includes("[")) {
-                let parts = medName.split("[");
-                medName = parts[0].trim();
+                let parts = medName.split("["); medName = parts[0].trim();
                 opdInfo = `<br><span style="font-size: 13.5px; font-weight: normal; color: #e67e22;">[${parts[1]}</span>`;
             }
-
-            tbody.innerHTML += `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td><b>${medName}</b> ${opdInfo}</td>
-                    <td>${med.qty}</td>
-                </tr>
-            `;
+            tbody.innerHTML += `<tr><td>${index + 1}</td><td><b>${medName}</b> ${opdInfo}</td><td>${med.qty}</td></tr>`;
         });
 
-        // --- ब) 🖨️ लपलेल्या प्रिंट टेम्पलेटमध्ये डेटा टाकणे ---
         document.getElementById('prtPatient').innerText = indent.patientName;
         document.getElementById('prtWard').innerText = indent.ward;
         document.getElementById('prtDate').innerText = formattedDate; 
@@ -503,67 +298,39 @@
         const prtBody = document.getElementById('prtMedicineList');
         prtBody.innerHTML = '';
         indent.medicines.forEach(med => {
-            let medName = med.name;
-            let opdInfo = "";
+            let medName = med.name; let opdInfo = "";
             if(medName.includes("[")) {
-                let parts = medName.split("[");
-                medName = parts[0].trim();
+                let parts = medName.split("["); medName = parts[0].trim();
                 opdInfo = `<br><span style="font-size: 13px; font-weight: normal; color: #555;">[${parts[1]}</span>`;
             }
-
-            prtBody.innerHTML += `
-                <tr>
-                    <td colspan="3" style="font-weight: bold; border: 1px solid #b2ebf2; padding: 6px;">
-                        ${medName} ${opdInfo}
-                    </td>
-                    <td style="text-align: center; font-weight: bold; border: 1px solid #b2ebf2; padding: 6px;">${med.qty}</td>
-                </tr>
-            `;
+            prtBody.innerHTML += `<tr><td colspan="3" style="font-weight: bold; border: 1px solid #b2ebf2; padding: 6px;">${medName} ${opdInfo}</td><td style="text-align: center; font-weight: bold; border: 1px solid #b2ebf2; padding: 6px;">${med.qty}</td></tr>`;
         });
     }
 
-    // ५. डिस्पॅच मार्क करणे
     function markAsDispatched() {
         if(!currentSelectedIndent) return;
-        
         const btn = document.querySelector('.btn-dispatch');
         btn.innerHTML = "⏳ Update करत आहे...";
         btn.disabled = true;
 
-        const payload = {
-            action: "markDispatched",
-            indentNo: currentSelectedIndent
-        };
-
         fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        })
-        .then(() => {
-            alert(currentSelectedIndent + " यशस्वीरित्या Dispatched मार्क झाला!");
-            
+            method: 'POST', mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: "markDispatched", indentNo: currentSelectedIndent })
+        }).then(() => {
+            alert("✅ " + currentSelectedIndent + " यशस्वीरित्या Dispatched मार्क झाला!");
             document.getElementById('detailsContainer').style.display = 'none';
             document.getElementById('placeholder').style.display = 'block';
             currentSelectedIndent = null;
-            
             btn.innerHTML = "✅ Mark as Dispatched";
             btn.disabled = false;
-
-            // लिस्ट रिफ्रेश करा
             fetchPendingIndents();
-        })
-        .catch(error => {
-            console.error('Error!', error);
+        }).catch(err => {
             alert("❌ काहीतरी चूक झाली. कृपया पुन्हा प्रयत्न करा.");
             btn.innerHTML = "✅ Mark as Dispatched";
             btn.disabled = false;
         });
     }
 </script>
-
 </body>
 </html>
