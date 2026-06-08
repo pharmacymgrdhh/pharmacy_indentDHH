@@ -151,7 +151,7 @@
         .btn-print-nursing:hover { background-color: #d68910; }
     </style>
 </head>
-<body onload="fetchMasterData()">
+<body>
     <div id="loginOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #2c3e50; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;">
     <img src="dhh.png" alt="Hospital Logo" style="height: 70px; margin-bottom: 20px; background-color: white; padding: 5px; border-radius: 5px;">
     <h2 style="color: white; border-bottom: none; margin-bottom: 20px;">नर्सिंग स्टेशन लॉग-इन</h2>
@@ -302,94 +302,123 @@
 </div>
 
 <script>
-    // --- १. पासकोड तपासणारी सिस्टीम ---
+    const LIVE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwkxbyHQMljgU6AaEHj95UH2K5C2RXRdScUOzZrF8PSMuzw2kmLlHaMvrzVMG4dL88I/exec';
+
+    let loggedInUnit = "";
+    let indentList = [];
+
+    // Enter की दाबल्यावर लॉग-इन
+    document.getElementById('passcodeInput').addEventListener("keypress", function(e) {
+        if (e.key === "Enter") checkPasscode();
+    });
+
+    // --- १. पासकोड तपासणारी सिस्टीम (Crash-Free Update) ---
     function checkPasscode() {
         const code = document.getElementById('passcodeInput').value.trim();
         const errorMsg = document.getElementById('loginError');
-        const unitDropdown = document.getElementById('unitName');
+        
+        if(!code) return;
 
-        if (code === "2222") { 
-            document.getElementById('loginOverlay').style.display = 'none'; 
-            unitDropdown.value = "BMCCU"; 
-            unitDropdown.disabled = true; 
-        } 
-        else if (code === "1111") {
-            document.getElementById('loginOverlay').style.display = 'none';
-            unitDropdown.value = "DHIMSR";
-            unitDropdown.disabled = true;
-        } 
-        else {
+        errorMsg.style.display = 'none';
+        const timestamp = new Date().getTime(); 
+
+        fetch(LIVE_SCRIPT_URL + "?action=verifyPasscode&code=" + encodeURIComponent(code) + "&t=" + timestamp)
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.unit.toLowerCase() !== 'admin' && !data.unit.toLowerCase().includes('pharmacy')) {
+                document.getElementById('loginOverlay').style.display = 'none';
+                loggedInUnit = data.unit; 
+                
+                // युनिट बॉक्समध्ये अचूक नाव टाकून ते लॉक करणे
+                const unitSelect = document.getElementById('unitName');
+                if(![...unitSelect.options].some(opt => opt.value === loggedInUnit)) {
+                    let newOpt = document.createElement("option");
+                    newOpt.value = loggedInUnit;
+                    newOpt.text = loggedInUnit;
+                    unitSelect.add(newOpt);
+                }
+                unitSelect.value = loggedInUnit;
+                unitSelect.disabled = true;
+
+                fetchMasterData();
+            } else {
+                errorMsg.style.display = 'block';
+                document.getElementById('passcodeInput').value = '';
+            }
+        })
+        .catch(err => {
             errorMsg.style.display = 'block';
-            document.getElementById('passcodeInput').value = ''; 
-        }
+            document.getElementById('passcodeInput').value = '';
+        });
     }
 
-    let indentList = [];
-
-    // --- २. पेज लोड झाल्यावरचे इव्हेंट्स ---
-    document.addEventListener('DOMContentLoaded', function() {
-        
-        // Enter की दाबल्यावर लॉग-इन
-        const passInput = document.getElementById('passcodeInput');
-        if(passInput) {
-            passInput.addEventListener("keypress", function(event) {
-                if (event.key === "Enter") {
-                    event.preventDefault();
-                    checkPasscode(); 
-                }
-            });
-        }
-
-        // औषधाचे नाव क्लीन करणे
-        document.getElementById('medicineName').addEventListener('input', function(e) {
-            let val = e.target.value;
-            if (val.includes("[")) {
-                e.target.value = val.split("[")[0].trim().replace(/-$/, "").trim();
-            }
-        }); 
-
-        // OPD बॉक्स दाखवणे/लपवणे
-        document.getElementById('wardName').addEventListener('change', function() {
-            const opdSection = document.getElementById('opdFields');
-            if (this.value === "OPD") {
-                opdSection.style.display = 'flex';
-            } else {
-                opdSection.style.display = 'none';
-            }
-        });
-    });
-
-    // --- ३. मास्टर डेटा ओढणे ---
+    // --- २. मास्टर डेटा ओढणे (Strictly Live Data Only) ---
     function fetchMasterData() {
-        document.getElementById('docLoader').style.display = 'inline';
-        document.getElementById('medLoader').style.display = 'inline';
-
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbzymM_BdjSLBvGuwwVDWk04P31MRV8jLa50nDpNWnnsdRGLva6IVjmEA0xxnAz4ywYS/exec?action=getDropdownData'; 
+        const docLoader = document.getElementById('docLoader');
+        const medLoader = document.getElementById('medLoader');
         
-        fetch(scriptURL)
+        if(docLoader) docLoader.style.display = 'inline';
+        if(medLoader) medLoader.style.display = 'inline';
+
+        const timestamp = new Date().getTime();
+
+        fetch(LIVE_SCRIPT_URL + "?action=getDropdownData&t=" + timestamp)
             .then(response => response.json())
             .then(data => {
+                const wardSelect = document.getElementById('wardName');
+                wardSelect.innerHTML = '<option value="">-- वॉर्ड निवडा --</option>'; 
+                
+                if(data.wards && data.wards.length > 0) {
+                    data.wards.forEach(w => {
+                        let wName = typeof w === 'object' ? w.name : w;
+                        let wUnit = typeof w === 'object' ? w.unit : loggedInUnit;
+                        
+                        // 🔴 इथे फक्त गुगल शीटचेच वॉर्ड्स येतील. OPD मॅन्युअली ऍड करण्याचा कोड पूर्ण काढून टाकला आहे!
+                        if (wUnit === loggedInUnit) {
+                            let opt = document.createElement('option');
+                            opt.value = wName; 
+                            opt.text = wName;
+                            wardSelect.appendChild(opt);
+                        }
+                    });
+                }
+
                 populateDatalist('doctorList', data.doctors);
                 populateDatalist('medicineList', data.medicines);
-                document.getElementById('docLoader').style.display = 'none';
-                document.getElementById('medLoader').style.display = 'none';
+                
+                if(docLoader) docLoader.style.display = 'none';
+                if(medLoader) medLoader.style.display = 'none';
             })
             .catch(error => {
-                console.error("Data Fetch Error: ", error);
-                document.getElementById('docLoader').innerText = "❌ Error";
-                document.getElementById('medLoader').innerText = "❌ Error";
+                if(docLoader) docLoader.innerText = "❌ Error";
+                if(medLoader) medLoader.innerText = "❌ Error";
             });
     }
 
     function populateDatalist(listId, itemsArray) {
         const dataList = document.getElementById(listId);
         dataList.innerHTML = ''; 
-        itemsArray.forEach(item => {
-            let option = document.createElement('option');
-            option.value = item;
-            dataList.appendChild(option);
-        });
+        if(itemsArray && itemsArray.length > 0) {
+            itemsArray.forEach(item => {
+                let option = document.createElement('option');
+                option.value = item;
+                dataList.appendChild(option);
+            });
+        }
     }
+
+    // --- ३. औषधाचे नाव आणि OPD बॉक्स लॉजिक ---
+    document.getElementById('medicineName').addEventListener('input', function(e) {
+        let val = e.target.value;
+        if (val.includes("[")) { e.target.value = val.split("[")[0].trim().replace(/-$/, "").trim(); }
+    }); 
+
+    document.getElementById('wardName').addEventListener('change', function() {
+        const opdSection = document.getElementById('opdFields');
+        // 🔴 वॉर्डच्या नावात कुठेही "OPD" हा शब्द आला की डोस बॉक्स उघडेल 
+        let isOPD = this.value.toUpperCase().includes("OPD");
+        opdSection.style.display = isOPD ? 'flex' : 'none';
+    });
 
     // --- ४. औषध लिस्टमध्ये जोडणे ---
     function addMedicine() {
@@ -397,28 +426,17 @@
         let qty = document.getElementById('quantity').value.trim();
         const ward = document.getElementById('wardName').value;
 
-        if(medInput === "") {
-            alert("कृपया औषधाचे नाव टाका.");
-            return;
-        }
+        let isOPD = ward.toUpperCase().includes("OPD");
 
-        if(ward !== "OPD" && qty === "") {
-            alert("कृपया औषधाची संख्या (Qty) टाका.");
-            return;
-        }
-
-        if(ward === "OPD" && qty === "") {
-            qty = "-";
-        }
+        if(medInput === "") { alert("कृपया औषधाचे नाव टाका."); return; }
+        if(!isOPD && qty === "") { alert("कृपया औषधाची संख्या (Qty) टाका."); return; }
+        if(isOPD && qty === "") { qty = "-"; }
 
         let cleanMedicineName = medInput;
-        if(medInput.includes("[")) {
-            cleanMedicineName = medInput.split("[")[0].trim().replace(/-$/, "").trim();
-        }
-
+        if(medInput.includes("[")) { cleanMedicineName = medInput.split("[")[0].trim().replace(/-$/, "").trim(); }
         let finalMedicineName = cleanMedicineName;
 
-        if (ward === "OPD") {
+        if (isOPD) {
             let m = document.getElementById('doseM').checked ? "M" : "-";
             let a = document.getElementById('doseA').checked ? "A" : "-";
             let n = document.getElementById('doseN').checked ? "N" : "-";
@@ -430,23 +448,14 @@
             if (duration !== "") opdDetails.push(`${duration} Days`);
             if (direction !== "") opdDetails.push(direction);
             
-            if(opdDetails.length > 0) {
-                finalMedicineName = `${cleanMedicineName} [${opdDetails.join(" | ")}]`;
-            }
+            if(opdDetails.length > 0) { finalMedicineName = `${cleanMedicineName} [${opdDetails.join(" | ")}]`; }
 
-            document.getElementById('doseM').checked = false;
-            document.getElementById('doseA').checked = false;
-            document.getElementById('doseN').checked = false;
-            document.getElementById('medDuration').value = '';
+            document.getElementById('doseM').checked = false; document.getElementById('doseA').checked = false;
+            document.getElementById('doseN').checked = false; document.getElementById('medDuration').value = '';
             document.getElementById('medDirection').value = '';
         }
 
-        indentList.push({ 
-            displayName: finalMedicineName, 
-            cleanName: finalMedicineName, 
-            quantity: qty 
-        });
-        
+        indentList.push({ displayName: finalMedicineName, cleanName: finalMedicineName, quantity: qty });
         updateTable();
 
         document.getElementById('medicineName').value = '';
@@ -457,69 +466,43 @@
     function updateTable() {
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = ''; 
-
         indentList.forEach((item, index) => {
-            let row = `<tr>
-                <td>${item.displayName}</td>
-                <td>${item.quantity}</td>
-                <td class="delete-btn" onclick="removeMedicine(${index})">❌</td>
-            </tr>`;
-            tbody.innerHTML += row;
+            tbody.innerHTML += `<tr><td>${item.displayName}</td><td>${item.quantity}</td><td class="delete-btn" onclick="removeMedicine(${index})">❌</td></tr>`;
         });
     }
 
-    function removeMedicine(index) {
-        indentList.splice(index, 1);
-        updateTable();
-    }
+    function removeMedicine(index) { indentList.splice(index, 1); updateTable(); }
 
     // --- ५. इंडेंट सबमिट करणे ---
     function submitIndent() {
-        const unit = document.getElementById('unitName').value;
         const ward = document.getElementById('wardName').value;
         const patientName = document.getElementById('patientName').value.trim();
         const prescribedBy = document.getElementById('prescribedBy').value.trim();
 
-        if(patientName === "") {
-            alert("कृपया रुग्णाचे नाव टाका.");
-            document.getElementById('patientName').focus();
-            return;
-        }
-        if(prescribedBy === "") {
-            alert("कृपया डॉक्टरांचे नाव टाका किंवा निवडा.");
-            document.getElementById('prescribedBy').focus();
-            return;
-        }
-        if(indentList.length === 0) {
-            alert("लिस्टमध्ये कोणतेही औषध नाही. कृपया आधी औषधे जोडा.");
-            document.getElementById('medicineName').focus();
-            return;
-        }
+        if(ward === "") { alert("कृपया वॉर्ड निवडा."); document.getElementById('wardName').focus(); return; }
+        if(patientName === "") { alert("कृपया रुग्णाचे नाव टाका."); document.getElementById('patientName').focus(); return; }
+        if(prescribedBy === "") { alert("कृपया डॉक्टरांचे नाव टाका किंवा निवडा."); document.getElementById('prescribedBy').focus(); return; }
+        if(indentList.length === 0) { alert("लिस्टमध्ये कोणतेही औषध नाही. कृपया आधी औषधे जोडा."); document.getElementById('medicineName').focus(); return; }
         
         const submitBtn = document.querySelector('.btn-submit');
         submitBtn.innerHTML = "⏳ पाठवत आहे... (Sending...)";
         submitBtn.disabled = true;
 
-        const unitWardCombined = unit + " - " + ward;
-
-        const payload = {
-            unitWard: unitWardCombined,
-            patientName: patientName,
-            prescribedBy: prescribedBy,
-            items: indentList 
+        const unitWardCombined = loggedInUnit + " - " + ward;
+        const payload = { 
+            action: "submitIndent", 
+            unitName: loggedInUnit, 
+            wardName: unitWardCombined, 
+            patientName: patientName, 
+            doctorName: prescribedBy, 
+            items: indentList.map(item => ({ name: item.displayName, qty: item.quantity })) 
         };
 
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbzymM_BdjSLBvGuwwVDWk04P31MRV8jLa50nDpNWnnsdRGLva6IVjmEA0xxnAz4ywYS/exec'; 
-
-        fetch(scriptURL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+        fetch(LIVE_SCRIPT_URL, {
+            method: 'POST', mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
-        })
-        .then(() => {
+        }).then(() => {
             alert("✅ " + patientName + " यांचा Indent यशस्वीरित्या फार्मसीला पाठवला गेला!");
             
             let now = new Date();
@@ -533,37 +516,22 @@
             const prtBody = document.getElementById('prtMedicineList');
             prtBody.innerHTML = '';
             indentList.forEach(item => {
-                let medName = item.displayName;
-                let opdInfo = "";
-                
-                // जर नावात OPD ची माहिती (ब्रॅकेट) असेल, तर ती वेगळी करून खालील ओळीवर दाखवा
+                let medName = item.displayName; let opdInfo = "";
                 if(medName.includes("[")) {
-                    let parts = medName.split("[");
-                    medName = parts[0].trim();
+                    let parts = medName.split("["); medName = parts[0].trim();
                     opdInfo = `<br><span style="font-size: 13px; font-weight: normal; color: #555;">[${parts[1]}</span>`;
                 }
-
-                prtBody.innerHTML += `
-                    <tr>
-                        <td colspan="3" style="font-weight: bold; border: 1px solid #b2ebf2; padding: 6px;">
-                            ${medName} ${opdInfo}
-                        </td>
-                        <td style="text-align: center; font-weight: bold; border: 1px solid #b2ebf2; padding: 6px;">${item.quantity}</td>
-                    </tr>
-                `;
+                prtBody.innerHTML += `<tr><td colspan="3" style="font-weight: bold; border: 1px solid #b2ebf2; padding: 6px;">${medName} ${opdInfo}</td><td style="text-align: center; font-weight: bold; border: 1px solid #b2ebf2; padding: 6px;">${item.quantity}</td></tr>`;
             });
 
-            document.getElementById('btnPrint').style.display = 'block';
+            const btnPrint = document.getElementById('btnPrint');
+            if(btnPrint) btnPrint.style.display = 'block';
             
-            indentList = [];
-            updateTable();
+            indentList = []; updateTable();
             document.getElementById('patientName').value = '';
-            
             submitBtn.innerHTML = "✅ फार्मसीला पाठवा (Submit Indent)";
             submitBtn.disabled = false;
-        })
-        .catch(error => {
-            console.error('Error!', error);
+        }).catch(error => {
             alert("❌ काहीतरी चूक झाली. कृपया पुन्हा प्रयत्न करा.");
             submitBtn.innerHTML = "✅ फार्मसीला पाठवा (Submit Indent)";
             submitBtn.disabled = false;
