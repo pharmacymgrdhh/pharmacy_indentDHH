@@ -48,29 +48,40 @@
     </div>
 
     <div class="content">
+        <!-- Analytics Tab -->
         <div id="analyticsTab" class="tab-section active">
             <div class="card" style="border-top-color: #9b59b6;">
                 <h3>📉 Interactive Pharmacy Analytics</h3>
                 <div class="form-row" style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
                     <div class="form-group"><label>Start Date:</label><input type="date" id="chartStart"></div>
                     <div class="form-group"><label>End Date:</label><input type="date" id="chartEnd"></div>
-                    <div class="form-group"><label>Unit / Ward:</label><select id="chartWard"><option value="All">All Wards</option></select></div>
-                    <div class="form-group"><label>Graph Type:</label><select id="chartType"><option value="daywise">Day-wise Average</option><option value="indentwise">Indent-wise Details</option></select></div>
+                    
+                    <!-- 🔴 नवीन Unit आणि Ward फिल्टर्स -->
+                    <div class="form-group"><label>Unit:</label><select id="chartUnit" onchange="updateDynamicWards('chartUnit', 'chartWard')"><option value="All">All Units</option></select></div>
+                    <div class="form-group"><label>Ward:</label><select id="chartWard"><option value="All">All Wards</option></select></div>
+                    
+                    <div class="form-group"><label>Graph Type:</label><select id="chartType"><option value="daywise">Day-wise</option><option value="indentwise">Indent-wise</option></select></div>
                     <div class="form-group" style="display: flex; align-items: flex-end;"><button class="btn" style="width: 100%;" onclick="renderChart()">Apply Filters</button></div>
                 </div>
                 <div style="height: 350px; width: 100%;"><canvas id="responseChart"></canvas></div>
             </div>
         </div>
 
+        <!-- Search Tab -->
         <div id="searchTab" class="tab-section">
             <div class="card" style="border-top-color: #3498db;">
                 <h3>🔍 Smart Indent Search</h3>
                 <div class="form-row" style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
                     <div class="form-group"><label>From Date:</label><input type="date" id="searchFrom"></div>
                     <div class="form-group"><label>To Date:</label><input type="date" id="searchTo"></div>
+                    
+                    <!-- 🔴 नवीन Unit आणि Ward फिल्टर्स -->
+                    <div class="form-group"><label>Unit:</label><select id="searchUnit" onchange="updateDynamicWards('searchUnit', 'searchWard')"><option value="All">All Units</option></select></div>
+                    <div class="form-group"><label>Ward:</label><select id="searchWard"><option value="All">All Wards</option></select></div>
+                    
                     <div class="form-group"><label>Patient Name:</label><input type="text" id="searchPatient" placeholder="नाव टाका..."></div>
                     <div class="form-group"><label>Indent No:</label><input type="text" id="searchIndentNo" placeholder="उदा. IND-..."></div>
-                    <div class="form-group" style="display: flex; align-items: flex-end;"><button class="btn" style="width: 100%; background-color: #2980b9;" onclick="searchIndents()">शोधा (Search)</button></div>
+                    <div class="form-group" style="display: flex; align-items: flex-end;"><button class="btn" style="width: 100%; background-color: #2980b9;" onclick="searchIndents()">शोधा</button></div>
                 </div>
                 <table>
                     <thead>
@@ -83,6 +94,7 @@
             </div>
         </div>
 
+        <!-- Settings Tab -->
         <div id="settingsTab" class="tab-section">
             <div class="form-row">
                 <div class="form-group card" style="border-top-color: #e67e22;">
@@ -126,10 +138,10 @@
     </div>
 
     <script>
-    // 🔴 तुमची Beta Script URL इथे टाका
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwkxbyHQMljgU6AaEHj95UH2K5C2RXRdScUOzZrF8PSMuzw2kmLlHaMvrzVMG4dL88I/exec';
     
     let allIndentsData = [];
+    let globalWardsData = []; 
     let myChart = null;
 
     function switchTab(tabId, btn) {
@@ -144,37 +156,69 @@
         fetch(SCRIPT_URL + "?action=getAdminDashboardData")
             .then(res => res.json())
             .then(data => {
-                allIndentsData = data.indents;
-                populateWardDropdown(data.settings.wards);
+                allIndentsData = data.indents || [];
+                globalWardsData = data.settings.wards || []; 
+                
+                populateInitialDropdowns(data.settings.passcodes || []);
                 renderSettings(data.settings);
                 renderChart(); 
                 searchIndents(); 
-            }).catch(err => alert("डेटा लोड करताना एरर आला."));
+            }).catch(err => {
+                console.error("Fetch Error:", err);
+                alert("डेटा लोड करताना एरर आला. कृपया पेज रिफ्रेश करा.");
+            });
     };
 
-    function populateWardDropdown(wards) {
-        let sel = document.getElementById('chartWard');
-        wards.forEach(w => sel.innerHTML += `<option value="${w.name}">${w.name}</option>`);
+    function populateInitialDropdowns(passcodes) {
+        let unitOptions = '<option value="All">All Units</option>';
+        passcodes.forEach(p => {
+            if(p && p.unit) {
+                let uName = p.unit.toLowerCase();
+                if(uName !== 'admin' && !uName.includes('pharmacy')) {
+                    unitOptions += `<option value="${p.unit}">${p.unit}</option>`;
+                }
+            }
+        });
+        document.getElementById('chartUnit').innerHTML = unitOptions;
+        document.getElementById('searchUnit').innerHTML = unitOptions;
+        
+        updateDynamicWards('chartUnit', 'chartWard');
+        updateDynamicWards('searchUnit', 'searchWard');
     }
 
-    // --- 📅 Date Helper Function ---
+    function updateDynamicWards(unitDropdownId, wardDropdownId) {
+        let selectedUnit = document.getElementById(unitDropdownId).value;
+        let wardSelect = document.getElementById(wardDropdownId);
+        wardSelect.innerHTML = '<option value="All">All Wards</option>';
+        
+        let activeWards = globalWardsData.filter(w => w && w.status && w.status.toLowerCase() === 'active');
+        
+        if (selectedUnit !== "All") activeWards = activeWards.filter(w => w.unit === selectedUnit);
+        
+        activeWards.forEach(w => {
+            if(w && w.name) wardSelect.innerHTML += `<option value="${w.name}">${w.name}</option>`;
+        });
+    }
+
     function parseDateStr(dateStr) {
         if(!dateStr) return new Date(0);
-        let parts = dateStr.split(" ")[0].split("/");
+        let parts = String(dateStr).split(" ")[0].split("/");
         return new Date(parts[2], parts[1]-1, parts[0]);
     }
 
-    // --- 📊 Interactive Chart Logic ---
     function renderChart() {
         let start = document.getElementById('chartStart').value ? new Date(document.getElementById('chartStart').value) : null;
         let end = document.getElementById('chartEnd').value ? new Date(document.getElementById('chartEnd').value) : null;
+        let unitFilter = document.getElementById('chartUnit').value;
         let wardFilter = document.getElementById('chartWard').value;
         let chartType = document.getElementById('chartType').value;
 
-        let filtered = allIndentsData.filter(ind => ind.status === "Dispatched" && ind.responseTime !== "");
+        let filtered = allIndentsData.filter(ind => ind && ind.status === "Dispatched" && ind.responseTime !== "");
         if(start) filtered = filtered.filter(ind => parseDateStr(ind.dateStr) >= start);
         if(end) filtered = filtered.filter(ind => parseDateStr(ind.dateStr) <= end);
-        if(wardFilter !== "All") filtered = filtered.filter(ind => ind.ward === wardFilter);
+        
+        if(unitFilter !== "All") filtered = filtered.filter(ind => ind.ward && String(ind.ward).includes(unitFilter));
+        if(wardFilter !== "All") filtered = filtered.filter(ind => ind.ward && String(ind.ward).includes(wardFilter));
 
         let labels = []; let dataPoints = []; let chartLabel = ""; let chartTypeJS = "line";
 
@@ -183,9 +227,9 @@
             chartTypeJS = "line";
             let daily = {};
             filtered.forEach(ind => {
-                let dStr = ind.dateStr.split(" ")[0]; 
+                let dStr = String(ind.dateStr).split(" ")[0]; 
                 if(!daily[dStr]) daily[dStr] = { sum: 0, count: 0 };
-                daily[dStr].sum += parseInt(ind.responseTime);
+                daily[dStr].sum += parseInt(ind.responseTime) || 0;
                 daily[dStr].count++;
             });
             for(let key in daily) {
@@ -196,8 +240,8 @@
             chartLabel = "Indent PRT (Mins)";
             chartTypeJS = "bar";
             filtered.forEach(ind => {
-                labels.push(ind.indentNo.replace("IND-", ""));
-                dataPoints.push(parseInt(ind.responseTime));
+                labels.push(String(ind.indentNo).replace("IND-", ""));
+                dataPoints.push(parseInt(ind.responseTime) || 0);
             });
         }
 
@@ -217,18 +261,23 @@
         });
     }
 
-    // --- 🔍 Search & Table Logic ---
     function searchIndents() {
         let fromD = document.getElementById('searchFrom').value ? new Date(document.getElementById('searchFrom').value) : null;
         let toD = document.getElementById('searchTo').value ? new Date(document.getElementById('searchTo').value) : null;
+        let unitFilter = document.getElementById('searchUnit').value;
+        let wardFilter = document.getElementById('searchWard').value;
         let pat = document.getElementById('searchPatient').value.toLowerCase();
         let indNo = document.getElementById('searchIndentNo').value.toLowerCase();
 
         let filtered = allIndentsData;
         if(fromD) filtered = filtered.filter(ind => parseDateStr(ind.dateStr) >= fromD);
         if(toD) filtered = filtered.filter(ind => parseDateStr(ind.dateStr) <= toD);
-        if(pat) filtered = filtered.filter(ind => ind.patient.toLowerCase().includes(pat));
-        if(indNo) filtered = filtered.filter(ind => ind.indentNo.toLowerCase().includes(indNo));
+        
+        if(unitFilter !== "All") filtered = filtered.filter(ind => ind.ward && String(ind.ward).includes(unitFilter));
+        if(wardFilter !== "All") filtered = filtered.filter(ind => ind.ward && String(ind.ward).includes(wardFilter));
+        
+        if(pat) filtered = filtered.filter(ind => ind.patient && String(ind.patient).toLowerCase().includes(pat));
+        if(indNo) filtered = filtered.filter(ind => ind.indentNo && String(ind.indentNo).toLowerCase().includes(indNo));
 
         const tbody = document.getElementById('searchResults');
         tbody.innerHTML = '';
@@ -248,15 +297,18 @@
         });
     }
 
-    // --- 🖨️ PDF Print Logic ---
     function generatePDF(indentNo) {
         let indent = allIndentsData.find(i => i.indentNo === indentNo);
         if(!indent) return;
 
         let itemRows = "";
-        indent.items.forEach((item, index) => {
-            itemRows += `<tr><td style="border:1px solid #000; padding:5px; text-align:center;">${index+1}</td><td style="border:1px solid #000; padding:5px;">${item.name}</td><td style="border:1px solid #000; padding:5px; text-align:center;">${item.qty}</td></tr>`;
-        });
+        if(indent.items && indent.items.length > 0) {
+            indent.items.forEach((item, index) => {
+                itemRows += `<tr><td style="border:1px solid #000; padding:5px; text-align:center;">${index+1}</td><td style="border:1px solid #000; padding:5px;">${item.name}</td><td style="border:1px solid #000; padding:5px; text-align:center;">${item.qty}</td></tr>`;
+            });
+        } else {
+            itemRows = `<tr><td colspan="3" style="border:1px solid #000; padding:5px; text-align:center;">औषधांची माहिती उपलब्ध नाही.</td></tr>`;
+        }
 
         let printWindow = window.open('', '', 'width=800,height=600');
         printWindow.document.write(`
@@ -280,47 +332,56 @@
         `);
     }
 
-    // --- Settings Tab Functions ---
-    let globalWardsData = []; 
-
     function renderSettings(sData) {
-        globalWardsData = sData.wards; 
+        globalWardsData = sData.wards || []; 
 
-        // १. पासकोड टेबल
         let pHTML = '<tr><th>Unit</th><th>Passcode</th></tr>';
-        let unitDropdownHTML = '<option value="All">All Units</option>';
         let newWardUnitHTML = '';
 
-        sData.passcodes.forEach(p => {
-            pHTML += `<tr>
-                <td><b>${p.unit}</b></td>
-                <td style="display: flex; align-items: center; justify-content: space-between;">
-                    <span style="letter-spacing: 4px; font-size: 18px; color: #555;">••••</span>
-                    <button style="color:#e67e22; border:none; background:none; cursor:pointer; font-size:16px;" onclick="editPasscode('${p.unit}')" title="Edit Passcode">✏️</button>
-                </td>
-            </tr>`;
-            
-            if(p.unit.toLowerCase() !== 'admin') {
-                unitDropdownHTML += `<option value="${p.unit}">${p.unit}</option>`;
-                newWardUnitHTML += `<option value="${p.unit}">${p.unit}</option>`;
-            }
-        });
+        if(sData.passcodes) {
+            sData.passcodes.forEach(p => {
+                if(p && p.unit) {
+                    pHTML += `<tr>
+                        <td><b>${p.unit}</b></td>
+                        <td style="display: flex; align-items: center; justify-content: space-between;">
+                            <span style="letter-spacing: 4px; font-size: 18px; color: #555;">••••</span>
+                            <button style="color:#e67e22; border:none; background:none; cursor:pointer; font-size:16px;" onclick="editPasscode('${p.unit}')" title="Edit Passcode">✏️</button>
+                        </td>
+                    </tr>`;
+                    
+                    let uName = p.unit.toLowerCase();
+                    if(uName !== 'admin' && !uName.includes('pharmacy')) {
+                        newWardUnitHTML += `<option value="${p.unit}">${p.unit}</option>`;
+                    }
+                }
+            });
+        }
         
         document.getElementById('passcodeTable').innerHTML = pHTML;
-        document.getElementById('wardUnitFilter').innerHTML = unitDropdownHTML;
         document.getElementById('newWardUnitSelect').innerHTML = newWardUnitHTML;
 
-        // २. वॉर्ड्स टेबल रेंडर
+        let unitDropdownHTML = '<option value="All">All Units</option>';
+        if(sData.passcodes) {
+            sData.passcodes.forEach(p => {
+                if(p && p.unit) {
+                    let uName = p.unit.toLowerCase();
+                    if(uName !== 'admin' && !uName.includes('pharmacy')) {
+                         unitDropdownHTML += `<option value="${p.unit}">${p.unit}</option>`;
+                    }
+                }
+            });
+        }
+        document.getElementById('wardUnitFilter').innerHTML = unitDropdownHTML;
+        
         renderWardsTable();
     }
 
-    // अचूक युनिटनुसार वॉर्ड्स फिल्टर
     function renderWardsTable() {
         let selectedUnit = document.getElementById('wardUnitFilter').value;
         let filteredWards = globalWardsData;
 
         if (selectedUnit !== "All") {
-            filteredWards = globalWardsData.filter(w => w.unit === selectedUnit);
+            filteredWards = globalWardsData.filter(w => w && w.unit === selectedUnit);
         }
 
         let wHTML = '<tr><th>Ward Name</th><th>Status</th><th>Action</th></tr>';
@@ -329,58 +390,42 @@
             wHTML += `<tr><td colspan="3" style="text-align:center; color:#999;">या युनिटमध्ये वॉर्ड्स नाहीत.</td></tr>`;
         } else {
             filteredWards.forEach(w => {
-                let active = w.status.toLowerCase() === 'active';
-                wHTML += `<tr>
-                    <td>${w.name}</td>
-                    <td><span class="status-badge ${active ? 'bg-active' : 'bg-inactive'}">${w.status}</span></td>
-                    <td><label class="switch"><input type="checkbox" ${active ? 'checked' : ''} onchange="toggleWardStatus('${w.unit}', '${w.name}', ${active})"><span class="slider"></span></label></td>
-                </tr>`;
+                if(w && w.name && w.status) {
+                    let active = w.status.toLowerCase() === 'active';
+                    wHTML += `<tr>
+                        <td>${w.name}</td>
+                        <td><span class="status-badge ${active ? 'bg-active' : 'bg-inactive'}">${w.status}</span></td>
+                        <td><label class="switch"><input type="checkbox" ${active ? 'checked' : ''} onchange="toggleWardStatus('${w.unit}', '${w.name}', ${active})"><span class="slider"></span></label></td>
+                    </tr>`;
+                }
             });
         }
         document.getElementById('wardTable').innerHTML = wHTML;
     }
 
-    // --- 🔴 Missing Functions Added Here ---
-
-    // टॉगल स्विचवर क्लिक केल्यावर खऱ्या गुगल शीटमध्ये बदल करणारे फंक्शन
     function toggleWardStatus(unit, ward, isActive) {
         let payload = { action: "toggleWardStatus", unitName: unit, wardName: ward, newStatus: isActive ? "Inactive" : "Active" };
-        
         document.getElementById('wardTable').style.opacity = '0.5';
-
         fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
         .then(response => response.json())
-        .then(data => {
-            setTimeout(() => location.reload(), 800); 
-        })
-        .catch(error => {
-            console.error('Error!', error);
-            alert("❌ स्टेटस बदलताना एरर आला. कृपया पुन्हा प्रयत्न करा.");
-            location.reload(); 
-        });
+        .then(data => { setTimeout(() => location.reload(), 800); })
+        .catch(error => { alert("❌ स्टेटस बदलताना एरर आला."); location.reload(); });
     }
 
-    // नवीन पासकोड विचारणारे आणि शीटमध्ये सेव्ह करणारे फंक्शन
     function editPasscode(unitName) {
         let newPasscode = prompt(unitName + " साठी नवीन पासकोड टाका:");
-
         if (newPasscode !== null && newPasscode.trim() !== "") {
             const payload = { action: "updatePasscode", unitName: unitName, newPasscode: newPasscode.trim() };
-
             fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
             .then(response => response.json())
             .then(data => {
-                alert("✅ " + unitName + " चा पासकोड यशस्वीरित्या बदलला!");
+                alert("✅ " + unitName + " चा पासकोड बदलला!");
                 setTimeout(() => location.reload(), 800); 
             })
-            .catch(error => {
-                console.error('Error!', error);
-                alert("❌ पासकोड बदलताना एरर आला. कृपया पुन्हा प्रयत्न करा.");
-            });
+            .catch(error => alert("❌ पासकोड बदलताना एरर आला."));
         }
     }
 
-    // --- Add Ward Form Logic ---
     function showAddWardForm() {
         document.getElementById('addWardBtn').style.display = 'none';
         document.getElementById('addWardFormDiv').style.display = 'block';
@@ -395,23 +440,17 @@
     function submitNewWard() {
         let uName = document.getElementById('newWardUnitSelect').value;
         let wName = document.getElementById('newWardNameInput').value.trim();
-
         if (wName === "") { alert("कृपया वॉर्डचे नाव टाका!"); return; }
-
         let payload = { action: "addNewWard", unitName: uName, wardName: wName };
-        
         fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
         .then(response => response.json())
         .then(data => {
-            alert("✅ " + uName + " मध्ये '" + wName + "' यशस्वीरित्या जोडला गेला!");
+            alert("✅ " + uName + " मध्ये '" + wName + "' जोडला गेला!");
             hideAddWardForm();
             setTimeout(() => location.reload(), 800); 
         })
-        .catch(error => {
-            alert("❌ वॉर्ड ॲड करताना एरर आला. 'New version' Deploy केले आहे का तपासा.");
-        });
+        .catch(error => alert("❌ वॉर्ड ॲड करताना एरर आला."));
     }
-
     </script>
 </body>
 </html>
