@@ -205,10 +205,19 @@
         let parts = String(dateStr).split(" ")[0].split("/");
         return new Date(parts[2], parts[1]-1, parts[0]);
     }
+// 🔴 तारखा भारतीय वेळेनुसार अचूक सेट करणारे फंक्शन
+    function getLocalDate(inputId, isEndOfDay) {
+        let val = document.getElementById(inputId).value;
+        if(!val) return null;
+        let parts = val.split("-"); 
+        let d = new Date(parts[0], parts[1]-1, parts[2]);
+        if(isEndOfDay) d.setHours(23, 59, 59, 999); // दिवसाची शेवटची वेळ
+        return d;
+    }
 
     function renderChart() {
-        let start = document.getElementById('chartStart').value ? new Date(document.getElementById('chartStart').value) : null;
-        let end = document.getElementById('chartEnd').value ? new Date(document.getElementById('chartEnd').value) : null;
+        let start = getLocalDate('chartStart', false);
+        let end = getLocalDate('chartEnd', true);
         let unitFilter = document.getElementById('chartUnit').value;
         let wardFilter = document.getElementById('chartWard').value;
         let chartType = document.getElementById('chartType').value;
@@ -262,8 +271,8 @@
     }
 
     function searchIndents() {
-        let fromD = document.getElementById('searchFrom').value ? new Date(document.getElementById('searchFrom').value) : null;
-        let toD = document.getElementById('searchTo').value ? new Date(document.getElementById('searchTo').value) : null;
+        let fromD = getLocalDate('searchFrom', false);
+        let toD = getLocalDate('searchTo', true);
         let unitFilter = document.getElementById('searchUnit').value;
         let wardFilter = document.getElementById('searchWard').value;
         let pat = document.getElementById('searchPatient').value.toLowerCase();
