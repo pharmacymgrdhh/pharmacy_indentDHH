@@ -15,14 +15,14 @@
 
         /* ================= TABLE UI ================= */
         .p-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 10px; background: white; }
-        .p-table th { background-color: #34495e !important; color: white; position: sticky; top: 0; z-index: 10; padding: 12px 10px; border: 1px solid #2c3e50; box-shadow: 0 1px 0 #2c3e50; }
+        .p-table th { background-color: #34495e !important; color: white; position: sticky; top: 0; z-index: 10; padding: 12px 10px; border: 1px solid #4276b6; box-shadow: 0 1px 0 #4276b6; }
         .p-table td { padding: 10px; border: 1px solid #ddd; text-align: left; font-size: 14px; }
         .p-table th:nth-child(6), .p-table td:nth-child(6), .p-table th:nth-child(7), .p-table td:nth-child(7) { text-align: center !important; }
 
         /* ================= NURSING CSS ================= */
         .nursing-wrapper { overflow-y: auto; height: 100vh; padding: 20px; box-sizing: border-box; }
         .n-container { max-width: 650px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .n-container h2 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .n-container h2 { text-align: center; color: #4276b6; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
         .form-row { display: flex; gap: 15px; margin-bottom: 15px; }
         .form-group { flex: 1; margin-bottom: 15px; position: relative; }
         label { display: block; margin-bottom: 5px; font-weight: bold; color: #34495e; font-size: 14px; }
@@ -42,7 +42,7 @@
         .autocomplete-items { position: absolute; border: 1px solid #d4d4d4; border-radius: 4px; z-index: 99; top: 100%; left: 0; right: 0; max-height: 250px; overflow-y: auto; background-color: #fff; display: none; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         .autocomplete-items .med-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #eee; transition: 0.2s; display: block; }
         .autocomplete-items .med-item:hover { background-color: #ebf5fb; }
-        .med-brand { font-weight: bold; color: #2c3e50; font-size: 14px; pointer-events: none; }
+        .med-brand { font-weight: bold; color: #4276b6; font-size: 14px; pointer-events: none; }
         .med-comp { font-size: 12px; color: #7f8c8d; margin-top: 3px; pointer-events: none; }
         
         /* Keyboard Navigation Highlight CSS */
@@ -50,7 +50,7 @@
         .autocomplete-items .med-item.autocomplete-active .med-brand, .autocomplete-items .med-item.autocomplete-active .med-comp { color: #ffffff !important; }
 
         /* ================= PHARMACY CSS ================= */
-        .p-header { background-color: #2c3e50; color: white; padding: 15px 20px; width: 100%; box-sizing: border-box; position: fixed; top: 0; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
+        .p-header { background-color: #4276b6; color: white; padding: 15px 20px; width: 100%; box-sizing: border-box; position: fixed; top: 0; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
         .p-header h2 { margin: 0; font-size: 20px; }
         .refresh-btn { background-color: #e67e22; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
         .p-main { display: flex; width: 100%; margin-top: 60px; height: calc(100vh - 60px); }
@@ -59,7 +59,7 @@
         .indent-card.urgent { background-color: #ffebee; border-left: 5px solid #c62828; border-color: #ef9a9a; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(229, 57, 53, 0); } 100% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0); } }
         .indent-card:hover, .indent-card.active { background-color: #ebf5fb; }
-        .indent-header { display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; margin-bottom: 5px; color: #2c3e50; }
+        .indent-header { display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; margin-bottom: 5px; color: #4276b6; }
         .unit-badge { padding: 5px 10px; background: #3498db; color: white; border-radius: 4px; font-size: 14px; font-weight: bold; }
         .right-panel { flex: 1; padding: 20px; overflow-y: auto; }
         .details-container { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); display: none; }
@@ -82,7 +82,7 @@
         .graph-container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
         
         /* ================= FOOTER CSS ================= */
-        .footer { position: fixed; bottom: 0; width: 100%; background-color: #2c3e50; color: #ecf0f1; text-align: center; padding: 8px 0; font-size: 13px; z-index: 10000; border-top: 2px solid #34495e; }
+        .footer { position: fixed; bottom: 0; width: 100%; background-color: #4276b6; color: #ecf0f1; text-align: center; padding: 8px 0; font-size: 13px; z-index: 10000; border-top: 2px solid #34495e; }
         .footer b { color: #3498db; }
 
         /* ================= PRINT CSS ================= */
@@ -104,7 +104,7 @@
 
     <div id="toast" class="toast"></div>
 
-    <div id="loginOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #2c3e50; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;">
+    <div id="loginOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #4276b6; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;">
         <img src="dhh.png" alt="Hospital Logo" style="height: 70px; margin-bottom: 20px; background-color: white; padding: 5px; border-radius: 5px;">
         <h2 style="color: white; border-bottom: none; margin-bottom: 20px;">DHH CareSys</h2>
         <input type="password" id="passcodeInput" placeholder="Enter Passcode" style="padding: 12px; font-size: 18px; text-align: center; border-radius: 5px; border: none; margin-bottom: 15px; width: 250px; outline: none; color: black; letter-spacing: 5px;">
@@ -114,7 +114,7 @@
 
     <div id="nursingSection" class="nursing-wrapper" style="display: none;">
         <div class="n-container">
-            <div style="display: flex; align-items: center; justify-content: center; background-color: #2c3e50; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; justify-content: center; background-color: #4276b6; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
                 <img src="dhh.png" alt="Logo" style="height: 50px; margin-right: 15px; background-color: white; padding: 3px; border-radius: 4px;">
                 <h2 style="margin: 0; color: white; font-size: 24px; border: none;">Nursing Indent Portal</h2>
             </div>
@@ -251,8 +251,8 @@
                     <div><button class="compact-btn" onclick="updateAdminAnalytics()">Apply Filters</button></div>
                 </div>
                 <div style="display: flex; gap: 20px;">
-                    <div class="graph-container" style="flex: 1; text-align: center;"><h3 style="margin-top: 0; color: #2c3e50;">Live Status</h3><div style="height: 250px; position: relative; margin: 0 auto; width: 100%;"><canvas id="adminPieChart"></canvas></div></div>
-                    <div class="graph-container" style="flex: 2;"><h3 style="margin-top: 0; color: #2c3e50;">Pharmacy Response Time (Avg. Mins)</h3><div style="height: 250px; position: relative; width: 100%;"><canvas id="adminLineChart"></canvas></div></div>
+                    <div class="graph-container" style="flex: 1; text-align: center;"><h3 style="margin-top: 0; color: #4276b6;">Live Status</h3><div style="height: 250px; position: relative; margin: 0 auto; width: 100%;"><canvas id="adminPieChart"></canvas></div></div>
+                    <div class="graph-container" style="flex: 2;"><h3 style="margin-top: 0; color: #4276b6;">Pharmacy Response Time (Avg. Mins)</h3><div style="height: 250px; position: relative; width: 100%;"><canvas id="adminLineChart"></canvas></div></div>
                 </div>
             </div>
         </div>
@@ -286,12 +286,12 @@
         <div id="tab-settings" class="admin-tab-content">
             <div style="max-width: 1000px; margin: 0 auto; display: grid; gap: 20px; grid-template-columns: 1fr 1fr;">
                 <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                    <h3 style="color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0;">🏥 Ward Management</h3>
+                    <h3 style="color: #4276b6; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0;">🏥 Ward Management</h3>
                     <div style="display: flex; gap: 10px; margin-bottom: 15px;"><select id="newWardUnit" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"><option value="DHIMSR">DHIMSR</option><option value="BMCCU">BMCCU</option></select><input type="text" id="newWardName" placeholder="New Ward Name" style="flex: 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"><button class="btn-dispatch" style="padding: 8px 15px;" onclick="addNewWard()">+ Add</button></div>
                     <div style="max-height: 250px; overflow-y: auto;"><table class="p-table" style="font-size: 13px;"><thead><tr><th>Unit</th><th>Ward</th><th>Status</th><th>Action</th></tr></thead><tbody id="adminWardsList"></tbody></table></div>
                 </div>
                 <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                    <h3 style="color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0;">🔑 Passcode Management</h3>
+                    <h3 style="color: #4276b6; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0;">🔑 Passcode Management</h3>
                     <div style="max-height: 250px; overflow-y: auto;"><table class="p-table" style="font-size: 13px;"><thead><tr><th>Unit / Role</th><th>Passcode</th><th>Action</th></tr></thead><tbody id="adminPasscodesList"></tbody></table></div>
                 </div>
             </div>
