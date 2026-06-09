@@ -97,7 +97,19 @@
         /* ================= FOOTER CSS ================= */
         .footer { position: fixed; bottom: 0; width: 100%; background-color: #f4f7f9; color: #7f8c8d; text-align: center; padding: 8px 0; font-size: 12px; z-index: 10000; border-top: 1px solid #e0e0e0; font-family: 'Roboto', sans-serif; }
         .footer b { color: #4276b6; font-weight: 500; }
-
+        /* ================= LOGIN PAGE CSS ================= */
+        .login-wrapper {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999;
+            display: flex; align-items: center; justify-content: flex-end; /* बॉक्स उजवीकडे घेण्यासाठी */
+            padding-right: 10%; box-sizing: border-box;
+            /* 🔴 इथे इमेज ब्लेंडिंग (Gradient + Image) केले आहे */
+            background: linear-gradient(to right, rgba(255, 255, 255, 0.2) 0%, rgba(66, 118, 182, 0.95) 100%), url('https://images.unsplash.com/photo-1551076805-e1869043e560?q=80&w=2000&auto=format&fit=crop') no-repeat center center / cover;
+        }
+        .login-card {
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); /* Glass Effect */
+            padding: 40px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; width: 320px;
+        }
         /* ================= PRINT CSS ================= */
         #printTemplate { display: none; }
         @media print {
@@ -117,12 +129,16 @@
 
     <div id="toast" class="toast"></div>
 
-    <div id="loginOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #4276b6; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;">
-        <img src="dhh.png" alt="Hospital Logo" style="height: 80px; margin-bottom: 25px; background-color: white; padding: 10px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-        <h2 style="color: white; border-bottom: none; margin-bottom: 25px; font-weight: 300; letter-spacing: 1px;">CareSync<span style="font-weight: 700;"> Master Login</span></h2>
-        <input type="password" id="passcodeInput" placeholder="Enter Passcode" style="padding: 14px; font-size: 18px; text-align: center; border-radius: 4px; border: none; margin-bottom: 20px; width: 260px; outline: none; color: #333; letter-spacing: 5px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-        <button id="loginBtn" onclick="masterLogin()" style="padding: 14px 20px; font-size: 16px; background-color: #ce936b; color: white; border: none; border-radius: 4px; cursor: pointer; width: 260px; font-weight: 500; letter-spacing: 1px; transition: 0.3s; font-family: 'Roboto', sans-serif;">PROCEED</button>
-        <p id="loginError" style="color: #e74c3c; margin-top: 15px; display: none; background-color: white; padding: 8px 15px; border-radius: 4px; font-weight: 500; font-size: 14px;">Invalid Passcode!</p>
+    <div id="loginOverlay" class="login-wrapper">
+        <div class="login-card">
+            <img src="dhh.png" alt="Hospital Logo" style="height: 70px; margin-bottom: 20px; background-color: white; padding: 10px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+            
+            <h2 style="color: white; border-bottom: none; margin-bottom: 25px; font-weight: 300; letter-spacing: 1px; font-size: 22px;">Caresync<br><span style="font-weight: 700;">Login</span></h2>
+            
+            <input type="password" id="passcodeInput" placeholder="Enter Passcode" style="padding: 14px; font-size: 18px; text-align: center; border-radius: 4px; border: none; margin-bottom: 20px; width: 100%; outline: none; color: #333; letter-spacing: 5px; box-sizing: border-box; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+            <button id="loginBtn" onclick="masterLogin()" style="padding: 14px 20px; font-size: 16px; background-color: #ce936b; color: white; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-weight: 500; letter-spacing: 1px; transition: 0.3s; font-family: 'Roboto', sans-serif; box-sizing: border-box;">PROCEED</button>
+            <p id="loginError" style="color: #e74c3c; margin-top: 15px; display: none; background-color: white; padding: 8px 15px; border-radius: 4px; font-weight: 500; font-size: 14px;">Invalid Passcode!</p>
+        </div>
     </div>
 
     <!-- NURSING SECTION -->
