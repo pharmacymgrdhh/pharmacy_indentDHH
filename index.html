@@ -85,7 +85,7 @@
         #printTemplate { display: none; }
         @media print {
             body, html { background-color: white; margin: 0; padding: 0; height: auto !important; overflow: visible !important; }
-            #loginOverlay, .nursing-wrapper, .p-header, .p-main, #adminSection, .toast { display: none !important; }
+            #loginOverlay, .nursing-wrapper, .p-header, .p-main, #adminSection, .toast { display: none !important; }.footer
             #printTemplate { display: block !important; width: 100%; font-family: Arial, sans-serif; page-break-inside: avoid; }
             .print-table { width: 100%; border-collapse: collapse; font-size: 14px; page-break-inside: avoid; }
             .print-table td { border: 1px solid #b2ebf2; padding: 6px; }
@@ -720,5 +720,10 @@
     function updateAdminPasscode(unit) { let newPass = document.getElementById(`pass_${unit}`).value.trim(); if(!newPass) return alert("Empty Passcode!"); fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: "updatePasscode", unitName: unit, newPasscode: newPass }) }).then(() => { fetchAdminData(); showToast("✅ Passcode Updated", "success"); }); }
     function addNewWard() { let unit = document.getElementById('newWardUnit').value; let ward = document.getElementById('newWardName').value.trim(); if(!ward) return alert("Enter ward name!"); fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: "addNewWard", unitName: unit, wardName: ward }) }).then(() => { document.getElementById('newWardName').value = ''; fetchAdminData(); showToast("✅ New Ward Added", "success"); }); }
 </script>
+
+    <div class="footer">
+        © 2026 Dr. Hedgewar Hospital. All Rights Reserved. | Powered by <b>MedSync HIMS</b> (Operation Errorless)
+    </div>
+    
 </body>
 </html>
