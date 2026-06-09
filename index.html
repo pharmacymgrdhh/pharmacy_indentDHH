@@ -3,99 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DHH CareSys - Master Portal</title>
+    <title>CareSync</title>
+    
+    <!-- 🔴 Official Website Font Added -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <style>
-        /* ================= COMMON CSS ================= */
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f4f7f6; height: 100vh; overflow: hidden; }
-        .toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 5px; padding: 15px; font-size: 16px; position: fixed; z-index: 10000; left: 50%; bottom: 30px; transform: translateX(-50%); box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: visibility 0s, opacity 0.4s linear; opacity: 0; font-weight: bold; }
+        /* ================= COMMON CSS (Website Theme) ================= */
+        body { font-family: 'Roboto', sans-serif; margin: 0; background-color: #f4f7f9; height: 100vh; overflow: hidden; color: #333; }
+        .toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 5px; padding: 15px; font-size: 16px; position: fixed; z-index: 10000; left: 50%; bottom: 40px; transform: translateX(-50%); box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: visibility 0s, opacity 0.4s linear; opacity: 0; font-weight: 500; }
         .toast.show { visibility: visible; opacity: 1; }
         .toast.success { background-color: #27ae60; }
         .toast.error { background-color: #e74c3c; }
 
         /* ================= TABLE UI ================= */
         .p-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 10px; background: white; }
-        .p-table th { background-color: #34495e !important; color: white; position: sticky; top: 0; z-index: 10; padding: 12px 10px; border: 1px solid #4276b6; box-shadow: 0 1px 0 #4276b6; }
+        .p-table th { background-color: #4276b6 !important; color: white; position: sticky; top: 0; z-index: 10; padding: 12px 10px; border: 1px solid #4276b6; box-shadow: 0 1px 0 #4276b6; }
         .p-table td { padding: 10px; border: 1px solid #ddd; text-align: left; font-size: 14px; }
         .p-table th:nth-child(6), .p-table td:nth-child(6), .p-table th:nth-child(7), .p-table td:nth-child(7) { text-align: center !important; }
-
         /* ================= NURSING CSS ================= */
-        .nursing-wrapper { overflow-y: auto; height: 100vh; padding: 20px; box-sizing: border-box; }
-        .n-container { max-width: 650px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .n-container h2 { text-align: center; color: #4276b6; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .nursing-wrapper { overflow-y: auto; height: 100vh; padding: 20px; padding-bottom: 60px; box-sizing: border-box; }
+        .n-container { max-width: 650px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 8px 24px rgba(66, 118, 182, 0.08); border-top: 5px solid #4276b6; }
+        
+        /* 🔴 Restored Dark Header for Nursing Portal */
+        .nursing-header { display: flex; align-items: center; justify-content: center; background-color: #4276b6; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .nursing-header img { height: 50px; margin-right: 15px; background-color: white; padding: 3px; border-radius: 4px; }
+        .nursing-header h2 { margin: 0; color: white; font-size: 24px; border: none; font-weight: 500; }
+
         .form-row { display: flex; gap: 15px; margin-bottom: 15px; }
         .form-group { flex: 1; margin-bottom: 15px; position: relative; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #34495e; font-size: 14px; }
-        .round-cb { width: 18px; height: 18px; border-radius: 50%; vertical-align: middle; accent-color: #f39c12; cursor: pointer; }
-        .opd-section { display: none; background: #e8f8f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #1abc9c; }
-        input[type="text"], input[type="number"], input[type="password"], input[type="date"], select { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
-        .btn { background-color: #3498db; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; margin-top: 10px; transition: 0.2s; }
-        .btn:hover { background-color: #2980b9; }
-        .btn-submit { background-color: #27ae60; margin-top: 20px; font-weight: bold; }
-        .btn-submit:hover { background-color: #2196f3; }
+        label { display: block; margin-bottom: 6px; font-weight: 500; color: #4276b6; font-size: 14px; }
+        .round-cb { width: 18px; height: 18px; border-radius: 50%; vertical-align: middle; accent-color: #ce936b; cursor: pointer; }
+        .opd-section { display: none; background: #f4f8fc; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #d0e1f3; }
+        input[type="text"], input[type="number"], input[type="password"], input[type="date"], select { width: 100%; padding: 10px 12px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box; font-size: 14px; color: #333; transition: border-color 0.3s; font-family: 'Roboto', sans-serif; }
+        input:focus, select:focus { border-color: #4276b6; outline: none; }
+        
+        /* 🔴 + Add to List Button with #4276b6 color */
+        .btn { background-color: #4276b6; color: white; padding: 12px 15px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 15px; font-weight: 500; margin-top: 10px; transition: 0.2s; font-family: 'Roboto', sans-serif; }
+        .btn:hover { background-color: #356299; box-shadow: 0 4px 8px rgba(66, 118, 182, 0.2); }
+        
+        .btn-submit { background-color: #27ae60; margin-top: 20px; font-weight: bold; font-size: 16px; }
+        .btn-submit:hover { background-color: #219d53; }
+        
         .n-table { width: 100%; margin-top: 20px; border-collapse: collapse; font-size: 14px; }
-        .n-table th, .n-table td { padding: 10px; border: 1px solid #ddd; text-align: left; }
-        .n-table th { background-color: #f2f2f2; }
-        .delete-btn { color: red; cursor: pointer; font-weight: bold; text-align: center; }
-        .loading-text { color: #e67e22; font-size: 12px; font-weight: normal; display: none; }
+        .n-table th, .n-table td { padding: 12px 10px; border: 1px solid #e0e0e0; text-align: left; }
+        .n-table th { background-color: #f3f4f6; color: #4276b6; font-weight: 500; }
+        .n-table td { color: #2c598f; font-weight: 500; }
+        .delete-btn { color: #e74c3c; cursor: pointer; font-weight: bold; text-align: center; }
+        .loading-text { color: #ce936b; font-size: 12px; font-weight: normal; display: none; }
         
-        .autocomplete-items { position: absolute; border: 1px solid #d4d4d4; border-radius: 4px; z-index: 99; top: 100%; left: 0; right: 0; max-height: 250px; overflow-y: auto; background-color: #fff; display: none; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .autocomplete-items .med-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #eee; transition: 0.2s; display: block; }
-        .autocomplete-items .med-item:hover { background-color: #ebf5fb; }
-        .med-brand { font-weight: bold; color: #4276b6; font-size: 14px; pointer-events: none; }
+        .autocomplete-items { position: absolute; border: 1px solid #d4d4d4; border-radius: 4px; z-index: 99; top: 100%; left: 0; right: 0; max-height: 250px; overflow-y: auto; background-color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .autocomplete-items .med-item { padding: 12px; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: 0.2s; display: block; }
+        .autocomplete-items .med-item:hover { background-color: #f4f8fc; }
+        .med-brand { font-weight: 500; color: #2c598f; font-size: 14px; pointer-events: none; }
         .med-comp { font-size: 12px; color: #7f8c8d; margin-top: 3px; pointer-events: none; }
-        
-        /* Keyboard Navigation Highlight CSS */
-        .autocomplete-items .med-item.autocomplete-active { background-color: #3498db !important; }
+        .autocomplete-items .med-item.autocomplete-active { background-color: #4276b6 !important; }
         .autocomplete-items .med-item.autocomplete-active .med-brand, .autocomplete-items .med-item.autocomplete-active .med-comp { color: #ffffff !important; }
 
         /* ================= PHARMACY CSS ================= */
-        .p-header { background-color: #4276b6; color: white; padding: 15px 20px; width: 100%; box-sizing: border-box; position: fixed; top: 0; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
-        .p-header h2 { margin: 0; font-size: 20px; }
-        .refresh-btn { background-color: #e67e22; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .p-main { display: flex; width: 100%; margin-top: 60px; height: calc(100vh - 60px); }
-        .left-panel { width: 35%; background-color: #ffffff; border-right: 2px solid #ddd; overflow-y: auto; padding: 15px; }
-        .indent-card { background-color: #fdfefe; border: 1px solid #dcdde1; border-left: 5px solid #3498db; border-radius: 4px; padding: 10px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
-        .indent-card.urgent { background-color: #ffebee; border-left: 5px solid #c62828; border-color: #ef9a9a; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(229, 57, 53, 0); } 100% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0); } }
-        .indent-card:hover, .indent-card.active { background-color: #ebf5fb; }
-        .indent-header { display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; margin-bottom: 5px; color: #4276b6; }
-        .unit-badge { padding: 5px 10px; background: #3498db; color: white; border-radius: 4px; font-size: 14px; font-weight: bold; }
-        .right-panel { flex: 1; padding: 20px; overflow-y: auto; }
-        .details-container { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); display: none; }
-        .action-bar { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
-        .btn-dispatch { background-color: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        .btn-dispatch:hover { background-color: #2196f3; }
-        .patient-info { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; background-color: #f9f9f9; padding: 15px; border-radius: 4px; }
+        .p-header { background-color: #4276b6; color: white; padding: 15px 25px; width: 100%; box-sizing: border-box; position: fixed; top: 0; display: flex; justify-content: space-between; align-items: center; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .p-header h2 { margin: 0; font-size: 20px; font-weight: 500; }
+        .refresh-btn { background-color: transparent; color: white; border: 1px solid white; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: 500; transition: 0.3s; font-family: 'Roboto', sans-serif; }
+        .refresh-btn:hover { background-color: white; color: #4276b6; }
+        .p-main { display: flex; width: 100%; margin-top: 60px; height: calc(100vh - 90px); }
+        .left-panel { width: 35%; background-color: #ffffff; border-right: 1px solid #e0e0e0; overflow-y: auto; padding: 15px; }
+        .indent-card { background-color: #fff; border: 1px solid #e0e0e0; border-left: 5px solid #4276b6; border-radius: 6px; padding: 12px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .indent-card.urgent { background-color: #fff; border-left: 5px solid #e74c3c; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.3); } 70% { box-shadow: 0 0 0 8px rgba(231, 76, 60, 0); } 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); } }
+        .indent-card:hover, .indent-card.active { background-color: #f4f8fc; transform: translateY(-1px); box-shadow: 0 4px 8px rgba(66, 118, 182, 0.1); }
+        .indent-header { display: flex; justify-content: space-between; font-weight: 700; font-size: 15px; margin-bottom: 6px; color: #4276b6; }
+        .unit-badge { padding: 5px 12px; background: rgba(255,255,255,0.2); color: white; border-radius: 20px; font-size: 13px; font-weight: 500; letter-spacing: 0.5px; }
+        .right-panel { flex: 1; padding: 20px; overflow-y: auto; padding-bottom: 60px; }
+        .details-container { background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: none; border: 1px solid #e0e0e0; }
+        .action-bar { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .btn-dispatch { background-color: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: 500; transition: 0.2s; font-family: 'Roboto', sans-serif; font-size: 14px;}
+        .btn-dispatch:hover { background-color: #219d53; }
+        .patient-info { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; background-color: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0; color: #2c598f; font-size: 15px; }
 
         /* ================= ADMIN CSS ================= */
-        .admin-nav { display: flex; background: #fff; padding: 10px 20px; border-bottom: 2px solid #ddd; gap: 15px; margin-top: 60px; }
-        .admin-nav button { background: none; border: none; padding: 10px 20px; font-size: 16px; font-weight: bold; color: #7f8c8d; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; }
-        .admin-nav button.active { color: #2980b9; border-bottom: 3px solid #2980b9; }
-        .admin-tab-content { display: none; padding: 20px; height: calc(100vh - 130px); overflow-y: auto; }
+        .admin-nav { display: flex; background: #fff; padding: 0 25px; border-bottom: 1px solid #e0e0e0; gap: 20px; margin-top: 60px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .admin-nav button { background: none; border: none; padding: 18px 5px; font-size: 15px; font-weight: 500; color: #7f8c8d; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; font-family: 'Roboto', sans-serif; }
+        .admin-nav button.active { color: #4276b6; border-bottom: 3px solid #4276b6; }
+        .admin-tab-content { display: none; padding: 25px; height: calc(100vh - 150px); overflow-y: auto; padding-bottom: 60px;}
         
-        .filter-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 15px; background: #fdfefe; padding: 15px; border-radius: 6px; border: 1px solid #e0e0e0; }
+        .filter-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 20px; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
         .filter-grid > div { display: flex; flex-direction: column; justify-content: flex-end; } 
-        .filter-grid label { font-size: 13px; color: #555; margin-bottom: 5px; }
-        .compact-btn { background-color: #27ae60; color: white; border: none; padding: 8px 15px; font-size: 14px; font-weight: bold; border-radius: 4px; cursor: pointer; white-space: nowrap; width: 100%; height: 36px; box-sizing: border-box; transition: 0.2s; }
-        .compact-btn:hover { background-color: #2196f3; }
-        .graph-container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        
+        .filter-grid label { font-size: 13px; color: #4276b6; margin-bottom: 6px; font-weight: 500; }
+        .compact-btn { background-color: #4276b6; color: white; border: none; padding: 10px 15px; font-size: 14px; font-weight: 500; border-radius: 4px; cursor: pointer; white-space: nowrap; width: 100%; height: 38px; box-sizing: border-box; transition: 0.2s; font-family: 'Roboto', sans-serif; }
+        .compact-btn:hover { background-color: #356299; }
+        .graph-container { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #e0e0e0; }
+
         /* ================= FOOTER CSS ================= */
-        .footer { position: fixed; bottom: 0; width: 100%; background-color: #4276b6; color: #ecf0f1; text-align: center; padding: 8px 0; font-size: 13px; z-index: 10000; border-top: 2px solid #34495e; }
-        .footer b { color: #3498db; }
+        .footer { position: fixed; bottom: 0; width: 100%; background-color: #f4f7f9; color: #7f8c8d; text-align: center; padding: 8px 0; font-size: 12px; z-index: 10000; border-top: 1px solid #e0e0e0; font-family: 'Roboto', sans-serif; }
+        .footer b { color: #4276b6; font-weight: 500; }
 
         /* ================= PRINT CSS ================= */
         #printTemplate { display: none; }
         @media print {
-            body, html { background-color: white; margin: 0; padding: 0; height: auto !important; overflow: visible !important; }
-            #loginOverlay, .nursing-wrapper, .p-header, .p-main, #adminSection, .toast { display: none !important; }.footer
-            #printTemplate { display: block !important; width: 100%; font-family: Arial, sans-serif; page-break-inside: avoid; }
+            body, html { background-color: white; margin: 0; padding: 0; height: auto !important; overflow: visible !important; font-family: 'Roboto', sans-serif; }
+            #loginOverlay, .nursing-wrapper, .p-header, .p-main, #adminSection, .toast, .footer { display: none !important; }
+            #printTemplate { display: block !important; width: 100%; page-break-inside: avoid; }
             .print-table { width: 100%; border-collapse: collapse; font-size: 14px; page-break-inside: avoid; }
-            .print-table td { border: 1px solid #b2ebf2; padding: 6px; }
-            .print-table .label { font-weight: bold; background-color: #f4f4f4; width: 18%; -webkit-print-color-adjust: exact; }
-            .print-table .blue-bg { background-color: #4a86e8 !important; color: white !important; font-weight: bold; text-align: center; -webkit-print-color-adjust: exact; }
-            .print-table .logo-td { width: 25%; text-align: center; padding: 5px; border: 1px solid #4a86e8;}
+            .print-table td { border: 1px solid #b2ebf2; padding: 8px; }
+            .print-table .label { font-weight: bold; background-color: #f8fafc; width: 18%; color: #4276b6; -webkit-print-color-adjust: exact; }
+            .print-table .blue-bg { background-color: #4276b6 !important; color: white !important; font-weight: 500; text-align: center; -webkit-print-color-adjust: exact; padding: 10px;}
+            .print-table .logo-td { width: 25%; text-align: center; padding: 5px; border: 1px solid #4276b6;}
             @page { margin: 10mm; size: auto; }
         }
     </style>
@@ -105,27 +118,28 @@
     <div id="toast" class="toast"></div>
 
     <div id="loginOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #4276b6; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;">
-        <img src="dhh.png" alt="Hospital Logo" style="height: 70px; margin-bottom: 20px; background-color: white; padding: 5px; border-radius: 5px;">
-        <h2 style="color: white; border-bottom: none; margin-bottom: 20px;">DHH CareSys</h2>
-        <input type="password" id="passcodeInput" placeholder="Enter Passcode" style="padding: 12px; font-size: 18px; text-align: center; border-radius: 5px; border: none; margin-bottom: 15px; width: 250px; outline: none; color: black; letter-spacing: 5px;">
-        <button id="loginBtn" onclick="masterLogin()" style="padding: 12px 20px; font-size: 18px; background-color: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer; width: 250px; font-weight: bold;">लॉग-इन करा</button>
-        <p id="loginError" style="color: #e74c3c; margin-top: 15px; display: none; background-color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;">❌ Invalid Passcode!</p>
+        <img src="dhh.png" alt="Hospital Logo" style="height: 80px; margin-bottom: 25px; background-color: white; padding: 10px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+        <h2 style="color: white; border-bottom: none; margin-bottom: 25px; font-weight: 300; letter-spacing: 1px;">CareSync<span style="font-weight: 700;"> Master Login</span></h2>
+        <input type="password" id="passcodeInput" placeholder="Enter Passcode" style="padding: 14px; font-size: 18px; text-align: center; border-radius: 4px; border: none; margin-bottom: 20px; width: 260px; outline: none; color: #333; letter-spacing: 5px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+        <button id="loginBtn" onclick="masterLogin()" style="padding: 14px 20px; font-size: 16px; background-color: #ce936b; color: white; border: none; border-radius: 4px; cursor: pointer; width: 260px; font-weight: 500; letter-spacing: 1px; transition: 0.3s; font-family: 'Roboto', sans-serif;">PROCEED</button>
+        <p id="loginError" style="color: #e74c3c; margin-top: 15px; display: none; background-color: white; padding: 8px 15px; border-radius: 4px; font-weight: 500; font-size: 14px;">Invalid Passcode!</p>
     </div>
 
+    <!-- NURSING SECTION -->
     <div id="nursingSection" class="nursing-wrapper" style="display: none;">
         <div class="n-container">
-            <div style="display: flex; align-items: center; justify-content: center; background-color: #4276b6; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                <img src="dhh.png" alt="Logo" style="height: 50px; margin-right: 15px; background-color: white; padding: 3px; border-radius: 4px;">
-                <h2 style="margin: 0; color: white; font-size: 24px; border: none;">Nursing Indent Portal</h2>
+            <div class="nursing-header">
+                <img src="dhh.png" alt="Logo">
+                <h2>Nursing Indent Portal</h2>
             </div>
             
             <div class="form-row">
                 <div class="form-group">
                     <label>Unit:</label>
-                    <select id="n_unitName" style="background-color: #eee; font-weight: bold;" disabled></select>
+                    <select id="n_unitName" style="background-color: #f8fafc; font-weight: 500; color: #4276b6;" disabled></select>
                 </div>
                 <div class="form-group">
-                    <label>Ward: <span id="wardLoader" class="loading-text">⏳ Loading...</span></label>
+                    <label>Ward: <span id="wardLoader" class="loading-text">Loading...</span></label>
                     <select id="n_wardName"><option value="">-- Select --</option></select>
                 </div>
             </div>
@@ -136,14 +150,14 @@
             </div>
 
             <div class="form-group">
-                <label>Prescribed By: <span id="docLoader" class="loading-text">⏳ Loading...</span></label>
+                <label>Prescribed By: <span id="docLoader" class="loading-text">Loading...</span></label>
                 <input type="text" id="n_prescribedBy" list="doctorList" autocomplete="off">
                 <datalist id="doctorList"></datalist>
             </div>
 
             <div class="form-row">
                 <div class="form-group" style="flex: 2; position: relative;">
-                    <label>Medicine: <span id="medLoader" class="loading-text">⏳ Loading...</span></label>
+                    <label>Medicine: <span id="medLoader" class="loading-text">Loading...</span></label>
                     <input type="text" id="n_medicineName" placeholder="Search brand or composition..." autocomplete="off">
                     <div id="medDropdown" class="autocomplete-items"></div>
                 </div>
@@ -169,53 +183,54 @@
             <button class="btn" onclick="addMedicine()">+ Add to List</button>
 
             <table class="n-table">
-                <thead><tr><th>Drug</th><th>Qty</th><th>Remove</th></tr></thead>
+                <thead><tr><th>Drug</th><th>Qty</th><th style="text-align: center;">Action</th></tr></thead>
                 <tbody id="tableBody"></tbody>
             </table>
 
-            <div style="display: flex; align-items: center; gap: 15px; margin-top: 20px;">
-                <label style="color: #c62828; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; margin: 0; background-color: #ffebee; padding: 10px 15px; border-radius: 4px; border: 1px solid #ffcdd2; white-space: nowrap;">
-                    <input type="checkbox" id="n_isUrgent" style="width: 20px; height: 20px; accent-color: #c62828;">
-                    🚨 Urgent
+            <div style="display: flex; align-items: center; gap: 15px; margin-top: 25px;">
+                <label style="color: #c62828; font-size: 15px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 8px; margin: 0; background-color: #fff5f5; padding: 10px 15px; border-radius: 4px; border: 1px solid #fed7d7; white-space: nowrap;">
+                    <input type="checkbox" id="n_isUrgent" style="width: 18px; height: 18px; accent-color: #e53e3e;">
+                    Urgent
                 </label>
-                <button class="btn btn-submit" id="n_submitBtn" onclick="submitIndent()" style="margin-top: 0; flex: 1;">✅ Send to Pharmacy </button>
+                <button class="btn btn-submit" id="n_submitBtn" onclick="submitIndent()" style="margin-top: 0; flex: 1;">Send to Pharmacy</button>
             </div>
             
-            <button class="btn" style="background-color: #f39c12; display: none;" id="n_printBtn" onclick="window.print()">🖨️ Print Indent</button>
+            <button class="btn" style="background-color: #f39c12; display: none;" id="n_printBtn" onclick="window.print()">Print Indent</button>
         </div>
     </div>
 
+    <!-- PHARMACY SECTION -->
     <div id="pharmacySection" style="display: none;">
         <div class="p-header">
             <div style="display: flex; align-items: center;">
-                <img src="dhh.png" alt="Logo" style="height: 40px; margin-right: 15px; border-radius: 4px; background-color: white; padding: 2px;">
+                <img src="dhh.png" alt="Logo" style="height: 35px; margin-right: 15px; border-radius: 4px; background-color: white; padding: 4px;">
                 <h2>Pharmacy Dashboard</h2>
             </div>
             <div style="display: flex; align-items: center; gap: 15px;">
                 <span id="p_displayUnitName" class="unit-badge">Unit: -</span>
-                <button class="refresh-btn" onclick="fetchPendingIndents(true)">🔄 Refresh</button>
+                <button class="refresh-btn" onclick="fetchPendingIndents(true)">Refresh</button>
             </div>
         </div>
 
         <div class="p-main">
             <div class="left-panel">
-                <h3 style="color: #e74c3c; border-bottom: 2px solid #eee; padding-bottom: 10px;">⏳ Pending Indents</h3>
-                <div id="indentListContainer"><p style="text-align:center;">लोड करत आहे...</p></div>
+                <h3 style="color: #ce936b; border-bottom: 2px solid #f0f0f0; padding-bottom: 12px; font-weight: 500; margin-top: 0;">Pending Indents</h3>
+                <div id="indentListContainer"><p style="text-align:center; color: #7f8c8d;">Loading data...</p></div>
             </div>
             <div class="right-panel">
-                <div id="placeholder" style="text-align: center; color: #999; margin-top: 20%; font-size: 18px;">👈 डावीकडील लिस्ट मधून एक इंडेंट निवडा.</div>
+                <div id="placeholder" style="text-align: center; color: #a0aec0; margin-top: 20%; font-size: 16px;">Select an indent from the list to view details.</div>
                 <div id="detailsContainer" class="details-container">
                     <div class="action-bar">
-                        <button style="background: transparent; border: none; font-size: 30px; cursor: pointer;" onclick="window.print()">🖨️</button>
-                        <button class="btn-dispatch" id="p_dispatchBtn" onclick="markAsDispatched()">✅ Mark as Dispatched</button>
+                        <button style="background: transparent; border: none; font-size: 16px; font-weight: bold; cursor: pointer; color: #4276b6;" onclick="window.print()">Print</button>
+                        <button class="btn-dispatch" id="p_dispatchBtn" onclick="markAsDispatched()">Mark as Dispatched</button>
                     </div>
                     <div class="patient-info">
-                        <div style="grid-column: span 2;"><strong style="color: #c62828; font-size: 18px; display: none;" id="p_urgentTag">🚨 URGENT INDENT</strong></div>
-                        <div><strong>Indent No:</strong> <span id="lblIndentNo"></span></div>
-                        <div><strong>Date Time:</strong> <span id="lblDate"></span></div>
-                        <div><strong>Unit/Ward:</strong> <span id="lblWard"></span></div>
-                        <div><strong>Patient Name:</strong> <span id="lblPatient"></span></div>
-                        <div style="grid-column: span 2;"><strong>Prescribed By:</strong> <span id="lblDoctor"></span></div>
+                        <div style="grid-column: span 2;"><strong style="color: #e53e3e; font-size: 16px; display: none;" id="p_urgentTag">[URGENT ]</strong></div>
+                        <div><strong>Indent No:</strong> <span id="lblIndentNo" style="color: #333; font-weight: 400;"></span></div>
+                        <div><strong>Date Time:</strong> <span id="lblDate" style="color: #333; font-weight: 400;"></span></div>
+                        <div><strong>Unit/Ward:</strong> <span id="lblWard" style="color: #333; font-weight: 400;"></span></div>
+                        <div><strong>Patient Name:</strong> <span id="lblPatient" style="color: #333; font-weight: 400;"></span></div>
+                        <div style="grid-column: span 2;"><strong>Prescribed By:</strong> <span id="lblDoctor" style="color: #333; font-weight: 400;"></span></div>
                     </div>
                     <table class="p-table">
                         <thead><tr><th>Sr. No.</th><th>Medicine / Consumable</th><th>Quantity</th></tr></thead>
@@ -226,19 +241,20 @@
         </div>
     </div>
 
+    <!-- ADMIN SECTION -->
     <div id="adminSection" style="display: none;">
         <div class="p-header">
             <div style="display: flex; align-items: center;">
-                <img src="dhh.png" alt="Logo" style="height: 40px; margin-right: 15px; border-radius: 4px; background-color: white; padding: 2px;">
+                <img src="dhh.png" alt="Logo" style="height: 35px; margin-right: 15px; border-radius: 4px; background-color: white; padding: 4px;">
                 <h2>Admin Control Panel</h2>
             </div>
-            <button class="refresh-btn" onclick="fetchAdminData()">🔄 Refresh Data</button>
+            <button class="refresh-btn" onclick="fetchAdminData()">Refresh Data</button>
         </div>
 
         <div class="admin-nav">
-            <button id="btnTab1" class="active" onclick="switchAdminTab('tab-analytics', this)">📊 Analytics</button>
-            <button id="btnTab2" onclick="switchAdminTab('tab-search', this)">🔍 Search Indents</button>
-            <button id="btnTab3" onclick="switchAdminTab('tab-settings', this)">⚙️ Settings</button>
+            <button id="btnTab1" class="active" onclick="switchAdminTab('tab-analytics', this)">Analytics</button>
+            <button id="btnTab2" onclick="switchAdminTab('tab-search', this)">Search Indents</button>
+            <button id="btnTab3" onclick="switchAdminTab('tab-settings', this)">Settings</button>
         </div>
 
         <div id="tab-analytics" class="admin-tab-content" style="display: block;">
@@ -251,8 +267,8 @@
                     <div><button class="compact-btn" onclick="updateAdminAnalytics()">Apply Filters</button></div>
                 </div>
                 <div style="display: flex; gap: 20px;">
-                    <div class="graph-container" style="flex: 1; text-align: center;"><h3 style="margin-top: 0; color: #4276b6;">Live Status</h3><div style="height: 250px; position: relative; margin: 0 auto; width: 100%;"><canvas id="adminPieChart"></canvas></div></div>
-                    <div class="graph-container" style="flex: 2;"><h3 style="margin-top: 0; color: #4276b6;">Pharmacy Response Time (Avg. Mins)</h3><div style="height: 250px; position: relative; width: 100%;"><canvas id="adminLineChart"></canvas></div></div>
+                    <div class="graph-container" style="flex: 1; text-align: center;"><h3 style="margin-top: 0; color: #4276b6; font-weight: 500;">Live Status</h3><div style="height: 250px; position: relative; margin: 0 auto; width: 100%;"><canvas id="adminPieChart"></canvas></div></div>
+                    <div class="graph-container" style="flex: 2;"><h3 style="margin-top: 0; color: #4276b6; font-weight: 500;">Pharmacy Response Time (Avg. Mins)</h3><div style="height: 250px; position: relative; width: 100%;"><canvas id="adminLineChart"></canvas></div></div>
                 </div>
             </div>
         </div>
@@ -264,50 +280,58 @@
                     <div><label>To Date:</label><input type="date" id="s_endDate"></div>
                     <div><label>Unit:</label><select id="s_unit"><option value="">All Units</option></select></div>
                     <div><label>Ward:</label><select id="s_ward"><option value="">All Wards</option></select></div>
-                    <div><label>Patient Name:</label><input type="text" id="s_patientName" placeholder="नाव टाका..."></div>
+                    <div><label>Patient Name:</label><input type="text" id="s_patientName" placeholder="Search..."></div>
                 </div>
-                <div style="display: flex; gap: 10px; margin-bottom: 15px; background: #fdfefe; padding: 15px; border-radius: 6px; border: 1px solid #e0e0e0; align-items: flex-end;">
+                <div style="display: flex; gap: 15px; margin-bottom: 20px; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; align-items: flex-end; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
                     <div style="flex: 2;">
-                        <label style="font-size: 13px; color: #555; display: block; margin-bottom: 5px;">Indent No:</label>
-                        <input type="text" id="s_indentNo" placeholder="उदा. IND-...">
+                        <label style="font-size: 13px; color: #4276b6; display: block; margin-bottom: 6px; font-weight: 500;">Indent No:</label>
+                        <input type="text" id="s_indentNo" placeholder="E.g. IND-...">
                     </div>
-                    <button class="btn-submit" style="flex: 1; margin-top: 0; font-size: 16px; padding: 9px;" onclick="executeAdminSearch()">शोधा (Search)</button>
+                    <button class="btn-submit" style="flex: 1; margin-top: 0; font-size: 15px; padding: 10px; background-color: #ce936b;" onclick="executeAdminSearch()">Search Record</button>
                 </div>
-                <!-- 🔴 ALIGNMENT FIX: padding-top 0 केले व position relative दिले जेणेकरून column heads परफेक्ट राहतील -->
-                <div style="background: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); padding: 0 15px 15px 15px; height: 400px; overflow-y: auto; position: relative;">
-                    <table class="p-table" style="font-size: 13px; margin-top: 0;">
-                        <thead><tr><th>Date</th><th>Indent No</th><th>Patient Name</th><th>Ward</th><th>Status</th><th>PRT (Mins)</th><th>Action</th></tr></thead>
-                        <tbody id="adminSearchResults"></tbody>
-                    </table>
+                
+                <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); padding: 15px; border: 1px solid #e0e0e0;">
+                    <div style="height: 400px; overflow-y: auto; border-radius: 4px; background: #fff;">
+                        <table class="p-table" style="font-size: 13px; margin-top: 0; border: none;">
+                            <thead><tr><th>Date</th><th>Indent No</th><th>Patient Name</th><th>Ward</th><th>Status</th><th>PRT (Mins)</th><th>Action</th></tr></thead>
+                            <tbody id="adminSearchResults"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div id="tab-settings" class="admin-tab-content">
             <div style="max-width: 1000px; margin: 0 auto; display: grid; gap: 20px; grid-template-columns: 1fr 1fr;">
-                <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                    <h3 style="color: #4276b6; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0;">🏥 Ward Management</h3>
-                    <div style="display: flex; gap: 10px; margin-bottom: 15px;"><select id="newWardUnit" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"><option value="DHIMSR">DHIMSR</option><option value="BMCCU">BMCCU</option></select><input type="text" id="newWardName" placeholder="New Ward Name" style="flex: 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"><button class="btn-dispatch" style="padding: 8px 15px;" onclick="addNewWard()">+ Add</button></div>
+                <div style="background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); border: 1px solid #e0e0e0;">
+                    <h3 style="color: #4276b6; border-bottom: 1px solid #f0f0f0; padding-bottom: 12px; margin-top: 0; font-weight: 500;">Ward Management</h3>
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px;"><select id="newWardUnit" style="flex: 1;"><option value="DHIMSR">DHIMSR</option><option value="BMCCU">BMCCU</option></select><input type="text" id="newWardName" placeholder="New Ward Name" style="flex: 2;"><button class="btn-dispatch" style="padding: 10px 15px; background-color: #4276b6;" onclick="addNewWard()">+ Add</button></div>
                     <div style="max-height: 250px; overflow-y: auto;"><table class="p-table" style="font-size: 13px;"><thead><tr><th>Unit</th><th>Ward</th><th>Status</th><th>Action</th></tr></thead><tbody id="adminWardsList"></tbody></table></div>
                 </div>
-                <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                    <h3 style="color: #4276b6; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0;">🔑 Passcode Management</h3>
+                <div style="background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); border: 1px solid #e0e0e0;">
+                    <h3 style="color: #4276b6; border-bottom: 1px solid #f0f0f0; padding-bottom: 12px; margin-top: 0; font-weight: 500;">Passcode Management</h3>
                     <div style="max-height: 250px; overflow-y: auto;"><table class="p-table" style="font-size: 13px;"><thead><tr><th>Unit / Role</th><th>Passcode</th><th>Action</th></tr></thead><tbody id="adminPasscodesList"></tbody></table></div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- PRINT TEMPLATE -->
     <div id="printTemplate">
         <table class="print-table">
-            <tr><td class="logo-td"><img src="dhh.png" style="height: 50px;"></td><td colspan="3" class="blue-bg" style="font-size: 18px;">Dr Hedgewar hospital & Bharani Critical Care Unit</td></tr>
+            <tr><td class="logo-td"><img src="dhh.png" style="height: 45px;"></td><td colspan="3" class="blue-bg" style="font-size: 18px; letter-spacing: 0.5px;">Dr. Hedgewar Hospital & Bharani Critical Care Unit</td></tr>
             <tr><td class="label">Patient Name:</td><td colspan="3" id="prtPatient"></td></tr>
             <tr><td class="label">Ward:</td><td id="prtWard"></td><td class="label">Request Time:</td><td id="prtDate"></td></tr>
             <tr><td class="label">Indent No:</td><td id="prtIndentNo"></td><td class="label">Dispatch Time:</td><td id="prtDispatchTime" style="color: #27ae60; font-weight: bold;">-</td></tr>
             <tr><td class="label">Prescribed By:</td><td colspan="3" id="prtDoctor"></td></tr>
-            <tr><td colspan="3" class="blue-bg">Medicine/ Consumables</td><td class="blue-bg" style="width: 15%;">Qty</td></tr>
+            <tr><td colspan="3" class="blue-bg">Medicine / Consumables</td><td class="blue-bg" style="width: 15%;">Qty</td></tr>
             <tbody id="prtMedicineList"></tbody>
         </table>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        © 2026 Dr. Hedgewar Hospital. All Rights Reserved. | Powered by <b>CareSync</b>
     </div>
 
 <script>
@@ -323,7 +347,7 @@
 
     function masterLogin() {
         const code = document.getElementById('passcodeInput').value.trim(); const errorMsg = document.getElementById('loginError'); const btn = document.getElementById('loginBtn');
-        if(!code) return; btn.innerText = "तपासत आहे..."; btn.disabled = true; errorMsg.style.display = 'none';
+        if(!code) return; btn.innerText = "Checking..."; btn.disabled = true; errorMsg.style.display = 'none';
 
         const timestamp = new Date().getTime();
         fetch(SCRIPT_URL + "?action=verifyPasscode&code=" + encodeURIComponent(code) + "&t=" + timestamp)
@@ -333,25 +357,39 @@
                 loggedInUnit = data.unit; document.getElementById('loginOverlay').style.display = 'none';
                 if(loggedInUnit.toUpperCase().includes('PHARMACY')) {
                     currentRole = "PHARMACY"; document.getElementById('pharmacySection').style.display = 'block';
-                    document.getElementById('p_displayUnitName').innerText = "📍 " + loggedInUnit; initPharmacy();
+                    document.getElementById('p_displayUnitName').innerText = loggedInUnit; initPharmacy();
                 } else if(loggedInUnit.toUpperCase() === 'ADMIN') {
                     currentRole = "ADMIN"; document.getElementById('adminSection').style.display = 'block'; initAdmin(); 
                 } else {
                     currentRole = "NURSING"; document.getElementById('nursingSection').style.display = 'block';
                     document.getElementById('n_unitName').innerHTML = `<option value="${loggedInUnit}">${loggedInUnit}</option>`; initNursing();
                 }
-                showToast("✅ यशस्वीरित्या लॉग-इन झाले!", "success");
+                showToast("Login Successful!", "success");
             } else { throw new Error("Invalid"); }
-        }).catch(err => { errorMsg.style.display = 'block'; document.getElementById('passcodeInput').value = ''; btn.innerText = "लॉग-इन करा"; btn.disabled = false; });
+        }).catch(err => { errorMsg.style.display = 'block'; document.getElementById('passcodeInput').value = ''; btn.innerText = "PROCEED"; btn.disabled = false; });
     }
 
     // ======== NURSING LOGIC ========
     let indentList = []; let globalMedicines = []; let currentFocus = -1;
     function initNursing() { fetchMasterData(); }
+    
     function fetchMasterData() {
         fetch(SCRIPT_URL + "?action=getDropdownData&t=" + new Date().getTime()).then(res => res.json()).then(data => {
-            const wardSelect = document.getElementById('n_wardName'); wardSelect.innerHTML = '<option value="">-- Select --</option>'; 
-            if(data.wards) data.wards.forEach(w => { let wName = typeof w === 'object' ? w.name : w; let wUnit = typeof w === 'object' ? w.unit : loggedInUnit; if (wUnit === loggedInUnit) wardSelect.innerHTML += `<option value="${wName}">${wName}</option>`; });
+            const wardSelect = document.getElementById('n_wardName'); 
+            wardSelect.innerHTML = '<option value="">-- Select --</option>'; 
+            
+            let uniqueWards = new Set();
+            if(data.wards) {
+                data.wards.forEach(w => { 
+                    let wName = typeof w === 'object' ? w.name : w; 
+                    let wUnit = typeof w === 'object' ? w.unit : loggedInUnit; 
+                    if (wUnit === loggedInUnit && !uniqueWards.has(wName.trim())) {
+                        uniqueWards.add(wName.trim());
+                        wardSelect.innerHTML += `<option value="${wName}">${wName}</option>`; 
+                    }
+                });
+            }
+            
             const docList = document.getElementById('doctorList'); docList.innerHTML = ''; 
             if(data.doctors) data.doctors.forEach(d => { docList.innerHTML += `<option value="${d}">`; });
             if(data.medicines) globalMedicines = data.medicines;
@@ -417,30 +455,30 @@
 
     function updateNTable() {
         const tbody = document.getElementById('tableBody'); tbody.innerHTML = ''; 
-        indentList.forEach((item, i) => { tbody.innerHTML += `<tr><td>${item.displayName}</td><td>${item.quantity}</td><td class="delete-btn" onclick="indentList.splice(${i}, 1); updateNTable()">❌</td></tr>`; });
+        indentList.forEach((item, i) => { tbody.innerHTML += `<tr><td>${item.displayName}</td><td>${item.quantity}</td><td class="delete-btn" onclick="indentList.splice(${i}, 1); updateNTable()">Remove</td></tr>`; });
     }
 
     function submitIndent() {
         const ward = document.getElementById('n_wardName').value; let pName = document.getElementById('n_patientName').value.trim(); const doc = document.getElementById('n_prescribedBy').value.trim();
         if(!ward || !pName || !doc || indentList.length === 0) return alert("Please fill all details and add medicine.");
-        if(document.getElementById('n_isUrgent').checked) pName = "🚨 [URGENT] " + pName;
-        const btn = document.getElementById('n_submitBtn'); btn.innerHTML = "⏳ Sending..."; btn.disabled = true;
+        if(document.getElementById('n_isUrgent').checked) pName = "[URGENT] " + pName;
+        const btn = document.getElementById('n_submitBtn'); btn.innerHTML = "Sending..."; btn.disabled = true;
         const payload = { action: "submitIndent", unitName: loggedInUnit, wardName: loggedInUnit + " - " + ward, patientName: pName, doctorName: doc, items: indentList.map(i => ({ name: i.displayName, qty: i.quantity })) };
         fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
         .then(() => {
-            showToast("✅ Indent Sent Successfully!", "success"); populatePrint(pName, loggedInUnit + " - " + ward, new Date().toLocaleString('en-IN'), "Pending", doc, indentList); document.getElementById('n_printBtn').style.display = 'block';
-            indentList = []; updateNTable(); document.getElementById('n_patientName').value = ''; document.getElementById('n_isUrgent').checked = false; btn.innerHTML = "✅ Send to Pharmacy (Submit)"; btn.disabled = false;
-        }).catch(() => { alert("Error!"); btn.innerHTML = "✅ Send to Pharmacy (Submit)"; btn.disabled = false; });
+            showToast("Indent Sent Successfully!", "success"); populatePrint(pName, loggedInUnit + " - " + ward, new Date().toLocaleString('en-IN'), "Pending", doc, indentList); document.getElementById('n_printBtn').style.display = 'block';
+            indentList = []; updateNTable(); document.getElementById('n_patientName').value = ''; document.getElementById('n_isUrgent').checked = false; btn.innerHTML = "Send to Pharmacy"; btn.disabled = false;
+        }).catch(() => { alert("Error!"); btn.innerHTML = "Send to Pharmacy"; btn.disabled = false; });
     }
 
     function populatePrint(patient, ward, date, indentNo, doctor, items) {
-        document.getElementById('prtPatient').innerText = patient.replace("🚨 [URGENT] ", ""); document.getElementById('prtWard').innerText = ward; document.getElementById('prtDate').innerText = date;
+        document.getElementById('prtPatient').innerText = patient.replace("[URGENT] ", ""); document.getElementById('prtWard').innerText = ward; document.getElementById('prtDate').innerText = date;
         document.getElementById('prtIndentNo').innerText = indentNo; document.getElementById('prtDoctor').innerText = doctor;
         let dispEl = document.getElementById('prtDispatchTime'); if(dispEl) { dispEl.innerText = "Pending"; dispEl.style.color = "#e67e22"; }
         const tbody = document.getElementById('prtMedicineList'); tbody.innerHTML = '';
         items.forEach(med => {
             let n = med.name || med.displayName; let opd = ""; if(n.includes("[")) { let p = n.split("["); n = p[0].trim(); opd = `<br><span style="font-size:13px; color:#555;">[${p[1]}</span>`; }
-            tbody.innerHTML += `<tr><td colspan="3" style="font-weight:bold; border:1px solid #b2ebf2; padding:6px;">${n} ${opd}</td><td style="text-align:center; font-weight:bold; border:1px solid #b2ebf2; padding:6px;">${med.qty}</td></tr>`;
+            tbody.innerHTML += `<tr><td colspan="3" style="font-weight:500; border:1px solid #b2ebf2; padding:8px;">${n} ${opd}</td><td style="text-align:center; font-weight:500; border:1px solid #b2ebf2; padding:8px;">${med.qty}</td></tr>`;
         });
     }
 
@@ -449,7 +487,7 @@
     function initPharmacy() { if ("Notification" in window && Notification.permission !== "granted") Notification.requestPermission(); fetchPendingIndents(); setInterval(() => fetchPendingIndents(false), 30000); }
 
     function fetchPendingIndents(isManual = false) {
-        if(isManual) document.getElementById('indentListContainer').innerHTML = '<p style="text-align:center;">लोड करत आहे...</p>';
+        if(isManual) document.getElementById('indentListContainer').innerHTML = '<p style="text-align:center; color: #7f8c8d;">Loading data...</p>';
         fetch(SCRIPT_URL + "?action=getPendingIndents&t=" + new Date().getTime()).then(res => res.json()).then(data => {
             let grouped = {};
             data.forEach(row => {
@@ -482,17 +520,17 @@
 
     function renderPList(indents) {
         const container = document.getElementById('indentListContainer');
-        if(!indents || indents.length === 0) { container.innerHTML = '<p style="text-align:center; color:#27ae60;">कोणतेही पेंडिंग इंडेंट नाहीत! 🎉</p>'; return; }
+        if(!indents || indents.length === 0) { container.innerHTML = '<p style="text-align:center; color:#27ae60; font-weight: 500;">No pending indents!</p>'; return; }
         let html = "", hasNewUrgent = false, hasNewNormal = false;
         indents.forEach((ind) => {
-            let isUrgent = String(ind.patientName).includes("🚨 [URGENT]"); let cleanPatient = ind.patientName.replace("🚨 [URGENT] ", "").trim();
+            let isUrgent = String(ind.patientName).includes("[URGENT]"); let cleanPatient = ind.patientName.replace("[URGENT] ", "").trim();
             if(!notifiedIndents.has(ind.indentNo)) {
                 notifiedIndents.add(ind.indentNo); if(isUrgent) hasNewUrgent = true; else hasNewNormal = true;
                 if ("Notification" in window && Notification.permission === "granted") {
-                    new Notification(isUrgent ? "🚨 URGENT INDENT ALERT" : "💊 नवीन फार्मसी इंडेंट", { body: `वॉर्ड: ${ind.ward}\nरुग्ण: ${cleanPatient}`, icon: "https://cdn-icons-png.flaticon.com/512/4320/4320337.png", requireInteraction: isUrgent });
+                    new Notification(isUrgent ? "URGENT INDENT ALERT" : "New Pharmacy Indent", { body: `Ward: ${ind.ward}\nPatient: ${cleanPatient}`, icon: "https://cdn-icons-png.flaticon.com/512/4320/4320337.png", requireInteraction: isUrgent });
                 }
             }
-            html += `<div class="indent-card ${isUrgent ? 'urgent' : ''}" onclick='showPDetails(${JSON.stringify(ind).replace(/'/g, "&#39;")})'><div class="indent-header"><span>${ind.indentNo}</span><span style="color:#e67e22; font-size:13px;">${formatCDate(ind.date)}</span></div><div class="indent-details"><strong>${cleanPatient}</strong> (${ind.ward})</div></div>`;
+            html += `<div class="indent-card ${isUrgent ? 'urgent' : ''}" onclick='showPDetails(${JSON.stringify(ind).replace(/'/g, "&#39;")})'><div class="indent-header"><span>${ind.indentNo}</span><span style="color:#ce936b; font-size:13px; font-weight: 400;">${formatCDate(ind.date)}</span></div><div style="color: #333; font-size: 14px;"><strong>${cleanPatient}</strong> (${ind.ward})</div></div>`;
         });
         container.innerHTML = html;
         if(hasNewUrgent || hasNewNormal) new Audio(hasNewUrgent ? 'https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg' : 'https://actions.google.com/sounds/v1/alarms/beep_short.ogg').play().catch(e => console.log("Audio Blocked"));
@@ -500,25 +538,25 @@
 
     function showPDetails(ind) {
         currentSelectedIndent = ind.indentNo; document.getElementById('placeholder').style.display = 'none'; document.getElementById('detailsContainer').style.display = 'block';
-        let isUrgent = String(ind.patientName).includes("🚨 [URGENT]"); let cleanPatient = ind.patientName.replace("🚨 [URGENT] ", "").trim();
+        let isUrgent = String(ind.patientName).includes("[URGENT]"); let cleanPatient = ind.patientName.replace("[URGENT] ", "").trim();
         document.getElementById('p_urgentTag').style.display = isUrgent ? 'block' : 'none'; document.getElementById('lblIndentNo').innerText = ind.indentNo; document.getElementById('lblDate').innerText = formatCDate(ind.date);
         document.getElementById('lblWard').innerText = ind.ward; document.getElementById('lblPatient').innerText = cleanPatient; document.getElementById('lblDoctor').innerText = ind.doctor;
         const tbody = document.getElementById('medicineTableBody'); tbody.innerHTML = '';
         ind.medicines.forEach((med, idx) => {
-            let n = med.name; let opd = ""; if(n.includes("[")) { let p = n.split("["); n = p[0].trim(); opd = `<br><span style="color:#e67e22;">[${p[1]}</span>`; }
+            let n = med.name; let opd = ""; if(n.includes("[")) { let p = n.split("["); n = p[0].trim(); opd = `<br><span style="color:#ce936b;">[${p[1]}</span>`; }
             tbody.innerHTML += `<tr><td>${idx+1}</td><td><b>${n}</b> ${opd}</td><td>${med.qty}</td></tr>`;
         });
         populatePrint(cleanPatient, ind.ward, formatCDate(ind.date), ind.indentNo, ind.doctor, ind.medicines);
     }
 
     function markAsDispatched() {
-        if(!currentSelectedIndent) return; const btn = document.getElementById('p_dispatchBtn'); btn.innerHTML = "⏳ Update..."; btn.disabled = true;
+        if(!currentSelectedIndent) return; const btn = document.getElementById('p_dispatchBtn'); btn.innerHTML = "Updating..."; btn.disabled = true;
         fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: "markDispatched", indentNo: currentSelectedIndent }) })
-        .then(() => { showToast("✅ Dispatched मार्क झाला!", "success"); document.getElementById('detailsContainer').style.display = 'none'; document.getElementById('placeholder').style.display = 'block'; currentSelectedIndent = null; btn.innerHTML = "✅ Mark as Dispatched"; btn.disabled = false; fetchPendingIndents(); })
-        .catch(() => { showToast("❌ Error!", "error"); btn.innerHTML = "✅ Mark as Dispatched"; btn.disabled = false; });
+        .then(() => { showToast("Dispatched successfully!", "success"); document.getElementById('detailsContainer').style.display = 'none'; document.getElementById('placeholder').style.display = 'block'; currentSelectedIndent = null; btn.innerHTML = "Mark as Dispatched"; btn.disabled = false; fetchPendingIndents(); })
+        .catch(() => { showToast("Error!", "error"); btn.innerHTML = "Mark as Dispatched"; btn.disabled = false; });
     }
 
-    // ======== 👑 ADMIN LOGIC ========
+    // ======== ADMIN LOGIC ========
     let adminPieChartInstance = null; let adminLineChartInstance = null;
     let globalAdminIndents = [];
 
@@ -533,10 +571,9 @@
     function initAdmin() { fetchAdminData(); }
 
     function fetchAdminData() {
-        showToast("⏳ Fetching Admin Data...", "success");
+        showToast("Fetching Admin Data...", "success");
         fetch(SCRIPT_URL + "?action=getAdminDashboardData&t=" + new Date().getTime()).then(res => res.json()).then(data => {
             
-            // 🔴 BUG FIX: Admin Data Grouping (औषधांची यादी प्रिंटसाठी एकत्र करणे)
             let rawIndents = data.indents || [];
             let grouped = {};
 
@@ -567,8 +604,8 @@
 
             populateAdminDropdowns(data.settings.wards); 
             renderAdminWards(data.settings.wards); renderAdminPasscodes(data.settings.passcodes);
-            updateAdminAnalytics(); executeAdminSearch(); showToast("✅ Admin Data Loaded", "success");
-        }).catch(err => { showToast("❌ Error loading data", "error"); });
+            updateAdminAnalytics(); executeAdminSearch(); showToast("Admin Data Loaded", "success");
+        }).catch(err => { showToast("Error loading data", "error"); });
     }
 
     function populateAdminDropdowns(activeWardsData) {
@@ -623,11 +660,11 @@
         });
         const ctxPie = document.getElementById('adminPieChart').getContext('2d');
         if(adminPieChartInstance) adminPieChartInstance.destroy();
-        adminPieChartInstance = new Chart(ctxPie, { type: 'doughnut', data: { labels: ['Dispatched ✅', 'Pending ⏳'], datasets: [{ data: [dispatched, pending], backgroundColor: ['#27ae60', '#e67e22'] }] }, options: { responsive: true, maintainAspectRatio: false } });
+        adminPieChartInstance = new Chart(ctxPie, { type: 'doughnut', data: { labels: ['Dispatched', 'Pending'], datasets: [{ data: [dispatched, pending], backgroundColor: ['#27ae60', '#e74c3c'] }] }, options: { responsive: true, maintainAspectRatio: false } });
         let labels = Object.keys(dailyPRT).sort((a,b) => parseAdminDate(a) - parseAdminDate(b)); let prtData = labels.map(l => (dailyPRT[l].sum / dailyPRT[l].count).toFixed(2));
         const ctxLine = document.getElementById('adminLineChart').getContext('2d');
         if(adminLineChartInstance) adminLineChartInstance.destroy();
-        adminLineChartInstance = new Chart(ctxLine, { type: 'line', data: { labels: labels, datasets: [{ label: 'Daily Avg PRT (Mins)', data: prtData, borderColor: '#9b59b6', backgroundColor: 'rgba(155, 89, 182, 0.2)', fill: true, tension: 0.1, pointBackgroundColor: '#8e44ad' }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } } });
+        adminLineChartInstance = new Chart(ctxLine, { type: 'line', data: { labels: labels, datasets: [{ label: 'Daily Avg PRT (Mins)', data: prtData, borderColor: '#4276b6', backgroundColor: 'rgba(66, 118, 182, 0.1)', fill: true, tension: 0.2, pointBackgroundColor: '#ce936b' }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } } });
     }
 
     function executeAdminSearch() {
@@ -642,21 +679,21 @@
             return (t >= sTime && t <= eTime && uMatch && wMatch && pMatch && iMatch);
         }).reverse();
         let tbody = document.getElementById('adminSearchResults'); tbody.innerHTML = '';
-        if(filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">कोणताही डेटा सापडला नाही.</td></tr>'; return; }
+        if(filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No records found.</td></tr>'; return; }
         
         filtered.forEach(ind => {
-            let statusColor = ind.status === 'Dispatched' ? '#27ae60' : '#e67e22'; 
+            let statusColor = ind.status === 'Dispatched' ? '#27ae60' : '#e74c3c'; 
             let timeText = ind.responseTime ? `<b>${ind.responseTime}</b>` : `<span style="color:#7f8c8d;">-</span>`; 
-            let cleanPatient = String(ind.patient).replace("🚨 [URGENT] ", "🚨 ");
+            let cleanPatient = String(ind.patient).replace("[URGENT] ", "[URGENT] ");
             
             tbody.innerHTML += `<tr>
                 <td>${formatCDate(ind.dateStr)}</td>
                 <td><b>${ind.indentNo}</b></td>
-                <td>${cleanPatient}</td>
+                <td style="color: #2c598f;">${cleanPatient}</td>
                 <td>${ind.ward}</td>
                 <td style="color: ${statusColor}; font-weight: bold;">${ind.status}</td>
                 <td style="text-align:center;">${timeText}</td>
-                <td style="text-align:center;"><button style="background: #3498db; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;" onclick="printAdminIndent('${ind.indentNo}')">🖨️ Print</button></td>
+                <td style="text-align:center;"><button style="background: transparent; color: #4276b6; border: 1px solid #4276b6; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 500; font-family: 'Roboto', sans-serif;" onclick="printAdminIndent('${ind.indentNo}')">Print</button></td>
             </tr>`;
         });
     }
@@ -666,7 +703,7 @@
         if(matches.length === 0) return;
         let ind = matches[0]; 
 
-        let cleanPatient = String(ind.patient || ind.patientName || "").replace("🚨 [URGENT] ", "");
+        let cleanPatient = String(ind.patient || ind.patientName || "").replace("[URGENT] ", "");
         let reqTime = formatCDate(ind.dateStr || ind.date);
 
         let dispTime = "-";
@@ -700,7 +737,7 @@
             medsToPrint.forEach(med => {
                 let n = med.name || med.medicine || med.displayName || "-"; let q = med.qty || med.quantity || "-";
                 let opd = ""; if(n.includes("[")) { let p = n.split("["); n = p[0].trim(); opd = `<br><span style="font-size:13px; color:#555;">[${p[1]}</span>`; }
-                tbody.innerHTML += `<tr><td colspan="3" style="font-weight:bold; border:1px solid #b2ebf2; padding:6px;">${n} ${opd}</td><td style="text-align:center; font-weight:bold; border:1px solid #b2ebf2; padding:6px;">${q}</td></tr>`;
+                tbody.innerHTML += `<tr><td colspan="3" style="font-weight:500; border:1px solid #b2ebf2; padding:8px;">${n} ${opd}</td><td style="text-align:center; font-weight:500; border:1px solid #b2ebf2; padding:8px;">${q}</td></tr>`;
             });
         }
         window.print();
@@ -711,23 +748,18 @@
         let tbody = document.getElementById('adminWardsList'); tbody.innerHTML = '';
         wards.forEach(w => {
             let isActive = w.status.toLowerCase() === 'active'; let btnColor = isActive ? '#e74c3c' : '#27ae60'; let btnText = isActive ? 'Disable' : 'Enable';
-            tbody.innerHTML += `<tr><td>${w.unit}</td><td>${w.name}</td><td><span style="color: ${isActive ? '#27ae60' : '#e74c3c'}; font-weight: bold;">${w.status}</span></td><td><button style="background: ${btnColor}; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;" onclick="toggleWard('${w.unit}', '${w.name}', '${isActive ? 'Inactive' : 'Active'}')">${btnText}</button></td></tr>`;
+            tbody.innerHTML += `<tr><td>${w.unit}</td><td style="color: #2c598f; font-weight: 500;">${w.name}</td><td><span style="color: ${isActive ? '#27ae60' : '#e74c3c'}; font-weight: bold;">${w.status}</span></td><td><button style="background: transparent; color: ${btnColor}; border: 1px solid ${btnColor}; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-family: 'Roboto', sans-serif;" onclick="toggleWard('${w.unit}', '${w.name}', '${isActive ? 'Inactive' : 'Active'}')">${btnText}</button></td></tr>`;
         });
     }
     function renderAdminPasscodes(passcodes) {
         let tbody = document.getElementById('adminPasscodesList'); tbody.innerHTML = '';
         passcodes.forEach(p => {
-            tbody.innerHTML += `<tr><td>${p.unit}</td><td><div style="display:flex; gap:5px; align-items:center;"><input type="password" id="pass_${p.unit}" value="${p.code}" style="width: 100px; padding: 5px; margin: 0;"><button onclick="togglePassVisibility('pass_${p.unit}')" style="background:transparent; border:none; cursor:pointer; font-size:16px;">👁️</button></div></td><td><button style="background: #3498db; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;" onclick="updateAdminPasscode('${p.unit}')">Update</button></td></tr>`;
+            tbody.innerHTML += `<tr><td style="color: #2c598f; font-weight: 500;">${p.unit}</td><td><div style="display:flex; gap:5px; align-items:center;"><input type="password" id="pass_${p.unit}" value="${p.code}" style="width: 100px; padding: 6px; margin: 0; border: 1px solid #e0e0e0;"><button onclick="togglePassVisibility('pass_${p.unit}')" style="background:transparent; border:none; cursor:pointer; font-size:16px;">Show</button></div></td><td><button style="background: #4276b6; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-family: 'Roboto', sans-serif;" onclick="updateAdminPasscode('${p.unit}')">Update</button></td></tr>`;
         });
     }
-    function toggleWard(unit, ward, newStatus) { fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: "toggleWardStatus", unitName: unit, wardName: ward, newStatus: newStatus }) }).then(() => { fetchAdminData(); showToast("✅ Status Updated", "success"); }); }
-    function updateAdminPasscode(unit) { let newPass = document.getElementById(`pass_${unit}`).value.trim(); if(!newPass) return alert("Empty Passcode!"); fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: "updatePasscode", unitName: unit, newPasscode: newPass }) }).then(() => { fetchAdminData(); showToast("✅ Passcode Updated", "success"); }); }
-    function addNewWard() { let unit = document.getElementById('newWardUnit').value; let ward = document.getElementById('newWardName').value.trim(); if(!ward) return alert("Enter ward name!"); fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: "addNewWard", unitName: unit, wardName: ward }) }).then(() => { document.getElementById('newWardName').value = ''; fetchAdminData(); showToast("✅ New Ward Added", "success"); }); }
+    function toggleWard(unit, ward, newStatus) { fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: "toggleWardStatus", unitName: unit, wardName: ward, newStatus: newStatus }) }).then(() => { fetchAdminData(); showToast("Status Updated", "success"); }); }
+    function updateAdminPasscode(unit) { let newPass = document.getElementById(`pass_${unit}`).value.trim(); if(!newPass) return alert("Empty Passcode!"); fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: "updatePasscode", unitName: unit, newPasscode: newPass }) }).then(() => { fetchAdminData(); showToast("Passcode Updated", "success"); }); }
+    function addNewWard() { let unit = document.getElementById('newWardUnit').value; let ward = document.getElementById('newWardName').value.trim(); if(!ward) return alert("Enter ward name!"); fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: "addNewWard", unitName: unit, wardName: ward }) }).then(() => { document.getElementById('newWardName').value = ''; fetchAdminData(); showToast("New Ward Added", "success"); }); }
 </script>
-
-    <div class="footer">
-        © 2026 Dr. Hedgewar Hospital. All Rights Reserved. | Powered by <b>CareSync HIMS</b>
-    </div>
-    
 </body>
 </html>
