@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Operation Errorless - Master Portal</title>
+    <title>DHH CareSys - Master Portal</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* ================= COMMON CSS ================= */
@@ -174,7 +174,7 @@
                     <input type="checkbox" id="n_isUrgent" style="width: 20px; height: 20px; accent-color: #c62828;">
                     🚨 Urgent
                 </label>
-                <button class="btn btn-submit" id="n_submitBtn" onclick="submitIndent()" style="margin-top: 0; flex: 1;">✅ Send to Pharmacy (Submit)</button>
+                <button class="btn btn-submit" id="n_submitBtn" onclick="submitIndent()" style="margin-top: 0; flex: 1;">✅ Send to Pharmacy </button>
             </div>
             
             <button class="btn" style="background-color: #f39c12; display: none;" id="n_printBtn" onclick="window.print()">🖨️ Print Indent</button>
@@ -185,7 +185,7 @@
         <div class="p-header">
             <div style="display: flex; align-items: center;">
                 <img src="dhh.png" alt="Logo" style="height: 40px; margin-right: 15px; border-radius: 4px; background-color: white; padding: 2px;">
-                <h2>🏥 Pharmacy Dashboard</h2>
+                <h2>Pharmacy Dashboard</h2>
             </div>
             <div style="display: flex; align-items: center; gap: 15px;">
                 <span id="p_displayUnitName" class="unit-badge">Unit: -</span>
@@ -226,7 +226,7 @@
         <div class="p-header">
             <div style="display: flex; align-items: center;">
                 <img src="dhh.png" alt="Logo" style="height: 40px; margin-right: 15px; border-radius: 4px; background-color: white; padding: 2px;">
-                <h2>👑 Admin Control Panel</h2>
+                <h2>Admin Control Panel</h2>
             </div>
             <button class="refresh-btn" onclick="fetchAdminData()">🔄 Refresh Data</button>
         </div>
