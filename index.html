@@ -292,19 +292,15 @@
         <div id="tab-search" class="admin-tab-content">
             <div style="max-width: 1200px; margin: 0 auto;">
                 <div class="filter-grid">
-                    <div><label>From Date:</label><input type="date" id="s_startDate"></div>
-                    <div><label>To Date:</label><input type="date" id="s_endDate"></div>
-                    <div><label>Unit:</label><select id="s_unit"><option value="">All Units</option></select></div>
-                    <div><label>Ward:</label><select id="s_ward"><option value="">All Wards</option></select></div>
-                    <div><label>Patient Name:</label><input type="text" id="s_patientName" placeholder="Search..."></div>
-                </div>
-                <div style="display: flex; gap: 15px; margin-bottom: 20px; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; align-items: flex-end; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
-                    <div style="flex: 2;">
-                        <label style="font-size: 13px; color: #4276b6; display: block; margin-bottom: 6px; font-weight: 500;">Indent No:</label>
-                        <input type="text" id="s_indentNo" placeholder="E.g. IND-...">
-                    </div>
-                    <button class="btn-submit" style="flex: 1; margin-top: 0; font-size: 15px; padding: 10px; background-color: #ce936b;" onclick="executeAdminSearch()">Search Record</button>
-                </div>
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px; background: #fff; padding: 12px 15px; border-radius: 8px; border: 1px solid #e0e0e0; align-items: flex-end; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+        <div style="flex: 1;"><label style="font-size: 12px; color: #4276b6; margin-bottom: 4px; display: block; font-weight: 500;">From:</label><input type="date" id="s_startDate" style="padding: 6px 8px; font-size: 13px; height: 32px;"></div>
+        <div style="flex: 1;"><label style="font-size: 12px; color: #4276b6; margin-bottom: 4px; display: block; font-weight: 500;">To:</label><input type="date" id="s_endDate" style="padding: 6px 8px; font-size: 13px; height: 32px;"></div>
+        <div style="flex: 1.2;"><label style="font-size: 12px; color: #4276b6; margin-bottom: 4px; display: block; font-weight: 500;">Unit:</label><select id="s_unit" style="padding: 6px 8px; font-size: 13px; height: 32px;"><option value="">All Units</option></select></div>
+        <div style="flex: 1.2;"><label style="font-size: 12px; color: #4276b6; margin-bottom: 4px; display: block; font-weight: 500;">Ward:</label><select id="s_ward" style="padding: 6px 8px; font-size: 13px; height: 32px;"><option value="">All Wards</option></select></div>
+        <div style="flex: 1.5;"><label style="font-size: 12px; color: #4276b6; margin-bottom: 4px; display: block; font-weight: 500;">Patient:</label><input type="text" id="s_patientName" placeholder="Search..." style="padding: 6px 8px; font-size: 13px; height: 32px;"></div>
+        <div style="flex: 1.5;"><label style="font-size: 12px; color: #4276b6; margin-bottom: 4px; display: block; font-weight: 500;">Indent No:</label><input type="text" id="s_indentNo" placeholder="IND-..." style="padding: 6px 8px; font-size: 13px; height: 32px;"></div>
+        <div style="flex: 1;"><button style="margin-top: 0; font-size: 14px; padding: 0 15px; background-color: #ce936b; height: 32px; width: 100%; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: 500; font-family: 'Roboto', sans-serif; transition: 0.2s;" onmouseover="this.style.backgroundColor='#b87c53'" onmouseout="this.style.backgroundColor='#ce936b'" onclick="executeAdminSearch()">Search</button></div>
+    </div>
                 
                 <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); padding: 15px; border: 1px solid #e0e0e0;">
                     <div style="height: 400px; overflow-y: auto; border-radius: 4px; background: #fff;">
