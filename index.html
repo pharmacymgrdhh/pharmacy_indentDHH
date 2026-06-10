@@ -276,18 +276,19 @@
         <div id="tab-analytics" class="admin-tab-content" style="display: block;">
             <div style="max-width: 1200px; margin: 0 auto;">
                 <div class="filter-grid">
-                    <div><label>Start Date:</label><input type="date" id="g_startDate"></div>
-                    <div><label>End Date:</label><input type="date" id="g_endDate"></div>
-                    <div><label>Unit:</label><select id="g_unit"><option value="">All Units</option></select></div>
-                    <div><label>Ward:</label><select id="g_ward"><option value="">All Wards</option></select></div>
-                    <div><button class="compact-btn" onclick="updateAdminAnalytics()">Apply Filters</button></div>
+                    <div><label>From Date:</label><input type="date" id="s_startDate"></div>
+                    <div><label>To Date:</label><input type="date" id="s_endDate"></div>
+                    <div><label>Unit:</label><select id="s_unit"><option value="">All Units</option></select></div>
+                    <div><label>Ward:</label><select id="s_ward"><option value="">All Wards</option></select></div>
+                    <div><label>Patient Name:</label><input type="text" id="s_patientName" placeholder="Search..."></div>
                 </div>
-                <div style="display: flex; gap: 20px;">
-                    <div class="graph-container" style="flex: 1; text-align: center;"><h3 style="margin-top: 0; color: #4276b6; font-weight: 500;">Live Status</h3><div style="height: 250px; position: relative; margin: 0 auto; width: 100%;"><canvas id="adminPieChart"></canvas></div></div>
-                    <div class="graph-container" style="flex: 2;"><h3 style="margin-top: 0; color: #4276b6; font-weight: 500;">Pharmacy Response Time (Avg. Mins)</h3><div style="height: 250px; position: relative; width: 100%;"><canvas id="adminLineChart"></canvas></div></div>
+                <div style="display: flex; gap: 15px; margin-bottom: 20px; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; align-items: flex-end; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                    <div style="flex: 2;">
+                        <label style="font-size: 13px; color: #4276b6; display: block; margin-bottom: 6px; font-weight: 500;">Indent No:</label>
+                        <input type="text" id="s_indentNo" placeholder="E.g. IND-...">
+                    </div>
+                    <button class="btn-submit" style="flex: 1; margin-top: 0; font-size: 15px; padding: 10px; background-color: #ce936b;" onclick="executeAdminSearch()">Search Record</button>
                 </div>
-            </div>
-        </div>
 
         <div id="tab-search" class="admin-tab-content">
             <div style="max-width: 1200px; margin: 0 auto;">
