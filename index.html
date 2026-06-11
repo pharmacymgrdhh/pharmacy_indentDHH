@@ -449,22 +449,71 @@
     function removeActive(x) { for (let i = 0; i < x.length; i++) { x[i].classList.remove("autocomplete-active"); } }
 
     medInput.addEventListener('input', function() {
-        currentFocus = -1; 
-        let val = this.value; if (val.includes("[")) { this.value = val.split("[")[0].trim().replace(/-$/, "").trim(); val = this.value; }
-        val = val.toUpperCase(); medDropdown.innerHTML = ''; if (!val) { medDropdown.style.display = 'none'; return; }
-        let count = 0;
-        for (let i = 0; i < globalMedicines.length; i++) {
-            if (globalMedicines[i].toUpperCase().includes(val)) {
-                let parts = globalMedicines[i].split("|"); 
-                let div = document.createElement('div'); div.className = "med-item"; 
-                div.innerHTML = `<div class="med-brand">${parts[0].trim()}</div>` + (parts[1] ? `<div class="med-comp">${parts[1].trim()}</div>` : "");
-                div.addEventListener('click', function() { medInput.value = parts[0].trim(); medDropdown.style.display = 'none'; });
-                medDropdown.appendChild(div); count++;
-            }
-            if (count > 40) break;
+    currentFocus = -1; 
+    let val = this.value; 
+    if (val.includes("[")) { this.value = val.split("[")[0].trim().replace(/-$/, "").trim(); val = this.value; }
+    
+    if (!val.trim()) { medDropdown.style.display = 'none'; return; }
+    
+    let searchStr = val.toUpperCase().replace(/-/g, ' ').replace(/\s+/g, ' ').trim();
+    
+    const aliases = {
+        "IV": "I V", "INJ": "INJECTION", "TAB": "TABLET", 
+        "SYP": "SYRUP", "CAP": "CAPSULE", "OINT": "OINTMENT"
+    };
+
+    let searchTokens = searchStr.split(" ").map(word => aliases[word] ? aliases[word] : word).join(" ").split(" ");
+
+    // १. आधी सर्व मॅच होणारे रिझल्ट्स एका Array मध्ये जमा करणे
+    let matchedItems = [];
+    for (let i = 0; i < globalMedicines.length; i++) {
+        let medString = globalMedicines[i].toUpperCase().replace(/-/g, ' '); 
+        let isMatch = searchTokens.every(token => medString.includes(token));
+        if (isMatch) {
+            matchedItems.push(globalMedicines[i]);
         }
-        medDropdown.style.display = count > 0 ? 'block' : 'none';
+    }
+
+    // २. Search Memory (Local Storage) मधून जुना काऊंट घेणे
+    let searchHistory = JSON.parse(localStorage.getItem('careSync_medHistory')) || {};
+
+    // ३. मॅच झालेल्या औषधांना त्यांच्या 'Search Frequency' नुसार सॉर्ट करणे (जास्त वापरले जाणारे वर)
+    matchedItems.sort((a, b) => {
+        let nameA = a.split("|")[0].trim();
+        let nameB = b.split("|")[0].trim();
+        let countA = searchHistory[nameA] || 0;
+        let countB = searchHistory[nameB] || 0;
+        return countB - countA; // Descending Order
     });
+
+    medDropdown.innerHTML = ''; 
+    let limit = Math.min(matchedItems.length, 40); // टॉप 40 रिझल्ट्स
+
+    // ४. सॉर्ट केलेली लिस्ट ड्रॉपडाऊनमध्ये दाखवणे
+    for (let i = 0; i < limit; i++) {
+        let parts = matchedItems[i].split("|"); 
+        let medName = parts[0].trim();
+        let div = document.createElement('div'); 
+        div.className = "med-item"; 
+        
+        // जर औषध आधी सर्च केले असेल, तर त्याला एक छोटा '⭐' किंवा हायलाईट देऊ शकता (Optional)
+        let isPopular = (searchHistory[medName] > 5) ? '<span style="color:#f39c12; font-size:10px;">★</span> ' : '';
+
+        div.innerHTML = `<div class="med-brand">${isPopular}${medName}</div>` + (parts[1] ? `<div class="med-comp">${parts[1].trim()}</div>` : "");
+        
+        div.addEventListener('click', function() { 
+            medInput.value = medName; 
+            medDropdown.style.display = 'none'; 
+            
+            // ५. औषध सिलेक्ट केल्यावर मेमरीमध्ये काऊंट वाढवणे
+            searchHistory[medName] = (searchHistory[medName] || 0) + 1;
+            localStorage.setItem('careSync_medHistory', JSON.stringify(searchHistory));
+        });
+        medDropdown.appendChild(div);
+    }
+    
+    medDropdown.style.display = limit > 0 ? 'block' : 'none';
+});
     
     document.addEventListener('click', function(e) { if (e.target !== medInput) medDropdown.style.display = 'none'; });
     document.getElementById('n_wardName').addEventListener('change', function() { document.getElementById('opdFields').style.display = this.value.toUpperCase().includes("OPD") ? 'flex' : 'none'; });
