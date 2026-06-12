@@ -709,13 +709,44 @@
     }
 
     function parseAdminDate(dStr) {
-        if(!dStr) return 0;
-        if(dStr.includes('/')) {
-            let p = dStr.split(" "); let dp = p[0].split("/");
-            if(dp.length === 3) return new Date(`${dp[2]}-${dp[1]}-${dp[0]}T00:00:00`).getTime();
+    if(!dStr) return 0;
+    let str = String(dStr).trim();
+    
+    // जर तारखेच्या आधी "Fri " सारखा वार आला असेल, तर तो काढणे
+    str = str.replace(/^[a-zA-Z]{3}\s/, ''); 
+    
+    let parts = str.split(" ");
+    let datePart = parts[0]; 
+    
+    if (datePart && datePart.includes('/')) {
+        let dp = datePart.split("/");
+        if (dp.length === 3) {
+            let d = parseInt(dp[0], 10);
+            let m = parseInt(dp[1], 10);
+            // जर महिना 'Jun' किंवा 'Jan' असा अक्षरात असेल
+            if (isNaN(m)) {
+                const mMap = {jan:1, feb:2, mar:3, apr:4, may:5, jun:6, jul:7, aug:8, sep:9, oct:10, nov:11, dec:12};
+                m = mMap[dp[1].toLowerCase().substring(0,3)] || 1;
+            }
+            let y = parseInt(dp[2], 10);
+            if (y < 100) y += 2000;
+            
+            // वेळेचे कॅल्क्युलेशन 
+            let hrs = 0, mins = 0;
+            if (parts[1]) {
+                let tp = parts[1].split(":");
+                hrs = parseInt(tp[0], 10) || 0;
+                mins = parseInt(tp[1], 10) || 0;
+                let ampm = parts[2] ? parts[2].toUpperCase() : "";
+                if (ampm === "PM" && hrs < 12) hrs += 12;
+                if (ampm === "AM" && hrs === 12) hrs = 0;
+            }
+            // Local Time मध्ये अचूक Date Object बनवणे
+            return new Date(y, m - 1, d, hrs, mins, 0).getTime();
         }
-        return new Date(dStr).getTime();
     }
+    return new Date(dStr).getTime();
+}
 
     function updateAdminAnalytics() {
         let sDate = document.getElementById('g_startDate').value; let eDate = document.getElementById('g_endDate').value;
