@@ -58,8 +58,17 @@
         .autocomplete-items .med-item:hover { background-color: #f4f8fc; }
         .med-brand { font-weight: 500; color: #2c598f; font-size: 14px; pointer-events: none; }
         .med-comp { font-size: 12px; color: #7f8c8d; margin-top: 3px; pointer-events: none; }
-        .autocomplete-items .med-item.autocomplete-active { background-color: #4276b6 !important; }
-        .autocomplete-items .med-item.autocomplete-active .med-brand, .autocomplete-items .med-item.autocomplete-active .med-comp { color: #ffffff !important; }
+        /* ================= Professional Autocomplete Highlight ================= */
+.autocomplete-items .med-item.autocomplete-active { 
+    background-color: #eef4f9 !important; /* एकदम सॉफ्ट लाईट ब्लू/ग्रे बॅकग्राउंड */
+    border-left: 3px solid #4276b6 !important; /* डाव्या बाजूला एक प्रोफेशनल निळी लाईन */
+}
+.autocomplete-items .med-item.autocomplete-active .med-brand { 
+    color: #1a3d61 !important; /* डार्क आणि क्लिअर निळा टेक्स्ट */
+}
+.autocomplete-items .med-item.autocomplete-active .med-comp { 
+    color: #64748b !important; /* औषधाच्या कॉंपोझिशनसाठी ग्रे कलर */
+}
 
         /* ================= PHARMACY CSS ================= */
         .p-header { background-color: #4276b6; color: white; padding: 15px 25px; width: 100%; box-sizing: border-box; position: fixed; top: 0; display: flex; justify-content: space-between; align-items: center; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
