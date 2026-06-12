@@ -751,7 +751,7 @@
     function updateAdminAnalytics() {
         let sDate = document.getElementById('g_startDate').value; let eDate = document.getElementById('g_endDate').value;
         let unit = document.getElementById('g_unit').value.toUpperCase(); let ward = document.getElementById('g_ward').value.toUpperCase();
-        let sTime = sDate ? new Date(sDate).getTime() : 0; let eTime = eDate ? new Date(eDate).getTime() + 86400000 : Infinity;
+        let sTime = sDate ? new Date(sDate + "T00:00:00").getTime() : 0; let eTime = eDate ? new Date(eDate + "T23:59:59").getTime() : Infinity;
         let filtered = globalAdminIndents.filter(ind => {
             let t = parseAdminDate(ind.dateStr);
             let uMatch = unit === "" || String(ind.ward).toUpperCase().includes(unit);
