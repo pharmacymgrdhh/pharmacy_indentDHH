@@ -781,7 +781,7 @@
         let sDate = document.getElementById('s_startDate').value; let eDate = document.getElementById('s_endDate').value;
         let unit = document.getElementById('s_unit').value.toUpperCase(); let ward = document.getElementById('s_ward').value.toUpperCase();
         let patient = document.getElementById('s_patientName').value.toUpperCase(); let indentNo = document.getElementById('s_indentNo').value.toUpperCase();
-        let sTime = sDate ? new Date(sDate).getTime() : 0; let eTime = eDate ? new Date(eDate).getTime() + 86400000 : Infinity;
+        let sTime = sDate ? new Date(sDate + "T00:00:00").getTime() : 0; let eTime = eDate ? new Date(eDate + "T23:59:59").getTime() : Infinity;
         let filtered = globalAdminIndents.filter(ind => {
             let t = parseAdminDate(ind.dateStr); let uMatch = unit === "" || String(ind.ward).toUpperCase().includes(unit);
             let wMatch = ward === "" || String(ind.ward).toUpperCase().includes(ward); let pMatch = patient === "" || String(ind.patient).toUpperCase().includes(patient);
