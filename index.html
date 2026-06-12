@@ -778,49 +778,58 @@
     }
 
     function printAdminIndent(indentNo) {
-        let matches = globalAdminIndents.filter(i => i.indentNo === indentNo);
-        if(matches.length === 0) return;
-        let ind = matches[0]; 
+    let matches = globalAdminIndents.filter(i => i.indentNo === indentNo);
+    if(matches.length === 0) return;
+    let ind = matches[0]; 
 
-        let cleanPatient = String(ind.patient || ind.patientName || "").replace("[URGENT] ", "");
-        let reqTime = formatCDate(ind.dateStr || ind.date);
+    let cleanPatient = String(ind.patient || ind.patientName || "").replace("[URGENT] ", "");
+    let reqTime = formatCDate(ind.dateStr || ind.date);
 
-        let dispTime = "-";
-        if (ind.status === 'Dispatched') {
-            if (ind.dispatchTime) {
-                dispTime = formatCDate(ind.dispatchTime);
-            } else if (ind.responseTime) {
-                let reqMs = parseAdminDate(ind.dateStr || ind.date);
-                let dispMs = reqMs + (parseInt(ind.responseTime) * 60000);
-                dispTime = formatCDate(dispMs);
-            } else { dispTime = "Dispatched"; }
-        }
-
-        document.getElementById('prtPatient').innerText = cleanPatient; document.getElementById('prtWard').innerText = ind.ward;
-        document.getElementById('prtDate').innerText = reqTime; document.getElementById('prtIndentNo').innerText = ind.indentNo;
-        document.getElementById('prtDoctor').innerText = ind.doctor || "-";
-        
-        let dispEl = document.getElementById('prtDispatchTime');
-        if(dispEl) {
-            dispEl.innerText = dispTime; 
-            dispEl.style.color = ind.status === 'Dispatched' ? '#27ae60' : '#e67e22';
-        }
-
-        const tbody = document.getElementById('prtMedicineList'); tbody.innerHTML = '';
-        let medsToPrint = [];
-        if (ind.medicines && Array.isArray(ind.medicines)) { medsToPrint = ind.medicines; } else if (ind.medicine) { medsToPrint = matches; }
-
-        if(medsToPrint.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Medicine details are grouped in summary view.</td></tr>';
-        } else {
-            medsToPrint.forEach(med => {
-                let n = med.name || med.medicine || med.displayName || "-"; let q = med.qty || med.quantity || "-";
-                let opd = ""; if(n.includes("[")) { let p = n.split("["); n = p[0].trim(); opd = `<br><span style="font-size:13px; color:#555;">[${p[1]}</span>`; }
-                tbody.innerHTML += `<tr><td colspan="3" style="font-weight:500; border:1px solid #b2ebf2; padding:8px;">${n} ${opd}</td><td style="text-align:center; font-weight:500; border:1px solid #b2ebf2; padding:8px;">${q}</td></tr>`;
-            });
-        }
-        window.print();
+    let dispTime = "-";
+    if (ind.status === 'Dispatched') {
+        if (ind.dispatchTime) {
+            dispTime = formatCDate(ind.dispatchTime);
+        } else if (ind.responseTime) {
+            // 🔴 FIX: Parse full date and time components directly to avoid resetting to midnight
+            let parts = (ind.dateStr || ind.date).split(" ");
+            let dp = parts[0].split("/");
+            let tp = parts[1] ? parts[1].split(":") : ["00", "00"];
+            let isPM = parts[2] && parts[2].toUpperCase() === 'PM';
+            let hrs = parseInt(tp[0], 10);
+            if (isPM && hrs < 12) hrs += 12;
+            if (!isPM && hrs === 12) hrs = 0;
+            
+            let reqMs = new Date(dp[2], parseInt(dp[1], 10) - 1, dp[0], hrs, parseInt(tp[1], 10)).getTime();
+            let dispMs = reqMs + (parseInt(ind.responseTime) * 60000);
+            dispTime = formatCDate(dispMs);
+        } else { dispTime = "Dispatched"; }
     }
+
+    document.getElementById('prtPatient').innerText = cleanPatient; document.getElementById('prtWard').innerText = ind.ward;
+    document.getElementById('prtDate').innerText = reqTime; document.getElementById('prtIndentNo').innerText = ind.indentNo;
+    document.getElementById('prtDoctor').innerText = ind.doctor || "-";
+    
+    let dispEl = document.getElementById('prtDispatchTime');
+    if(dispEl) {
+        dispEl.innerText = dispTime; 
+        dispEl.style.color = ind.status === 'Dispatched' ? '#27ae60' : '#e67e22';
+    }
+
+    const tbody = document.getElementById('prtMedicineList'); tbody.innerHTML = '';
+    let medsToPrint = [];
+    if (ind.medicines && Array.isArray(ind.medicines)) { medsToPrint = ind.medicines; } else if (ind.medicine) { medsToPrint = matches; }
+
+    if(medsToPrint.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Medicine details are grouped in summary view.</td></tr>';
+    } else {
+        medsToPrint.forEach(med => {
+            let n = med.name || med.medicine || med.displayName || "-"; let q = med.qty || med.quantity || "-";
+            let opd = ""; if(n.includes("[")) { let p = n.split("["); n = p[0].trim(); opd = `<br><span style="font-size:13px; color:#555;">[${p[1]}</span>`; }
+            tbody.innerHTML += `<tr><td colspan="3" style="font-weight:500; border:1px solid #b2ebf2; padding:8px;">${n} ${opd}</td><td style="text-align:center; font-weight:500; border:1px solid #b2ebf2; padding:8px;">${q}</td></tr>`;
+        });
+    }
+    window.print();
+}
 
     function togglePassVisibility(id) { let el = document.getElementById(id); el.type = el.type === "password" ? "text" : "password"; }
     function renderAdminWards(wards) {
