@@ -119,17 +119,44 @@
             padding: 40px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);
             box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; width: 320px;
         }
-        /* ================= PRINT CSS ================= */
+         /* ================= PROFESSIONAL PRINT CSS ================= */
         #printTemplate { display: none; }
         @media print {
-            body, html { background-color: white; margin: 0; padding: 0; height: auto !important; overflow: visible !important; font-family: 'Roboto', sans-serif; }
+            body, html { background-color: white; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; color: #000; }
             #loginOverlay, .nursing-wrapper, .p-header, .p-main, #adminSection, .toast, .footer { display: none !important; }
-            #printTemplate { display: block !important; width: 100%; page-break-inside: avoid; }
-            .print-table { width: 100%; border-collapse: collapse; font-size: 14px; page-break-inside: avoid; }
-            .print-table td { border: 1px solid #b2ebf2; padding: 8px; }
-            .print-table .label { font-weight: bold; background-color: #f8fafc; width: 18%; color: #4276b6; -webkit-print-color-adjust: exact; }
-            .print-table .blue-bg { background-color: #4276b6 !important; color: white !important; font-weight: 500; text-align: center; -webkit-print-color-adjust: exact; padding: 10px;}
-            .print-table .logo-td { width: 25%; text-align: center; padding: 5px; border: 1px solid #4276b6;}
+            
+            /* बदल १: width 100% वरून 180mm केली */
+            #printTemplate { display: block !important; width: 180mm; padding: 10px; box-sizing: border-box; }
+            
+            .prt-header-container { display: flex; align-items: center; border-bottom: 2px solid #333; padding-bottom: 12px; margin-bottom: 15px; }
+            .prt-logo { height: 60px; margin-right: 15px; }
+            .prt-header-text h2 { margin: 0; font-size: 20px; color: #000; text-transform: uppercase; letter-spacing: 0.5px; }
+            .prt-header-text p { margin: 4px 0 0 0; font-size: 13px; color: #444; font-weight: 500; }
+            
+            .prt-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; font-size: 13px; }
+            .prt-lbl { font-weight: bold; color: #555; display: inline-block; width: 110px; }
+            .prt-val { font-weight: 500; color: #000; border-bottom: 1px dashed #ccc; display: inline-block; width: calc(100% - 120px); }
+            
+            .prt-med-table { width: 100%; border-collapse: collapse; margin-bottom: 40px; font-size: 13px; }
+            .prt-med-table th { background-color: #f4f4f4 !important; color: #000 !important; font-weight: bold; padding: 10px; border: 1px solid #333; text-transform: uppercase; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            
+            .prt-med-table td { padding: 8px 10px !important; border: 1px solid #333 !important; color: #000 !important; }
+            
+            .prt-signatures { display: flex; justify-content: space-between; margin-top: 60px; text-align: center; font-size: 12px; font-weight: bold; }
+            .sig-line { border-top: 1px solid #000; width: 28%; padding-top: 5px; color: #333; }
+            
+            /* बदल २: हा ब्लॉक आता बरोबर @media print च्या आत आणि @page च्या आधी आहे */
+            body.canon-mode #printTemplate {
+    display: block !important;
+    position: absolute !important; /* fixed ऐवजी absolute वापरणे प्रिंटसाठी सुरक्षित आहे */
+    top: 180mm !important; /* फिरल्यानंतर प्रिंट वर सरकते, त्यामुळे आधीच खाली ढकलली आहे */
+    left: 10mm !important; /* प्रिंट डावीकडून सुरू होण्यासाठी */
+    width: 180mm !important;
+    max-width: 180mm !important;
+    transform: rotate(-90deg) !important;
+    transform-origin: top left !important;
+}
+            
             @page { margin: 10mm; size: auto; }
         }
     </style>
@@ -569,6 +596,23 @@
             tbody.innerHTML += `<tr><td colspan="3" style="font-weight:500; border:1px solid #b2ebf2; padding:8px;">${n} ${opd}</td><td style="text-align:center; font-weight:500; border:1px solid #b2ebf2; padding:8px;">${med.qty}</td></tr>`;
         });
     }
+    function printIndent() {
+
+    document.body.classList.remove('canon-mode');
+
+    if (
+        loggedInUnit &&
+        loggedInUnit.toUpperCase() === 'DHIMSR-PHARMACY'
+    ) {
+        document.body.classList.add('canon-mode');
+    }
+
+    window.print();
+
+    setTimeout(() => {
+        document.body.classList.remove('canon-mode');
+    }, 1000);
+}
 
     // ======== PHARMACY LOGIC ========
     let allIndents = []; let currentSelectedIndent = null; let notifiedIndents = new Set(); 
