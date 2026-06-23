@@ -1236,7 +1236,6 @@
         let role = document.getElementById('nu_role').value;
         
         if(!id || !name || !pass || !passkey) return alert("Please fill all mandatory fields (*)"); 
-        
         if(isNaN(passkey)) return alert("Passkey must be a number.");
         
         if(window.allUsersList) {
@@ -1246,9 +1245,8 @@
             }
         }
         
-        // 🔴 फिक्स: इथे 'await' लावले आहे, जेणेकरून सिस्टीम पासकीची वाट बघेल
         let isVerified = await verifyUserPasskey("User Configuration");
-        if (!isVerified) return; // जर युझरने Cancel केले, तर इथेच थांबेल.
+        if (!isVerified) return; 
         
         let btn = document.getElementById('btnSaveUser'); 
         let origText = btn.innerText; 
@@ -1259,37 +1257,26 @@
         .then(res => res.json()).then(data => {
             btn.innerText = origText; btn.disabled = false; 
             if(data.success) { 
-                fetchAdminData(); 
+                // 🟢 झटपट UI अपडेट (सर्व्हरची वाट न बघता थेट टेबलमध्ये ऍड करणे)
+                let existingIndex = window.allUsersList.findIndex(u => u.userId === id);
+                let newUserObj = { userId: id, name: name, password: pass, passkey: passkey, unit: unit, role: role };
+                if(existingIndex > -1) { window.allUsersList[existingIndex] = newUserObj; } 
+                else { window.allUsersList.push(newUserObj); }
+                renderAdminUsers(window.allUsersList); 
+                
                 showToast("User Configured Successfully!", "success"); 
                 clearUserForm(); 
             } else { 
                 alert("Error saving user."); 
             }
         }).catch(err => { 
-            btn.innerText = origText; 
-            btn.disabled = false; 
-            alert("System Error."); 
-            console.error(err); 
+            btn.innerText = origText; btn.disabled = false; 
+            alert("System Error."); console.error(err); 
         }); 
     }
 
     // 🔴 फिक्स: फंक्शनच्या आधी 'async' लावले आहे
-    async function deleteUser(userId) {
-        if(!confirm(`Are you sure you want to permanently delete User ID: ${userId}?`)) return; 
-        
-        // 🔴 फिक्स: इथे 'await' लावले आहे, जेणेकरून सिस्टीम पासकीची वाट बघेल
-        let isVerified = await verifyUserPasskey("User Deletion");
-        if (!isVerified) return; // जर युझरने Cancel केले, तर डिलीट होणार नाही.
-
-        fetch(SCRIPT_URL, { 
-            method: 'POST', 
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-            body: JSON.stringify({ action: "deleteUser", userId: userId }) 
-        }).then(() => { 
-            fetchAdminData(); 
-            showToast("User Deleted!", "success"); 
-        });
-    }
+    async function deleteUser(
 
     // 🔴 CSV MASTER IMPORT LOGIC
     let parsedMasterData = []; let masterSyncSummary = { added: 0, updated: 0, skipped: 0 };
