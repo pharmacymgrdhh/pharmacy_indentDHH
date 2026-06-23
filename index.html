@@ -1279,7 +1279,26 @@
     }
 
     // 🔴 फिक्स: फंक्शनच्या आधी 'async' लावले आहे
-    async function deleteUser(
+    async function deleteUser(userId) {
+        if(!confirm(`Are you sure you want to permanently delete User ID: ${userId}?`)) return; 
+        
+        let isVerified = await verifyUserPasskey("User Deletion");
+        if (!isVerified) return; 
+
+        // 🟢 क्लिक केल्या-केल्या तो युझर स्क्रीनवरून गायब होईल (Optimistic Update)
+        window.allUsersList = window.allUsersList.filter(u => u.userId !== userId);
+        renderAdminUsers(window.allUsersList);
+
+        fetch(SCRIPT_URL, { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+            body: JSON.stringify({ action: "deleteUser", userId: userId }) 
+        }).then(() => { 
+            showToast("User Deleted!", "success"); 
+        }).catch(() => {
+            showToast("Error deleting in background", "error");
+        });
+    }
 
     // 🔴 CSV MASTER IMPORT LOGIC
     let parsedMasterData = []; let masterSyncSummary = { added: 0, updated: 0, skipped: 0 };
