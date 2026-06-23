@@ -56,27 +56,6 @@
         .n-table td { color: #2c598f; font-weight: 500; }
         .delete-btn { color: #e74c3c; cursor: pointer; font-weight: bold; text-align: center; }
         .loading-text { color: #ce936b; font-size: 12px; font-weight: normal; display: none; }
-		/* नवीन टेबल कंटेनर फिक्स */
-.table-scroll-container {
-    max-height: 300px; /* तुम्हाला हवी तितकी उंची ठेवा */
-    overflow-y: auto;  /* हे खूप महत्त्वाचे आहे */
-    border: 1px solid #ddd;
-    position: relative; /* हे कंटेनरच्या आत हेडरला पकडून ठेवेल */
-}
-
-/* टेबलचे हेडर फिक्स */
-.p-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.p-table thead th {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background-color: #4276b6 !important; /* हेडरचा कलर */
-    color: white;
-}
         
         /* 🔴 Auto-Suggest Dropdown CSS */
         .autocomplete-items { position: absolute; border: 1px solid #d4d4d4; border-radius: 4px; z-index: 99; top: 100%; left: 0; right: 0; max-height: 250px; overflow-y: auto; background-color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
@@ -298,7 +277,6 @@
                 <div id="detailsContainer" class="details-container">
                     <div class="action-bar">
                         <button style="background: transparent; border: none; font-size: 16px; font-weight: bold; cursor: pointer; color: #4276b6;" onclick="printIndent()">Print</button>
-                        <button class="btn-dispatch" id="p_readyBtn" style="background-color: #f39c12; margin-right: 10px;" onclick="markAsReady()">Ready for Collection</button>
                         <button class="btn-dispatch" id="p_dispatchBtn" onclick="markAsDispatched()">Mark as Dispatched</button>
                     </div>
                     <div class="patient-info">
@@ -309,7 +287,6 @@
                         <div><strong>Patient Name:</strong> <span id="lblPatient" style="color: #333; font-weight: 400;"></span></div>
                         <div style="grid-column: span 2;"><strong>Prescribed By:</strong> <span id="lblDoctor" style="color: #333; font-weight: 400;"></span></div>
                     </div>
-					<div class="table-scroll-container">
                     <table class="p-table">
                         <thead><tr><th>Sr. No.</th><th>Medicine / Consumable</th><th>Quantity</th></tr></thead>
                         <tbody id="medicineTableBody"></tbody>
@@ -927,7 +904,7 @@
         fetch(SCRIPT_URL + "?action=getPendingIndents&t=" + new Date().getTime()).then(res => res.json()).then(data => {
             let grouped = {};
             data.forEach(row => {
-                if(!grouped[row.indentNo]) grouped[row.indentNo] = { indentNo: row.indentNo, date: row.date, ward: row.ward, patientName: row.patient, doctor: row.doctor, submitUser: row.submitUser || row.submitBy || "-", status: row.status || "Pending", medicines: [] };
+                if(!grouped[row.indentNo]) grouped[row.indentNo] = { indentNo: row.indentNo, date: row.date, ward: row.ward, patientName: row.patient, doctor: row.doctor, submitUser: row.submitUser || row.submitBy || "-", medicines: [] };
                 if(row.medicine) grouped[row.indentNo].medicines.push({ name: row.medicine, qty: row.qty });
             });
             allIndents = Object.values(grouped);
@@ -987,55 +964,22 @@
                     new Notification(isUrgent ? "URGENT INDENT ALERT" : "New Pharmacy Indent", { body: `Ward: ${ind.ward}\nPatient: ${cleanPatient}`, icon: "https://cdn-icons-png.flaticon.com/512/4320/4320337.png", requireInteraction: isUrgent });
                 }
             }
-            let badgeHtml = ind.status === 'Ready for Collection' ? `<span style="background:#f39c12; color:white; padding:2px 8px; border-radius:10px; font-size:10px; margin-left:8px; vertical-align:middle;">READY</span>` : ``;
-            html += `<div class="indent-card ${isUrgent ? 'urgent' : ''}" onclick='showPDetails(${JSON.stringify(ind).replace(/'/g, "&#39;")})'><div class="indent-header"><span style="display:flex; align-items:center;">${ind.indentNo} ${badgeHtml}</span><span style="color:#ce936b; font-size:13px; font-weight: 400;">${formatCDate(ind.date)}</span></div><div style="color: #333; font-size: 14px;"><strong>${cleanPatient}</strong> (${ind.ward})</div></div>`;
+            html += `<div class="indent-card ${isUrgent ? 'urgent' : ''}" onclick='showPDetails(${JSON.stringify(ind).replace(/'/g, "&#39;")})'><div class="indent-header"><span>${ind.indentNo}</span><span style="color:#ce936b; font-size:13px; font-weight: 400;">${formatCDate(ind.date)}</span></div><div style="color: #333; font-size: 14px;"><strong>${cleanPatient}</strong> (${ind.ward})</div></div>`;
         });
         container.innerHTML = html;
         if(hasNewUrgent || hasNewNormal) new Audio(hasNewUrgent ? 'https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg' : 'https://actions.google.com/sounds/v1/alarms/beep_short.ogg').play().catch(e => console.log("Audio Blocked"));
     }
 
     function showPDetails(ind) {
-        currentSelectedIndent = ind.indentNo; 
-        document.getElementById('placeholder').style.display = 'none'; 
-        document.getElementById('detailsContainer').style.display = 'block';
-
-        // 🔴 जर इंडेंट आधीच Ready असेल, तर बटन 'Disable' (ग्रे) करा
-        let readyBtn = document.getElementById('p_readyBtn');
-        if(readyBtn) {
-            readyBtn.style.display = 'inline-block'; // बटन गायब होऊ नये म्हणून
-            
-            if(ind.status === 'Ready for Collection') {
-                readyBtn.disabled = true;
-                readyBtn.style.backgroundColor = '#95a5a6'; // ग्रे (Grey) कलर
-                readyBtn.style.cursor = 'not-allowed';
-                readyBtn.innerText = "Ready ✓";
-            } else {
-                readyBtn.disabled = false;
-                readyBtn.style.backgroundColor = '#f39c12'; // मूळ केशरी कलर
-                readyBtn.style.cursor = 'pointer';
-                readyBtn.innerText = "Ready for Collection";
-            }
-        }
-
-        let isUrgent = String(ind.patientName).includes("[URGENT]"); 
-        let cleanPatient = ind.patientName.replace("[URGENT] ", "").trim();
-        document.getElementById('p_urgentTag').style.display = isUrgent ? 'block' : 'none'; 
-        document.getElementById('lblIndentNo').innerText = ind.indentNo; 
-        document.getElementById('lblDate').innerText = formatCDate(ind.date);
-        document.getElementById('lblWard').innerText = ind.ward; 
-        document.getElementById('lblPatient').innerText = cleanPatient; 
-        document.getElementById('lblDoctor').innerText = ind.doctor;
-        
-        const tbody = document.getElementById('medicineTableBody'); 
-        tbody.innerHTML = '';
+        currentSelectedIndent = ind.indentNo; document.getElementById('placeholder').style.display = 'none'; document.getElementById('detailsContainer').style.display = 'block';
+        let isUrgent = String(ind.patientName).includes("[URGENT]"); let cleanPatient = ind.patientName.replace("[URGENT] ", "").trim();
+        document.getElementById('p_urgentTag').style.display = isUrgent ? 'block' : 'none'; document.getElementById('lblIndentNo').innerText = ind.indentNo; document.getElementById('lblDate').innerText = formatCDate(ind.date);
+        document.getElementById('lblWard').innerText = ind.ward; document.getElementById('lblPatient').innerText = cleanPatient; document.getElementById('lblDoctor').innerText = ind.doctor;
+        const tbody = document.getElementById('medicineTableBody'); tbody.innerHTML = '';
         ind.medicines.forEach((med, idx) => {
-            let n = med.name; let opd = ""; 
-            if(n.includes("[")) { 
-                let p = n.split("["); n = p[0].trim(); opd = `<br><span style="color:#ce936b;">[${p[1]}</span>`; 
-            }
+            let n = med.name; let opd = ""; if(n.includes("[")) { let p = n.split("["); n = p[0].trim(); opd = `<br><span style="color:#ce936b;">[${p[1]}</span>`; }
             tbody.innerHTML += `<tr><td>${idx+1}</td><td><b>${n}</b> ${opd}</td><td>${med.qty}</td></tr>`;
         });
-        
         populatePrint(cleanPatient, ind.ward, formatCDate(ind.date), ind.indentNo, ind.doctor, ind.medicines, ind.submitUser);
     }
 
@@ -1075,43 +1019,6 @@
             console.error(err);
             showToast("Connection Error!", "error"); 
             btn.innerHTML = "Mark as Dispatched"; btn.disabled = false; 
-        });
-    }
-async function markAsReady() {
-        if(!currentSelectedIndent) return; 
-        
-        if(!(await verifyUserPasskey("Ready for Collection"))) return; 
-        
-        const btn = document.getElementById('p_readyBtn'); 
-        btn.innerHTML = "Updating..."; btn.disabled = true;
-        
-        fetch(SCRIPT_URL, { 
-            method: 'POST', 
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-            body: JSON.stringify({ 
-                action: "markReadyForDispatch", 
-                indentNo: currentSelectedIndent, 
-                readyBy: loggedInName 
-            }) 
-        })
-        .then(res => res.json())
-        .then(data => {
-            if(data.success) {
-                showToast("Marked as Ready for Collection!", "success"); 
-                document.getElementById('detailsContainer').style.display = 'none'; 
-                document.getElementById('placeholder').style.display = 'block'; 
-                currentSelectedIndent = null; 
-                btn.innerHTML = "Ready for Collection"; btn.disabled = false; 
-                fetchPendingIndents(true); 
-            } else {
-                showToast("Error updating status!", "error");
-                btn.innerHTML = "Ready for Collection"; btn.disabled = false; 
-            }
-        })
-        .catch(err => { 
-            console.error(err);
-            showToast("Connection Error!", "error"); 
-            btn.innerHTML = "Ready for Collection"; btn.disabled = false; 
         });
     }
     
