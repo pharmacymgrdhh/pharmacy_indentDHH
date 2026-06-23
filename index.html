@@ -518,9 +518,12 @@
 
 <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwkxbyHQMljgU6AaEHj95UH2K5C2RXRdScUOzZrF8PSMuzw2kmLlHaMvrzVMG4dL88I/exec';
-    
+	setTimeout(() => {
+        fetch(SCRIPT_URL + "?action=ping", { mode: 'no-cors' }).catch(() => {});
+    }, 500);
+
     let loggedInUnit = ""; 
-    let currentRole = ""; 
+    let currentRole = "";
     let loggedInName = ""; 
     let loggedInPasskey = ""; 
 
