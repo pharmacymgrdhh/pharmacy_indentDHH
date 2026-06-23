@@ -56,6 +56,27 @@
         .n-table td { color: #2c598f; font-weight: 500; }
         .delete-btn { color: #e74c3c; cursor: pointer; font-weight: bold; text-align: center; }
         .loading-text { color: #ce936b; font-size: 12px; font-weight: normal; display: none; }
+		/* नवीन टेबल कंटेनर फिक्स */
+.table-scroll-container {
+    max-height: 300px; /* तुम्हाला हवी तितकी उंची ठेवा */
+    overflow-y: auto;  /* हे खूप महत्त्वाचे आहे */
+    border: 1px solid #ddd;
+    position: relative; /* हे कंटेनरच्या आत हेडरला पकडून ठेवेल */
+}
+
+/* टेबलचे हेडर फिक्स */
+.p-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.p-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #4276b6 !important; /* हेडरचा कलर */
+    color: white;
+}
         
         /* 🔴 Auto-Suggest Dropdown CSS */
         .autocomplete-items { position: absolute; border: 1px solid #d4d4d4; border-radius: 4px; z-index: 99; top: 100%; left: 0; right: 0; max-height: 250px; overflow-y: auto; background-color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
