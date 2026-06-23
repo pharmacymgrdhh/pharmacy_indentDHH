@@ -1154,6 +1154,9 @@
 	if(document.getElementById('prtCreatedBy')) {
             document.getElementById('prtCreatedBy').innerText = ind.submitUser && ind.submitUser !== "-" ? ind.submitUser : "-";
         }
+	if(document.getElementById('prtDispensedBy')) {
+            document.getElementById('prtDispensedBy').innerText = ind.dispensedBy && ind.dispensedBy !== "-" ? ind.dispensedBy : "-";
+        }
         
         let dispEl = document.getElementById('prtDispatchTime');
         if(dispEl) {
