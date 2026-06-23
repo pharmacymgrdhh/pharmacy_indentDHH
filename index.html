@@ -819,19 +819,34 @@
         });
     }
     function populatePrint(patient, ward, date, indentNo, doctor, items, submitUser) {
-        document.getElementById('prtPatient').innerText = patient.replace("[URGENT] ", ""); document.getElementById('prtWard').innerText = ward; document.getElementById('prtDate').innerText = date;
+        document.getElementById('prtPatient').innerText = patient.replace("[URGENT] ", ""); 
+        document.getElementById('prtWard').innerText = ward; 
+        document.getElementById('prtDate').innerText = date;
+        document.getElementById('prtIndentNo').innerText = indentNo; 
+        document.getElementById('prtDoctor').innerText = doctor;
         
-        // इंडेंट तयार करणाऱ्याचे नाव प्रिंट करण्यासाठी:
+        let dispEl = document.getElementById('prtDispatchTime'); 
+        if(dispEl) { dispEl.innerText = "Pending"; dispEl.style.color = "#e67e22"; }
+
+        // 🔴 १. Resident चे नाव प्रिंटवर टाकणे
         let createdByEl = document.getElementById('prtCreatedBy');
         if(createdByEl) {
-            createdByEl.innerText = submitUser ? submitUser : "-";
+            createdByEl.innerText = submitUser && submitUser !== "-" ? submitUser : "-";
         }
-        document.getElementById('prtIndentNo').innerText = indentNo; document.getElementById('prtDoctor').innerText = doctor;
-        let dispEl = document.getElementById('prtDispatchTime'); if(dispEl) { dispEl.innerText = "Pending"; dispEl.style.color = "#e67e22"; }
+        
+        // 🔴 २. Pharmacy/Nursing मधून प्रिंट काढताना Dispensed By रिकामे ठेवणे (कारण अजून डिस्पॅच झालेले नसते)
+        let dispensedByEl = document.getElementById('prtDispensedBy');
+        if(dispensedByEl) {
+            dispensedByEl.innerText = "-";
+        }
+
         const tbody = document.getElementById('prtMedicineList'); tbody.innerHTML = '';
         items.forEach(med => {
-            let n = med.name || med.displayName;let q = med.qty || med.quantity || "-"; let opd = ""; if(n.includes("[")) { let p = n.split("["); n = p[0].trim(); opd = `<br><span style="font-size:13px; color:#555;">[${p[1]}</span>`; }
-            tbody.innerHTML += `<tr><td colspan="3" style="font-weight:500; border:1px solid #b2ebf2; padding:8px;">${n} ${opd}</td><td style="text-align:center; font-weight:500; border:1px solid #b2ebf2; padding:8px;">${med.qty}</td></tr>`;
+            let n = med.name || med.displayName;
+            let q = med.qty || med.quantity || "-"; 
+            let opd = ""; 
+            if(n.includes("[")) { let p = n.split("["); n = p[0].trim(); opd = `<br><span style="font-size:13px; color:#555;">[${p[1]}</span>`; }
+            tbody.innerHTML += `<tr><td colspan="3" style="font-weight:500; border:1px solid #b2ebf2; padding:8px;">${n} ${opd}</td><td style="text-align:center; font-weight:500; border:1px solid #b2ebf2; padding:8px;">${q}</td></tr>`;
         });
     }
 
@@ -1148,20 +1163,26 @@
             } else { dispTime = "Dispatched"; }
         }
 
-        document.getElementById('prtPatient').innerText = cleanPatient; document.getElementById('prtWard').innerText = ind.ward;
-        document.getElementById('prtDate').innerText = reqTime; document.getElementById('prtIndentNo').innerText = ind.indentNo;
+        document.getElementById('prtPatient').innerText = cleanPatient; 
+        document.getElementById('prtWard').innerText = ind.ward;
+        document.getElementById('prtDate').innerText = reqTime; 
+        document.getElementById('prtIndentNo').innerText = ind.indentNo;
         document.getElementById('prtDoctor').innerText = ind.doctor || "-";
-	if(document.getElementById('prtCreatedBy')) {
-            document.getElementById('prtCreatedBy').innerText = ind.submitUser && ind.submitUser !== "-" ? ind.submitUser : "-";
-        }
-	if(document.getElementById('prtDispensedBy')) {
-            document.getElementById('prtDispensedBy').innerText = ind.dispensedBy && ind.dispensedBy !== "-" ? ind.dispensedBy : "-";
-        }
         
         let dispEl = document.getElementById('prtDispatchTime');
         if(dispEl) {
             dispEl.innerText = dispTime; 
             dispEl.style.color = ind.status === 'Dispatched' ? '#27ae60' : '#e67e22';
+        }
+
+        // 🔴 १. Resident चे नाव (Indent Creator)
+        if(document.getElementById('prtCreatedBy')) {
+            document.getElementById('prtCreatedBy').innerText = ind.submitUser && ind.submitUser !== "-" ? ind.submitUser : "-";
+        }
+        
+        // 🔴 २. Pharmacist चे नाव (Dispensed By)
+        if(document.getElementById('prtDispensedBy')) {
+            document.getElementById('prtDispensedBy').innerText = ind.dispensedBy && ind.dispensedBy !== "-" ? ind.dispensedBy : "-";
         }
 
         const tbody = document.getElementById('prtMedicineList'); tbody.innerHTML = '';
@@ -1172,8 +1193,10 @@
             tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Medicine details are grouped in summary view.</td></tr>';
         } else {
             medsToPrint.forEach(med => {
-                let n = med.name || med.medicine || med.displayName || "-"; let q = med.qty || med.quantity || "-";
-                let opd = ""; if(n.includes("[")) { let p = n.split("["); n = p[0].trim(); opd = `<br><span style="font-size:13px; color:#555;">[${p[1]}</span>`; }
+                let n = med.name || med.medicine || med.displayName || "-"; 
+                let q = med.qty || med.quantity || "-";
+                let opd = ""; 
+                if(n.includes("[")) { let p = n.split("["); n = p[0].trim(); opd = `<br><span style="font-size:13px; color:#555;">[${p[1]}</span>`; }
                 tbody.innerHTML += `<tr><td colspan="3" style="font-weight:500; border:1px solid #b2ebf2; padding:8px;">${n} ${opd}</td><td style="text-align:center; font-weight:500; border:1px solid #b2ebf2; padding:8px;">${q}</td></tr>`;
             });
         }
