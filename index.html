@@ -971,7 +971,9 @@
                     grouped[row.indentNo] = { 
                         indentNo: row.indentNo, dateStr: row.dateStr || row.date, timestamp: tStamp,
                         ward: row.ward, patient: row.patient || row.patientName, doctor: row.doctor || row.doctorName, 
-                        status: row.status, responseTime: row.responseTime, dispatchTime: row.dispatchTime, medicines: [] 
+                        status: row.status, responseTime: row.responseTime, dispatchTime: row.dispatchTime, submitUser: row.submitUser || "-",   // 🔴 Resident चे नाव
+                        dispensedBy: row.dispensedBy || "-", // 🔴 Pharmacist चे नाव
+                        medicines: [] 
                     };
                 }
                 let mName = row.medicine || row.medicine_name || row.itemName || row.name; let mQty = row.qty || row.quantity;
