@@ -185,7 +185,12 @@
                 </div>
                 <div class="form-group">
                     <label>Ward: <span id="wardLoader" class="loading-text">Loading...</span></label>
-                    <select id="n_wardName"><option value="">-- Select --</option></select>
+                    <div style="display: flex; gap: 8px;">
+                        <select id="n_wardName" style="flex: 1;"><option value="">-- Select --</option></select>
+                        <button type="button" onclick="openHistoryModal()" title="View Today's Ward History" style="background: #fff; color: #4276b6; border: 1px solid #ced4da; border-radius: 4px; padding: 0 15px; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s;" onmouseover="this.style.borderColor='#4276b6'; this.style.backgroundColor='#f4f8fc';" onmouseout="this.style.borderColor='#ced4da'; this.style.backgroundColor='#fff';">
+                            <span class="material-symbols-outlined" style="font-size: 18px !important;">history</span> History
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -272,6 +277,7 @@
                 <div id="detailsContainer" class="details-container">
                     <div class="action-bar">
                         <button style="background: transparent; border: none; font-size: 16px; font-weight: bold; cursor: pointer; color: #4276b6;" onclick="printIndent()">Print</button>
+                        <button class="btn-dispatch" id="p_readyBtn" style="background-color: #f39c12; margin-right: 10px;" onclick="markAsReady()">Ready for Collection</button>
                         <button class="btn-dispatch" id="p_dispatchBtn" onclick="markAsDispatched()">Mark as Dispatched</button>
                     </div>
                     <div class="patient-info">
@@ -496,6 +502,47 @@
         © 2026 Dr. Hedgewar Hospital,Amravati. All Rights Reserved. | Powered by <b>CareSync</b>
     </div>
 </div>
+<!-- 🔴 FULL SCREEN NURSING HISTORY OVERLAY -->
+    <div id="nursingHistoryOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f4f7f9; z-index: 25000; flex-direction: column;">
+        
+        <div class="p-header" style="position: relative; z-index: 2;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <h2 style="margin: 0; font-size: 20px;">🕒 Today's Indents: <span id="h_wardDisplay" style="color:#f1c40f;"></span></h2>
+            </div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <input type="text" id="h_patientSearch" placeholder="🔍 Search Patient Name..." style="padding: 8px 15px; border-radius: 20px; border: none; outline: none; width: 250px; font-size: 14px; color: #333;">
+                <button onclick="closeHistoryOverlay()" style="background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.2s;">Close ✖</button>
+            </div>
+        </div>
+
+        <div class="p-main" style="margin-top: 60px; display: flex; height: calc(100vh - 60px);">
+            <div class="left-panel" style="width: 35%; border-right: 1px solid #e0e0e0; background: #fff; padding: 15px; overflow-y: auto;">
+                <h3 style="color: #ce936b; border-bottom: 2px solid #f0f0f0; padding-bottom: 12px; margin-top: 0; font-weight: 500;">Indent List (Today)</h3>
+                <div id="h_indentListContainer"></div>
+            </div>
+            
+            <div class="right-panel" style="flex: 1; padding: 25px; overflow-y: auto;">
+                <div id="h_placeholder" style="text-align: center; color: #a0aec0; margin-top: 20%; font-size: 16px;">Select an indent from the list to view details.</div>
+                
+                <div id="h_detailsContainer" class="details-container" style="display: none; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e0e0e0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px;">
+                        <h3 style="margin: 0; color: #4276b6; font-size: 18px;">Indent Details</h3>
+                        <div id="h_statusBadge"></div>
+                    </div>
+                    <div class="patient-info" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; background: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0; color: #2c598f; font-size: 14px;">
+                        <div><strong>Indent No:</strong> <span id="h_lblIndentNo" style="color: #333;"></span></div>
+                        <div><strong>Request Time:</strong> <span id="h_lblDate" style="color: #333;"></span></div>
+                        <div><strong>Patient Name:</strong> <span id="h_lblPatient" style="color: #333;"></span></div>
+                        <div><strong>Prescribed By:</strong> <span id="h_lblDoctor" style="color: #333;"></span></div>
+                    </div>
+                    <table class="p-table" style="width: 100%; border-collapse: separate; border-spacing: 0;">
+                        <thead><tr><th style="background:#4276b6; color:white; padding:10px;">Sr. No.</th><th style="background:#4276b6; color:white; padding:10px;">Medicine / Consumable</th><th style="background:#4276b6; color:white; padding:10px; text-align:center;">Quantity</th></tr></thead>
+                        <tbody id="h_medicineTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
 <!-- 🔴 CUSTOM SECURE PASSKEY MODAL -->
     <div id="passkeyModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 20000; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
@@ -801,7 +848,7 @@
             if(data.success) {
                 showToast("Indent Sent Successfully!", "success"); 
                 let newIndentNo = data.indentNo || "Pending";
-                populatePrint(pName, loggedInUnit + " - " + ward, new Date().toLocaleString('en-IN'), newIndentNo, doc, indentList, loggedInName); 
+                populatePrint(pName, loggedInUnit + " - " + ward, formatCDate(new Date().toISOString()), newIndentNo, doc, indentList, loggedInName);
                 document.getElementById('n_printBtn').style.display = 'block';
                 
                 indentList = []; updateNTable(); 
@@ -858,7 +905,7 @@
         fetch(SCRIPT_URL + "?action=getPendingIndents&t=" + new Date().getTime()).then(res => res.json()).then(data => {
             let grouped = {};
             data.forEach(row => {
-                if(!grouped[row.indentNo]) grouped[row.indentNo] = { indentNo: row.indentNo, date: row.date, ward: row.ward, patientName: row.patient, doctor: row.doctor, submitUser: row.submitUser || row.submitBy || "-", medicines: [] };
+                if(!grouped[row.indentNo]) grouped[row.indentNo] = { indentNo: row.indentNo, date: row.date, ward: row.ward, patientName: row.patient, doctor: row.doctor, submitUser: row.submitUser || row.submitBy || "-", status: row.status || "Pending", medicines: [] };
                 if(row.medicine) grouped[row.indentNo].medicines.push({ name: row.medicine, qty: row.qty });
             });
             allIndents = Object.values(grouped);
@@ -869,17 +916,38 @@
 
     function formatCDate(dateStr) {
         try {
+            if(!dateStr) return "-";
+            if (typeof dateStr === 'string' && dateStr.match(/^[a-zA-Z]{3} \d{2}\/\d{2}\/\d{4}/)) return dateStr;
+
             let d;
             if (typeof dateStr === 'string' && dateStr.includes('/')) {
                 let parts = dateStr.split(" "); let dp = parts[0].split("/");
                 if (dp.length === 3 && dp[2].length === 4) { 
                     let tp = parts[1] ? parts[1].split(":") : ["00", "00"]; let isPM = parts[2] && parts[2].toUpperCase() === 'PM'; let hrs = parseInt(tp[0], 10);
-                    if (isPM && hrs < 12) hrs += 12; if (!isPM && hrs === 12) hrs = 0; d = new Date(dp[2], parseInt(dp[1], 10) - 1, dp[0], hrs, parseInt(tp[1], 10));
+                    if (isPM && hrs < 12) hrs += 12; if (!isPM && hrs === 12) hrs = 0; 
+                    d = new Date(dp[2], parseInt(dp[1], 10) - 1, dp[0], hrs, parseInt(tp[1], 10));
                 } else d = new Date(dateStr);
-            } else d = new Date(dateStr);
+            } else {
+                d = new Date(dateStr);
+            }
+
             if (!isNaN(d.getTime())) {
-                let hh = d.getHours(), ampm = hh >= 12 ? 'PM' : 'AM'; hh = hh % 12; hh = hh ? hh : 12; 
-                return `${["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][d.getDay()]} ${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} ${String(hh).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} ${ampm}`;
+                // 🔴 FIX: संगणकाचा Timezone काहीही असला तरी, थेट भारतीय वेळेत (IST: UTC+5:30) कनवर्ट करा
+                let istDate = new Date(d.getTime() + (330 * 60000));
+                
+                let days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+                let dayName = days[istDate.getUTCDay()];
+                let dd = String(istDate.getUTCDate()).padStart(2, '0');
+                let mm = String(istDate.getUTCMonth() + 1).padStart(2, '0');
+                let yyyy = istDate.getUTCFullYear();
+                
+                let h = istDate.getUTCHours();
+                let min = String(istDate.getUTCMinutes()).padStart(2, '0');
+                let ampm = h >= 12 ? 'PM' : 'AM';
+                h = h % 12; h = h ? h : 12; 
+                let hhStr = String(h).padStart(2, '0');
+
+                return `${dayName} ${dd}/${mm}/${yyyy} ${hhStr}:${min} ${ampm}`;
             }
             return dateStr;
         } catch(e) { return dateStr; }
@@ -897,22 +965,55 @@
                     new Notification(isUrgent ? "URGENT INDENT ALERT" : "New Pharmacy Indent", { body: `Ward: ${ind.ward}\nPatient: ${cleanPatient}`, icon: "https://cdn-icons-png.flaticon.com/512/4320/4320337.png", requireInteraction: isUrgent });
                 }
             }
-            html += `<div class="indent-card ${isUrgent ? 'urgent' : ''}" onclick='showPDetails(${JSON.stringify(ind).replace(/'/g, "&#39;")})'><div class="indent-header"><span>${ind.indentNo}</span><span style="color:#ce936b; font-size:13px; font-weight: 400;">${formatCDate(ind.date)}</span></div><div style="color: #333; font-size: 14px;"><strong>${cleanPatient}</strong> (${ind.ward})</div></div>`;
+            let badgeHtml = ind.status === 'Ready for Collection' ? `<span style="background:#f39c12; color:white; padding:2px 8px; border-radius:10px; font-size:10px; margin-left:8px; vertical-align:middle;">READY</span>` : ``;
+            html += `<div class="indent-card ${isUrgent ? 'urgent' : ''}" onclick='showPDetails(${JSON.stringify(ind).replace(/'/g, "&#39;")})'><div class="indent-header"><span style="display:flex; align-items:center;">${ind.indentNo} ${badgeHtml}</span><span style="color:#ce936b; font-size:13px; font-weight: 400;">${formatCDate(ind.date)}</span></div><div style="color: #333; font-size: 14px;"><strong>${cleanPatient}</strong> (${ind.ward})</div></div>`;
         });
         container.innerHTML = html;
         if(hasNewUrgent || hasNewNormal) new Audio(hasNewUrgent ? 'https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg' : 'https://actions.google.com/sounds/v1/alarms/beep_short.ogg').play().catch(e => console.log("Audio Blocked"));
     }
 
     function showPDetails(ind) {
-        currentSelectedIndent = ind.indentNo; document.getElementById('placeholder').style.display = 'none'; document.getElementById('detailsContainer').style.display = 'block';
-        let isUrgent = String(ind.patientName).includes("[URGENT]"); let cleanPatient = ind.patientName.replace("[URGENT] ", "").trim();
-        document.getElementById('p_urgentTag').style.display = isUrgent ? 'block' : 'none'; document.getElementById('lblIndentNo').innerText = ind.indentNo; document.getElementById('lblDate').innerText = formatCDate(ind.date);
-        document.getElementById('lblWard').innerText = ind.ward; document.getElementById('lblPatient').innerText = cleanPatient; document.getElementById('lblDoctor').innerText = ind.doctor;
-        const tbody = document.getElementById('medicineTableBody'); tbody.innerHTML = '';
+        currentSelectedIndent = ind.indentNo; 
+        document.getElementById('placeholder').style.display = 'none'; 
+        document.getElementById('detailsContainer').style.display = 'block';
+
+        // 🔴 जर इंडेंट आधीच Ready असेल, तर बटन 'Disable' (ग्रे) करा
+        let readyBtn = document.getElementById('p_readyBtn');
+        if(readyBtn) {
+            readyBtn.style.display = 'inline-block'; // बटन गायब होऊ नये म्हणून
+            
+            if(ind.status === 'Ready for Collection') {
+                readyBtn.disabled = true;
+                readyBtn.style.backgroundColor = '#95a5a6'; // ग्रे (Grey) कलर
+                readyBtn.style.cursor = 'not-allowed';
+                readyBtn.innerText = "Ready ✓";
+            } else {
+                readyBtn.disabled = false;
+                readyBtn.style.backgroundColor = '#f39c12'; // मूळ केशरी कलर
+                readyBtn.style.cursor = 'pointer';
+                readyBtn.innerText = "Ready for Collection";
+            }
+        }
+
+        let isUrgent = String(ind.patientName).includes("[URGENT]"); 
+        let cleanPatient = ind.patientName.replace("[URGENT] ", "").trim();
+        document.getElementById('p_urgentTag').style.display = isUrgent ? 'block' : 'none'; 
+        document.getElementById('lblIndentNo').innerText = ind.indentNo; 
+        document.getElementById('lblDate').innerText = formatCDate(ind.date);
+        document.getElementById('lblWard').innerText = ind.ward; 
+        document.getElementById('lblPatient').innerText = cleanPatient; 
+        document.getElementById('lblDoctor').innerText = ind.doctor;
+        
+        const tbody = document.getElementById('medicineTableBody'); 
+        tbody.innerHTML = '';
         ind.medicines.forEach((med, idx) => {
-            let n = med.name; let opd = ""; if(n.includes("[")) { let p = n.split("["); n = p[0].trim(); opd = `<br><span style="color:#ce936b;">[${p[1]}</span>`; }
+            let n = med.name; let opd = ""; 
+            if(n.includes("[")) { 
+                let p = n.split("["); n = p[0].trim(); opd = `<br><span style="color:#ce936b;">[${p[1]}</span>`; 
+            }
             tbody.innerHTML += `<tr><td>${idx+1}</td><td><b>${n}</b> ${opd}</td><td>${med.qty}</td></tr>`;
         });
+        
         populatePrint(cleanPatient, ind.ward, formatCDate(ind.date), ind.indentNo, ind.doctor, ind.medicines, ind.submitUser);
     }
 
@@ -952,6 +1053,43 @@
             console.error(err);
             showToast("Connection Error!", "error"); 
             btn.innerHTML = "Mark as Dispatched"; btn.disabled = false; 
+        });
+    }
+async function markAsReady() {
+        if(!currentSelectedIndent) return; 
+        
+        if(!(await verifyUserPasskey("Ready for Collection"))) return; 
+        
+        const btn = document.getElementById('p_readyBtn'); 
+        btn.innerHTML = "Updating..."; btn.disabled = true;
+        
+        fetch(SCRIPT_URL, { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+            body: JSON.stringify({ 
+                action: "markReadyForDispatch", 
+                indentNo: currentSelectedIndent, 
+                readyBy: loggedInName 
+            }) 
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                showToast("Marked as Ready for Collection!", "success"); 
+                document.getElementById('detailsContainer').style.display = 'none'; 
+                document.getElementById('placeholder').style.display = 'block'; 
+                currentSelectedIndent = null; 
+                btn.innerHTML = "Ready for Collection"; btn.disabled = false; 
+                fetchPendingIndents(true); 
+            } else {
+                showToast("Error updating status!", "error");
+                btn.innerHTML = "Ready for Collection"; btn.disabled = false; 
+            }
+        })
+        .catch(err => { 
+            console.error(err);
+            showToast("Connection Error!", "error"); 
+            btn.innerHTML = "Ready for Collection"; btn.disabled = false; 
         });
     }
     
@@ -1450,7 +1588,109 @@
                 if (mod && mod.style.display === 'flex') mod.style.display = 'none';
             });
         }
+    });// 🔴 नर्सिंग फुल-स्क्रीन हिस्ट्री लॉजिक
+    let nursingHistoryData = [];
+
+    function openHistoryModal() {
+        const ward = document.getElementById('n_wardName').value;
+        if(!ward) return alert("❌ Please select a Ward first to view today's history.");
+        
+        let fullWardName = loggedInUnit + " - " + ward;
+        document.getElementById('h_wardDisplay').innerText = fullWardName;
+        
+        document.getElementById('nursingHistoryOverlay').style.display = 'flex';
+        document.getElementById('h_placeholder').style.display = 'block';
+        document.getElementById('h_detailsContainer').style.display = 'none';
+        document.getElementById('h_indentListContainer').innerHTML = '<p style="text-align:center; padding:20px; color:#7f8c8d;">Loading today\'s records...</p>';
+        document.getElementById('h_patientSearch').value = '';
+        
+        fetch(SCRIPT_URL + "?action=getNursingHistory&ward=" + encodeURIComponent(fullWardName) + "&t=" + new Date().getTime())
+        .then(res => res.json())
+        .then(data => {
+            nursingHistoryData = data;
+            renderHistoryList(nursingHistoryData);
+        }).catch(err => {
+            document.getElementById('h_indentListContainer').innerHTML = '<p style="color:red; text-align:center;">Error fetching history.</p>';
+        });
+    }
+
+    function closeHistoryOverlay() {
+        document.getElementById('nursingHistoryOverlay').style.display = 'none';
+    }
+
+    // Patient Search Logic
+    document.getElementById('h_patientSearch').addEventListener('input', function(e) {
+        let val = e.target.value.toLowerCase().trim();
+        if(val === "") {
+            renderHistoryList(nursingHistoryData);
+        } else {
+            let filtered = nursingHistoryData.filter(ind => ind.patient.toLowerCase().includes(val));
+            renderHistoryList(filtered);
+        }
     });
+
+    function renderHistoryList(data) {
+        let container = document.getElementById('h_indentListContainer');
+        if(data.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:#e74c3c; font-weight:500; padding:20px;">No indents found today for this ward.</p>';
+            return;
+        }
+        
+        let html = "";
+        data.forEach(ind => {
+            let isUrgent = ind.patient.includes("[URGENT]");
+            let cleanPatient = ind.patient.replace("[URGENT] ", "").trim();
+            let statusColor = ind.status === 'Dispatched' ? '#27ae60' : '#e74c3c';
+            
+            // 🔴 FIX: वेळेसोबत AM/PM व्यवस्थित दिसेल
+            let timeParts = ind.time.split(" ");
+            let displayTime = timeParts.length > 2 ? timeParts[1] + " " + timeParts[2] : ind.time;
+            
+            html += `<div class="indent-card ${isUrgent ? 'urgent' : ''}" onclick='showHistoryDetails("${ind.indentNo}")'>
+                        <div class="indent-header">
+                            <span>${ind.indentNo}</span>
+                            <span style="color:${statusColor}; font-size:12px;">${ind.status}</span>
+                        </div>
+                        <div style="color: #333; font-size: 14px;"><strong>${cleanPatient}</strong></div>
+                        <div style="color: #7f8c8d; font-size: 12px; margin-top: 4px;">Time: ${displayTime}</div>
+                     </div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function showHistoryDetails(indentNo) {
+        let ind = nursingHistoryData.find(i => i.indentNo === indentNo);
+        if(!ind) return;
+        
+        document.getElementById('h_placeholder').style.display = 'none';
+        document.getElementById('h_detailsContainer').style.display = 'block';
+        
+        let cleanPatient = ind.patient.replace("[URGENT] ", "").trim();
+        let badgeHtml = ind.status === 'Dispatched' 
+            ? `<span style="background:#27ae60; color:white; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:bold;">Dispatched at ${ind.dispatchTime}</span>` 
+            : `<span style="background:#e74c3c; color:white; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:bold;">Pending in Pharmacy</span>`;
+        
+        document.getElementById('h_statusBadge').innerHTML = badgeHtml;
+        document.getElementById('h_lblIndentNo').innerText = ind.indentNo;
+        document.getElementById('h_lblDate').innerText = ind.time;
+        document.getElementById('h_lblPatient').innerText = cleanPatient;
+        document.getElementById('h_lblDoctor').innerText = ind.doctor;
+        
+        let tbody = document.getElementById('h_medicineTableBody');
+        tbody.innerHTML = '';
+        ind.medicines.forEach((m, idx) => {
+            let n = m.name; let opd = ""; 
+            if(n.includes("[")) { 
+                let p = n.split("["); n = p[0].trim(); 
+                opd = `<br><span style="color:#ce936b; font-size:12px;">[${p[1]}</span>`; 
+            }
+            tbody.innerHTML += `<tr>
+                <td style="border:1px solid #eee; padding:10px;">${idx+1}</td>
+                <td style="border:1px solid #eee; padding:10px;"><b>${n}</b> ${opd}</td>
+                <td style="border:1px solid #eee; padding:10px; text-align:center;">${m.qty}</td>
+            </tr>`;
+        });
+    }
 </script>
 </body>
 </html>
