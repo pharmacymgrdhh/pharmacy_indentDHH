@@ -17,17 +17,16 @@
         .toast.success { background-color: #27ae60; }
         .toast.error { background-color: #e74c3c; }
 
-        /* ================= GLOBAL ICON FIX ================= */
         .material-symbols-outlined { font-family: 'Material Symbols Outlined' !important; font-size: 18px !important; font-weight: normal !important; font-style: normal !important; display: inline-block !important; line-height: 1 !important; text-transform: none !important; letter-spacing: normal !important; white-space: nowrap !important; word-wrap: normal !important; }
 
-        /* ================= POWER LOGOUT BUTTON ================= */
         .logout-icon-btn { background-color: #4276b6; color: white; border: 0px solid rgba(255,255,255,0.8); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(231, 76, 60, 0.4); outline: none; padding: 0; flex-shrink: 0; }
         .logout-icon-btn:hover { background-color: #c0392b; border-color: white; transform: scale(1.1); }
         .logout-icon-btn .material-symbols-outlined { font-size: 20px !important; }
 
-        /* ================= TABLE UI ================= */
-        .p-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 10px; background: white; }
-        .p-table th { background-color: #4276b6 !important; color: white; position: sticky; top: 0; z-index: 10; padding: 12px 10px; border: 1px solid #4276b6; box-shadow: 0 1px 0 #4276b6; }
+        /* ================= TABLE UI & SCROLL ================= */
+        .table-scroll-container { max-height: 300px; overflow-y: auto; border: 1px solid #ddd; position: relative; }
+        .p-table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; }
+        .p-table thead th { position: sticky; top: 0; z-index: 10; background-color: #4276b6 !important; color: white; padding: 12px 10px; border: 1px solid #4276b6; box-shadow: 0 1px 0 #4276b6; }
         .p-table td { padding: 10px; border: 1px solid #ddd; text-align: left; font-size: 14px; }
         
         /* ================= NURSING CSS ================= */
@@ -57,7 +56,6 @@
         .delete-btn { color: #e74c3c; cursor: pointer; font-weight: bold; text-align: center; }
         .loading-text { color: #ce936b; font-size: 12px; font-weight: normal; display: none; }
         
-        /* 🔴 Auto-Suggest Dropdown CSS */
         .autocomplete-items { position: absolute; border: 1px solid #d4d4d4; border-radius: 4px; z-index: 99; top: 100%; left: 0; right: 0; max-height: 250px; overflow-y: auto; background-color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .autocomplete-items .med-item { padding: 12px; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: 0.2s; display: block; }
         .autocomplete-items .med-item:hover { background-color: #f4f8fc; }
@@ -72,7 +70,6 @@
         .refresh-btn { background-color: transparent; color: white; border: 1px solid white; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: 500; transition: 0.3s; font-family: 'Roboto', sans-serif; }
         .refresh-btn:hover { background-color: white; color: #4276b6; }
         
-        /* 🔴 FIX: डॅशबोर्डची Margin 60px वरून 90px केली, जेणेकरून निळी पट्टी डॅशबोर्डला झाकणार नाही */
         .p-main { display: flex; width: 100%; margin-top: 90px; height: calc(100vh - 90px); }
         
         .indent-card { background-color: #fff; border: 1px solid #e0e0e0; border-left: 5px solid #4276b6; border-radius: 6px; padding: 12px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
@@ -91,9 +88,7 @@
         .btn-dispatch:hover { background-color: #219d53; }
 
         /* ================= HIGH-END ADMIN PRO LAYOUT ================= */
-        /* 🔴 FIX: डॅशबोर्डची Margin 60px वरून 90px केली */
         .admin-shell { display: flex; width: 100%; margin-top: 90px; height: calc(100vh - 90px); overflow: hidden; background: #f4f7fa; font-family: 'Roboto', sans-serif;}
-        
         .pro-sidebar { width: 260px; background: white; border-right: 1px solid #eef0f4; display: flex; flex-direction: column; padding: 20px 15px; box-sizing: border-box; z-index: 10; }
         .pro-nav-btn { display: flex; align-items: center; gap: 12px; padding: 12px 16px; width: 100%; background: transparent; border: none; border-radius: 12px; color: #64748b; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease; text-align: left; margin-bottom: 5px; outline:none; }
         .pro-nav-btn:hover { background: #f8fafc; color: #3b82f6; }
@@ -277,6 +272,7 @@
                 <div id="detailsContainer" class="details-container">
                     <div class="action-bar">
                         <button style="background: transparent; border: none; font-size: 16px; font-weight: bold; cursor: pointer; color: #4276b6;" onclick="printIndent()">Print</button>
+                        <button class="btn-dispatch" id="p_readyBtn" style="background-color: #f39c12; margin-right: 10px;" onclick="markAsReady()">Ready for Collection</button>
                         <button class="btn-dispatch" id="p_dispatchBtn" onclick="markAsDispatched()">Mark as Dispatched</button>
                     </div>
                     <div class="patient-info">
@@ -287,10 +283,12 @@
                         <div><strong>Patient Name:</strong> <span id="lblPatient" style="color: #333; font-weight: 400;"></span></div>
                         <div style="grid-column: span 2;"><strong>Prescribed By:</strong> <span id="lblDoctor" style="color: #333; font-weight: 400;"></span></div>
                     </div>
-                    <table class="p-table">
-                        <thead><tr><th>Sr. No.</th><th>Medicine / Consumable</th><th>Quantity</th></tr></thead>
-                        <tbody id="medicineTableBody"></tbody>
-                    </table>
+                    <div class="table-scroll-container">
+                        <table class="p-table">
+                            <thead><tr><th>Sr. No.</th><th>Medicine / Consumable</th><th>Quantity</th></tr></thead>
+                            <tbody id="medicineTableBody"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -416,11 +414,8 @@
                             <div>
                                 <label style="font-size:12px; font-weight:bold; color:#4276b6;">Unit *</label>
                                 <select id="nu_unit" style="width:100%; padding:8px; border:1px solid #ced4da; border-radius:4px; outline:none; background:white;">
-                                    <!-- Nursing / Admin साठी युनिट्स -->
                                     <option value="DHIMSR">DHIMSR (Nursing/Ward)</option>
                                     <option value="BMCCU">BMCCU (Nursing/Ward)</option>
-                                    
-                                    <!-- Pharmacy साठी युनिट्स -->
                                     <option value="DHIMSR-PHARMACY">DHIMSR - Pharmacy</option>
                                     <option value="BMCCU-PHARMACY">BMCCU - Pharmacy</option>
                                 </select>
@@ -486,24 +481,20 @@
         <div class="prt-details-grid"><div><span class="prt-lbl">Patient Name:</span> <span id="prtPatient" class="prt-val"></span></div><div><span class="prt-lbl">Indent No:</span> <span id="prtIndentNo" class="prt-val"></span></div><div><span class="prt-lbl">Ward / Unit:</span> <span id="prtWard" class="prt-val"></span></div><div><span class="prt-lbl">Request Time:</span> <span id="prtDate" class="prt-val"></span></div><div><span class="prt-lbl">Prescribed By:</span> <span id="prtDoctor" class="prt-val"></span></div><div><span class="prt-lbl">Dispatch Time:</span> <span id="prtDispatchTime" class="prt-val" style="font-weight: bold;"></span></div></div>
         <table class="prt-med-table"><thead><tr><th colspan="3" style="text-align: left;">Medicine / Consumables Description</th><th style="width: 15%; text-align: center;">Qty</th></tr></thead><tbody id="prtMedicineList"></tbody></table>
         <div class="prt-signatures">
-    <div style="width: 28%; text-align: center;">
-        <div id="prtCreatedBy" style="font-weight: bold; font-size: 14px; margin-bottom: 5px; color: #333; min-height: 20px;"></div>
-        <div class="sig-line" style="width: 100%;">Indent Created by (Resident)</div>
+            <div style="width: 28%; text-align: center;">
+                <div id="prtCreatedBy" style="font-weight: bold; font-size: 14px; margin-bottom: 5px; color: #333; min-height: 20px;"></div>
+                <div class="sig-line" style="width: 100%;">Indent Created by (Resident)</div>
+            </div>
+            <div class=""></div>
+            <div style="width: 28%; text-align: center;">
+                <div id="prtDispensedBy" style="font-weight: bold; font-size: 14px; margin-bottom: 5px; color: #333; min-height: 20px;"></div>
+                <div class="sig-line" style="width: 100%;">Dispensed By (Pharmacist)</div>
+            </div>
+        </div>
+        <div class="footer">© 2026 Dr. Hedgewar Hospital,Amravati. All Rights Reserved. | Powered by <b>CareSync</b></div>
     </div>
-    <div class=""></div>
-    <div style="width: 28%; text-align: center;">
-        <div id="prtDispensedBy" style="font-weight: bold; font-size: 14px; margin-bottom: 5px; color: #333; min-height: 20px;"></div>
-        <div class="sig-line" style="width: 100%;">Dispensed By (Pharmacist)</div>
-    </div>
-</div>
 
-    <div class="footer">
-        © 2026 Dr. Hedgewar Hospital,Amravati. All Rights Reserved. | Powered by <b>CareSync</b>
-    </div>
-</div>
-<!-- 🔴 FULL SCREEN NURSING HISTORY OVERLAY -->
     <div id="nursingHistoryOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f4f7f9; z-index: 25000; flex-direction: column;">
-        
         <div class="p-header" style="position: relative; z-index: 2;">
             <div style="display: flex; align-items: center; gap: 15px;">
                 <h2 style="margin: 0; font-size: 20px;">🕒 Today's Indents: <span id="h_wardDisplay" style="color:#f1c40f;"></span></h2>
@@ -519,7 +510,6 @@
                 <h3 style="color: #ce936b; border-bottom: 2px solid #f0f0f0; padding-bottom: 12px; margin-top: 0; font-weight: 500;">Indent List (Today)</h3>
                 <div id="h_indentListContainer"></div>
             </div>
-            
             <div class="right-panel" style="flex: 1; padding: 25px; overflow-y: auto;">
                 <div id="h_placeholder" style="text-align: center; color: #a0aec0; margin-top: 20%; font-size: 16px;">Select an indent from the list to view details.</div>
                 
@@ -543,7 +533,6 @@
         </div>
     </div>
 
-<!-- 🔴 CUSTOM SECURE PASSKEY MODAL -->
     <div id="passkeyModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 20000; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
         <div style="background: #fff; width: 350px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); overflow: hidden; text-align: center; font-family: 'Roboto', sans-serif;">
             <div style="background: #e74c3c; color: white; padding: 20px;">
@@ -640,64 +629,65 @@
         });
     }
 
-    // 🔴 ग्लोबल Passkey फंक्शन (Enter Key Support सह)
+    // 🔴 1. नवीन ग्लोबल पासकी फंक्शन (जे सर्व्हरवरून नाव आणेल)
     function verifyUserPasskey(actionName) {
         return new Promise((resolve) => {
-            try {
-                let modal = document.getElementById('passkeyModal');
-                let input = document.getElementById('customPasskeyInput');
-                let errorText = document.getElementById('passkeyErrorText');
-                
-                document.getElementById('passkeyActionText').innerText = actionName;
-                input.value = '';
+            let modal = document.getElementById('passkeyModal');
+            let input = document.getElementById('customPasskeyInput');
+            let errorText = document.getElementById('passkeyErrorText');
+            let btnConfirm = document.getElementById('btnConfirmPasskey');
+
+            document.getElementById('passkeyActionText').innerText = actionName;
+            input.value = '';
+            errorText.style.display = 'none';
+            btnConfirm.innerText = 'Confirm';
+            btnConfirm.disabled = false;
+
+            modal.style.display = 'flex';
+            setTimeout(() => input.focus(), 100);
+
+            const processPasskey = () => {
+                let enteredKey = input.value.trim();
+                if(enteredKey.length === 0) return;
+
+                btnConfirm.innerText = 'Checking...';
+                btnConfirm.disabled = true;
                 errorText.style.display = 'none';
-                
-                modal.style.display = 'flex';
-                modal.style.visibility = 'visible';
-                modal.style.opacity = '1';
-                modal.style.zIndex = '2147483647'; 
-                
-                // पॉपअप उघडल्यावर कर्सर आपोआप पासकीच्या बॉक्समध्ये जाईल
-                setTimeout(() => input.focus(), 100);
 
-                let btnConfirm = document.getElementById('btnConfirmPasskey');
-                let btnCancel = document.getElementById('btnCancelPasskey');
-
-                // 🔴 पासकी तपासण्याचे मुख्य फंक्शन बनवले
-                const processPasskey = () => {
-                    if (input.value.trim() === String(loggedInPasskey).trim()) {
+                // सर्व्हरवर चेक करणे की ही पासकी कोणाची आहे
+                fetch(SCRIPT_URL + "?action=verifyActionPasskey&passkey=" + encodeURIComponent(enteredKey) + "&t=" + new Date().getTime())
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
                         modal.style.display = 'none';
-                        resolve(true); 
+                        resolve({ verified: true, userName: data.userName }); // 🔴 इथे पासकी टाकणाऱ्याचे नाव मिळेल
                     } else {
+                        errorText.innerText = "❌ Incorrect Passkey!";
                         errorText.style.display = 'block';
                         input.value = '';
-                        input.focus(); // पासकी चुकली तर कर्सर परत बॉक्समध्ये येईल
+                        input.focus();
+                        btnConfirm.innerText = 'Confirm';
+                        btnConfirm.disabled = false;
                     }
-                };
+                }).catch(err => {
+                    errorText.innerText = "❌ Connection Error!";
+                    errorText.style.display = 'block';
+                    btnConfirm.innerText = 'Confirm';
+                    btnConfirm.disabled = false;
+                });
+            };
 
-                // माऊसने क्लिक केल्यावर
-                btnConfirm.onclick = processPasskey;
-
-                btnCancel.onclick = function() {
-                    modal.style.display = 'none';
-                    resolve(false); 
-                };
-
-                // 🔴 Enter Key दाबली की थेट प्रोसेस होईल (माऊसची गरज नाही)
-                input.onkeydown = function(e) {
-                    if(e.key === 'Enter') {
-                        e.preventDefault(); // फॉर्म सबमिट होण्यापासून थांबवेल
-                        processPasskey();   // थेट पासकी तपासेल
-                    }
-                };
-                
-            } catch (error) {
-                console.error(error);
-                alert("Passkey Error: " + error.message);
-                resolve(false);
-            }
+            btnConfirm.onclick = processPasskey;
+            document.getElementById('btnCancelPasskey').onclick = function() {
+                modal.style.display = 'none';
+                resolve({ verified: false });
+            };
+            input.onkeydown = function(e) {
+                if(e.key === 'Enter') { e.preventDefault(); processPasskey(); }
+            };
         });
     }
+
     function logoutUser() {
         if(!confirm("Are you sure you want to log out?")) return;
         
@@ -802,6 +792,7 @@
         indentList.forEach((item, i) => { tbody.innerHTML += `<tr><td>${item.displayName}</td><td>${item.quantity}</td><td class="delete-btn" onclick="indentList.splice(${i}, 1); updateNTable()">Remove</td></tr>`; });
     }
 
+    // 🔴 2. Submit Indent अपडेट (नर्सिंग)
     async function submitIndent() {
         const ward = document.getElementById('n_wardName').value; 
         let pName = document.getElementById('n_patientName').value.trim(); 
@@ -810,21 +801,17 @@
         if(!ward) { alert("❌ Please select a Ward."); return; }
         if(!pName) { alert("❌ Please enter Patient Name."); return; }
         if(!doc) { alert("❌ Please select 'Prescribed By' (Doctor Name)."); return; }
+        if (indentList.length === 0) { alert("❌ Please add at least one medicine."); return; }
 
-        if (indentList.length === 0) {
-            alert("❌ Please add at least one medicine to the list using '+ Add to List' button.");
-            return;
-        }
-
-        // 🔴 इथून पासकीचा पॉपअप नक्की उघडेल
-        let isVerified = await verifyUserPasskey("Send Indent to Pharmacy");
-        if (!isVerified) return; // जर युझरने कॅन्सल केले तर इथेच थांबेल
+        let passkeyResult = await verifyUserPasskey("Send Indent to Pharmacy");
+        if (!passkeyResult.verified) return; 
+        
+        let actualSubmitter = passkeyResult.userName; // 🔴 जो पासकी टाकेल त्याचे नाव (उदा. RMO-2)
 
         if(document.getElementById('n_isUrgent').checked) pName = "[URGENT] " + pName;
         
         const btn = document.getElementById('n_submitBtn'); 
-        btn.innerHTML = "Sending..."; 
-        btn.disabled = true;
+        btn.innerHTML = "Sending..."; btn.disabled = true;
         
         const payload = { 
             action: "submitIndent", 
@@ -832,38 +819,28 @@
             wardName: loggedInUnit + " - " + ward, 
             patientName: pName, 
             doctorName: doc, 
-            loginUser: loggedInName,  
-            submitUser: loggedInName, 
+            loginUser: loggedInName,     // Col K: RMO-1
+            submitUser: actualSubmitter, // Col L: RMO-2 (Accountable Person)
             items: indentList.map(i => ({ name: i.displayName, qty: i.quantity })) 
         };
         
-        fetch(SCRIPT_URL, { 
-            method: 'POST', 
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-            body: JSON.stringify(payload) 
-        })
-        .then(res => res.json())
-        .then(data => {
+        fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) })
+        .then(res => res.json()).then(data => {
             if(data.success) {
                 showToast("Indent Sent Successfully!", "success"); 
                 let newIndentNo = data.indentNo || "Pending";
-                populatePrint(pName, loggedInUnit + " - " + ward, formatCDate(new Date().toISOString()), newIndentNo, doc, indentList, loggedInName);
+                // 🔴 प्रिंटवरही RMO-2 चेच नाव दिसेल
+                populatePrint(pName, loggedInUnit + " - " + ward, formatCDate(new Date().toISOString()), newIndentNo, doc, indentList, actualSubmitter);
                 document.getElementById('n_printBtn').style.display = 'block';
                 
                 indentList = []; updateNTable(); 
                 document.getElementById('n_patientName').value = ''; 
                 document.getElementById('n_isUrgent').checked = false; 
                 btn.innerHTML = "Send to Pharmacy"; btn.disabled = false;
-            } else {
-                alert("Server Error: Indent not sent.");
-                btn.innerHTML = "Send to Pharmacy"; btn.disabled = false;
             }
-        }).catch(err => { 
-            console.error(err);
-            alert("Connection Error!"); 
-            btn.innerHTML = "Send to Pharmacy"; btn.disabled = false; 
-        });
+        }).catch(err => { alert("Connection Error!"); btn.innerHTML = "Send to Pharmacy"; btn.disabled = false; });
     }
+    
     function populatePrint(patient, ward, date, indentNo, doctor, items, submitUser) {
         document.getElementById('prtPatient').innerText = patient.replace("[URGENT] ", ""); 
         document.getElementById('prtWard').innerText = ward; 
@@ -874,13 +851,11 @@
         let dispEl = document.getElementById('prtDispatchTime'); 
         if(dispEl) { dispEl.innerText = "Pending"; dispEl.style.color = "#e67e22"; }
 
-        // 🔴 १. Resident चे नाव प्रिंटवर टाकणे
         let createdByEl = document.getElementById('prtCreatedBy');
         if(createdByEl) {
             createdByEl.innerText = submitUser && submitUser !== "-" ? submitUser : "-";
         }
         
-        // 🔴 २. Pharmacy/Nursing मधून प्रिंट काढताना Dispensed By रिकामे ठेवणे (कारण अजून डिस्पॅच झालेले नसते)
         let dispensedByEl = document.getElementById('prtDispensedBy');
         if(dispensedByEl) {
             dispensedByEl.innerText = "-";
@@ -904,7 +879,7 @@
         fetch(SCRIPT_URL + "?action=getPendingIndents&t=" + new Date().getTime()).then(res => res.json()).then(data => {
             let grouped = {};
             data.forEach(row => {
-                if(!grouped[row.indentNo]) grouped[row.indentNo] = { indentNo: row.indentNo, date: row.date, ward: row.ward, patientName: row.patient, doctor: row.doctor, submitUser: row.submitUser || row.submitBy || "-", medicines: [] };
+                if(!grouped[row.indentNo]) grouped[row.indentNo] = { indentNo: row.indentNo, date: row.date, ward: row.ward, patientName: row.patient, doctor: row.doctor, submitUser: row.submitUser || row.submitBy || "-", status: row.status || "Pending", medicines: [] };
                 if(row.medicine) grouped[row.indentNo].medicines.push({ name: row.medicine, qty: row.qty });
             });
             allIndents = Object.values(grouped);
@@ -931,9 +906,7 @@
             }
 
             if (!isNaN(d.getTime())) {
-                // 🔴 FIX: संगणकाचा Timezone काहीही असला तरी, थेट भारतीय वेळेत (IST: UTC+5:30) कनवर्ट करा
                 let istDate = new Date(d.getTime() + (330 * 60000));
-                
                 let days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
                 let dayName = days[istDate.getUTCDay()];
                 let dd = String(istDate.getUTCDate()).padStart(2, '0');
@@ -964,61 +937,100 @@
                     new Notification(isUrgent ? "URGENT INDENT ALERT" : "New Pharmacy Indent", { body: `Ward: ${ind.ward}\nPatient: ${cleanPatient}`, icon: "https://cdn-icons-png.flaticon.com/512/4320/4320337.png", requireInteraction: isUrgent });
                 }
             }
-            html += `<div class="indent-card ${isUrgent ? 'urgent' : ''}" onclick='showPDetails(${JSON.stringify(ind).replace(/'/g, "&#39;")})'><div class="indent-header"><span>${ind.indentNo}</span><span style="color:#ce936b; font-size:13px; font-weight: 400;">${formatCDate(ind.date)}</span></div><div style="color: #333; font-size: 14px;"><strong>${cleanPatient}</strong> (${ind.ward})</div></div>`;
+            let badgeHtml = ind.status === 'Ready for Collection' ? `<span style="background:#f39c12; color:white; padding:2px 8px; border-radius:10px; font-size:10px; margin-left:8px; vertical-align:middle;">READY</span>` : ``;
+            html += `<div class="indent-card ${isUrgent ? 'urgent' : ''}" onclick='showPDetails(${JSON.stringify(ind).replace(/'/g, "&#39;")})'><div class="indent-header"><span style="display:flex; align-items:center;">${ind.indentNo} ${badgeHtml}</span><span style="color:#ce936b; font-size:13px; font-weight: 400;">${formatCDate(ind.date)}</span></div><div style="color: #333; font-size: 14px;"><strong>${cleanPatient}</strong> (${ind.ward})</div></div>`;
         });
         container.innerHTML = html;
         if(hasNewUrgent || hasNewNormal) new Audio(hasNewUrgent ? 'https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg' : 'https://actions.google.com/sounds/v1/alarms/beep_short.ogg').play().catch(e => console.log("Audio Blocked"));
     }
 
     function showPDetails(ind) {
-        currentSelectedIndent = ind.indentNo; document.getElementById('placeholder').style.display = 'none'; document.getElementById('detailsContainer').style.display = 'block';
-        let isUrgent = String(ind.patientName).includes("[URGENT]"); let cleanPatient = ind.patientName.replace("[URGENT] ", "").trim();
-        document.getElementById('p_urgentTag').style.display = isUrgent ? 'block' : 'none'; document.getElementById('lblIndentNo').innerText = ind.indentNo; document.getElementById('lblDate').innerText = formatCDate(ind.date);
-        document.getElementById('lblWard').innerText = ind.ward; document.getElementById('lblPatient').innerText = cleanPatient; document.getElementById('lblDoctor').innerText = ind.doctor;
-        const tbody = document.getElementById('medicineTableBody'); tbody.innerHTML = '';
+        currentSelectedIndent = ind.indentNo; 
+        document.getElementById('placeholder').style.display = 'none'; 
+        document.getElementById('detailsContainer').style.display = 'block';
+
+        let readyBtn = document.getElementById('p_readyBtn');
+        if(readyBtn) {
+            readyBtn.style.display = 'inline-block'; 
+            if(ind.status === 'Ready for Collection') {
+                readyBtn.disabled = true;
+                readyBtn.style.backgroundColor = '#95a5a6';
+                readyBtn.style.cursor = 'not-allowed';
+                readyBtn.innerText = "Ready ✓";
+            } else {
+                readyBtn.disabled = false;
+                readyBtn.style.backgroundColor = '#f39c12';
+                readyBtn.style.cursor = 'pointer';
+                readyBtn.innerText = "Ready for Collection";
+            }
+        }
+
+        let isUrgent = String(ind.patientName).includes("[URGENT]"); 
+        let cleanPatient = ind.patientName.replace("[URGENT] ", "").trim();
+        document.getElementById('p_urgentTag').style.display = isUrgent ? 'block' : 'none'; 
+        document.getElementById('lblIndentNo').innerText = ind.indentNo; 
+        document.getElementById('lblDate').innerText = formatCDate(ind.date);
+        document.getElementById('lblWard').innerText = ind.ward; 
+        document.getElementById('lblPatient').innerText = cleanPatient; 
+        document.getElementById('lblDoctor').innerText = ind.doctor;
+        
+        const tbody = document.getElementById('medicineTableBody'); 
+        tbody.innerHTML = '';
         ind.medicines.forEach((med, idx) => {
-            let n = med.name; let opd = ""; if(n.includes("[")) { let p = n.split("["); n = p[0].trim(); opd = `<br><span style="color:#ce936b;">[${p[1]}</span>`; }
+            let n = med.name; let opd = ""; 
+            if(n.includes("[")) { 
+                let p = n.split("["); n = p[0].trim(); opd = `<br><span style="color:#ce936b;">[${p[1]}</span>`; 
+            }
             tbody.innerHTML += `<tr><td>${idx+1}</td><td><b>${n}</b> ${opd}</td><td>${med.qty}</td></tr>`;
         });
+        
         populatePrint(cleanPatient, ind.ward, formatCDate(ind.date), ind.indentNo, ind.doctor, ind.medicines, ind.submitUser);
     }
 
+    // 🔴 4. Mark as Dispatched अपडेट (फार्मसी)
     async function markAsDispatched() {
         if(!currentSelectedIndent) return; 
         
-        if(!(await verifyUserPasskey("Dispatch Indent"))) return; 
+        let passkeyResult = await verifyUserPasskey("Dispatch Indent");
+        if (!passkeyResult.verified) return; 
         
+        let actualPharmacist = passkeyResult.userName; // 🔴 जो पासकी टाकेल तो
+
         const btn = document.getElementById('p_dispatchBtn'); btn.innerHTML = "Updating..."; btn.disabled = true;
         
-        // 🔴 FIX: Removed mode: 'no-cors' & Added 'text/plain'
-        fetch(SCRIPT_URL, { 
-            method: 'POST', 
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-            body: JSON.stringify({ 
-                action: "markDispatched", 
-                indentNo: currentSelectedIndent, 
-                pharmacyLogin: loggedInName, // 🔴 Pass tracking info
-                dispatchBy: loggedInName 
-            }) 
-        })
-        .then(res => res.json())
-        .then(data => {
+        fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: "markDispatched", indentNo: currentSelectedIndent, pharmacyLogin: loggedInName, dispatchBy: actualPharmacist }) })
+        .then(res => res.json()).then(data => {
             if(data.success) {
                 showToast("Dispatched successfully!", "success"); 
                 document.getElementById('detailsContainer').style.display = 'none'; 
                 document.getElementById('placeholder').style.display = 'block'; 
                 currentSelectedIndent = null; 
-                btn.innerHTML = "Mark as Dispatched"; btn.disabled = false; 
                 fetchPendingIndents(true); 
-            } else {
-                showToast("Error updating status!", "error");
-                btn.innerHTML = "Mark as Dispatched"; btn.disabled = false; 
             }
-        })
-        .catch(err => { 
-            console.error(err);
-            showToast("Connection Error!", "error"); 
-            btn.innerHTML = "Mark as Dispatched"; btn.disabled = false; 
+        });
+    }
+
+    // 🔴 3. Mark as Ready अपडेट (फार्मसी)
+    async function markAsReady() {
+        if(!currentSelectedIndent) return; 
+        
+        let passkeyResult = await verifyUserPasskey("Ready for Collection");
+        if (!passkeyResult.verified) return; 
+        
+        let actualPharmacist = passkeyResult.userName; // 🔴 जो पासकी टाकेल तो
+
+        const btn = document.getElementById('p_readyBtn'); 
+        btn.innerHTML = "Updating..."; btn.disabled = true;
+        
+        fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: "markReadyForDispatch", indentNo: currentSelectedIndent, readyBy: actualPharmacist }) })
+        .then(res => res.json()).then(data => {
+            if(data.success) {
+                showToast("Marked as Ready!", "success"); 
+                document.getElementById('detailsContainer').style.display = 'none'; 
+                document.getElementById('placeholder').style.display = 'block'; 
+                currentSelectedIndent = null; 
+                fetchPendingIndents(true); 
+            }
         });
     }
     
@@ -1036,7 +1048,6 @@
         document.querySelectorAll('.admin-tab-content').forEach(el => el.style.display = 'none');
         document.querySelectorAll('.pro-nav-btn').forEach(el => el.classList.remove('active'));
         document.getElementById(tabId).style.display = 'block'; btn.classList.add('active');
-        // 🔴 बदल: टॅब बदलताना आपोआप फंक्शन कॉल होणार नाहीत. युझरला फिल्टर लावावे लागतील.
     }
 
     function initAdmin() { fetchAdminData(); }
@@ -1054,8 +1065,8 @@
                         indentNo: row.indentNo, dateStr: row.dateStr || row.date, timestamp: tStamp,
                         ward: row.ward, patient: row.patient || row.patientName, doctor: row.doctor || row.doctorName, 
                         status: row.status, responseTime: row.responseTime, dispatchTime: row.dispatchTime, 
-                        submitUser: row.submitUser || "-",     // 🔴 फिक्स: Resident चे नाव ऍड केले
-                        dispensedBy: row.dispensedBy || "-",   // 🔴 फिक्स: Pharmacist चे नाव ऍड केले
+                        submitUser: row.submitUser || "-",   
+                        dispensedBy: row.dispensedBy || "-",  
                         medicines: [] 
                     };
                 }
@@ -1064,7 +1075,6 @@
             });
             globalAdminIndents = Object.values(grouped);
             
-            // Wards आणि Users चा डेटा लोड करतील:
             populateAdminDropdowns(data.settings.wards); 
             renderAdminWards(data.settings.wards); 
             if(data.settings.users && typeof renderAdminUsers === "function") {
@@ -1118,11 +1128,7 @@
         let sDate = document.getElementById('g_startDate').value; let eDate = document.getElementById('g_endDate').value;
         let unit = document.getElementById('g_unit').value.toUpperCase(); let ward = document.getElementById('g_ward').value.toUpperCase();
         
-        // 🔴 बदल: जर तारीख निवडली नसेल तर ग्राफ रेंडर करू नका
-        if (!sDate && !eDate) {
-             // तुम्ही इथे रिकामे ग्राफ किंवा मेसेज दाखवू शकता, सध्या आपण काहीच करणार नाही.
-             return;
-        }
+        if (!sDate && !eDate) return;
 
         let sTime = sDate ? new Date(sDate + "T00:00:00").getTime() : 0; let eTime = eDate ? new Date(eDate + "T23:59:59").getTime() : Infinity;
         
@@ -1164,7 +1170,6 @@
         
         let tbody = document.getElementById('adminSearchResults');
 
-        // 🔴 बदल: जर एकही फिल्टर लावला नसेल, तर डेटा दाखवू नका
         if (!sDate && !eDate && !unit && !ward && !patient && !indentNo) {
             tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Please apply at least one filter (e.g., Date) to view data.</td></tr>';
             return;
@@ -1203,6 +1208,7 @@
         });
         tbody.innerHTML = rowsHtml; 
     }
+    
     function printAdminIndent(indentNo) {
         let matches = globalAdminIndents.filter(i => i.indentNo === indentNo);
         if(matches.length === 0) return;
@@ -1242,14 +1248,14 @@
             dispEl.style.color = ind.status === 'Dispatched' ? '#27ae60' : '#e67e22';
         }
 
-        // 🔴 १. Resident चे नाव (Indent Creator)
-        if(document.getElementById('prtCreatedBy')) {
-            document.getElementById('prtCreatedBy').innerText = ind.submitUser && ind.submitUser !== "-" ? ind.submitUser : "-";
+        let createdByEl = document.getElementById('prtCreatedBy');
+        if(createdByEl) {
+            createdByEl.innerText = ind.submitUser && ind.submitUser !== "-" ? ind.submitUser : "-";
         }
         
-        // 🔴 २. Pharmacist चे नाव (Dispensed By)
-        if(document.getElementById('prtDispensedBy')) {
-            document.getElementById('prtDispensedBy').innerText = ind.dispensedBy && ind.dispensedBy !== "-" ? ind.dispensedBy : "-";
+        let dispensedByEl = document.getElementById('prtDispensedBy');
+        if(dispensedByEl) {
+            dispensedByEl.innerText = ind.dispensedBy && ind.dispensedBy !== "-" ? ind.dispensedBy : "-";
         }
 
         const tbody = document.getElementById('prtMedicineList'); tbody.innerHTML = '';
@@ -1291,7 +1297,7 @@
         
         if(!users || users.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:15px;">No Users Found</td></tr>'; return; }
         
-        let rowsHtml = ""; // 🔴 फिक्स: DOM Delay वाचवण्यासाठी
+        let rowsHtml = ""; 
         users.forEach(u => { 
             let roleBadge = `<span style="background: #eef4f8; color: #2c598f; padding: 4px 10px; border-radius: 12px; font-weight: bold; font-size: 11px; border: 1px solid #cbd5e1;">${u.role || u.rights}</span>`;
             
@@ -1324,7 +1330,6 @@
         document.getElementById('tab-users').scrollIntoView({behavior: 'smooth'}); 
     }
 
-    // 🔴 फिक्स: फंक्शनच्या आधी 'async' लावले आहे
     async function createNewUser() { 
         let id = document.getElementById('nu_id').value.trim().toUpperCase(); 
         let name = document.getElementById('nu_name').value.trim(); 
@@ -1355,7 +1360,6 @@
         .then(res => res.json()).then(data => {
             btn.innerText = origText; btn.disabled = false; 
             if(data.success) { 
-                // 🟢 झटपट UI अपडेट (सर्व्हरची वाट न बघता थेट टेबलमध्ये ऍड करणे)
                 let existingIndex = window.allUsersList.findIndex(u => u.userId === id);
                 let newUserObj = { userId: id, name: name, password: pass, passkey: passkey, unit: unit, role: role };
                 if(existingIndex > -1) { window.allUsersList[existingIndex] = newUserObj; } 
@@ -1373,14 +1377,12 @@
         }); 
     }
 
-    // 🔴 फिक्स: फंक्शनच्या आधी 'async' लावले आहे
     async function deleteUser(userId) {
         if(!confirm(`Are you sure you want to permanently delete User ID: ${userId}?`)) return; 
         
         let isVerified = await verifyUserPasskey("User Deletion");
         if (!isVerified) return; 
 
-        // 🟢 क्लिक केल्या-केल्या तो युझर स्क्रीनवरून गायब होईल (Optimistic Update)
         window.allUsersList = window.allUsersList.filter(u => u.userId !== userId);
         renderAdminUsers(window.allUsersList);
 
@@ -1439,14 +1441,11 @@
     }
 
     // ==========================================
-    // 🔴 GLOBAL KEYBOARD SHORTCUTS (F5 Reload Fix)
+    // 🔴 GLOBAL KEYBOARD SHORTCUTS
     // ==========================================
     document.addEventListener('keydown', function(e) {
-        
-        // F5 किंवा Ctrl + R दाबल्यावर ब्राउझर रीलोड थांबेल (Logoff होणार नाही)
         if (e.key === 'F5' || (e.ctrlKey && (e.key === 'r' || e.key === 'R'))) {
             e.preventDefault(); 
-            
             let roleCheck = String(currentRole).toUpperCase().trim();
             if (roleCheck === "PHARMACY" && typeof fetchPendingIndents === "function") {
                 showToast("Refreshing Pharmacy Data...", "success");
@@ -1459,65 +1458,16 @@
             return; 
         }
 
-        let saveModal = document.getElementById('saveBillModal');
-        if (saveModal && saveModal.style.display === 'flex') {
-            if (e.key === 'Escape') {
-                e.preventDefault(); e.stopPropagation();
-                if(typeof closeSaveBillModal === 'function') closeSaveBillModal();
-            } else if (e.key === 'Enter') {
-                e.preventDefault(); e.stopPropagation(); 
-                if(document.getElementById('modalBtnSave') && !document.getElementById('modalBtnSave').disabled) {
-                    if(typeof confirmSaveBill === 'function') confirmSaveBill();
-                }
-            }
-            return; 
-        }
-
-        const saleView = document.getElementById('pharmacyView-sale');
-        if (!saleView || !saleView.classList.contains('active')) return;
-
-        if(['F1', 'F2', 'F3', 'F4', 'F6', 'F7', 'F8', 'F10'].includes(e.key)) {
-            e.preventDefault();
-        } else {
-            return;
-        }
-
-        if (e.key === 'F2') {
-            if(typeof switchPharmacyView === 'function') switchPharmacyView('sale');
-            if(typeof handleF2Parking === 'function') handleF2Parking(); 
-        } else if (e.key === 'F1') {
-            let ms = document.getElementById('p_medicineSearch');
-            if (ms) ms.focus(); 
-        } else if (e.key === 'F3') {
-            if(typeof openIndentModal === 'function') openIndentModal(); 
-        } else if (e.key === 'F4') {
-            let bSelect = document.getElementById('p_medBatch');
-            if(bSelect && !bSelect.disabled) bSelect.focus();
-        } else if (e.key === 'F6') {
-            let tbody = document.getElementById('medicineTableBody');
-            if(tbody && tbody.lastElementChild) {
-                tbody.lastElementChild.remove();
-                if(typeof updateSaleBillSummary === 'function') updateSaleBillSummary();
-                let ms = document.getElementById('p_medicineSearch');
-                if (ms) ms.focus();
-            }
-        } else if (e.key === 'F7') {
-            let pm = document.getElementById('billingType');
-            if (pm && pm.offsetParent !== null) pm.focus(); 
-        } else if (e.key === 'F10') {
-            if(typeof openSaveBillModal === 'function') openSaveBillModal(); 
+        if(e.key === 'Escape') {
+            let modals = ['passkeyModal', 'nursingHistoryOverlay'];
+            modals.forEach(id => {
+                let mod = document.getElementById(id);
+                if (mod && mod.style.display !== 'none') mod.style.display = 'none';
+            });
         }
     });
 
-    document.addEventListener('keydown', function(e) {
-        if(e.key === 'Escape') {
-            let modals = ['indentModal', 'grnModal', 'vendorModal', 'returnSelectionModal', 'prModal', 'poAsstConsoleModal', 'poManagerModal', 'prApprovalModal', 'saveBillModal'];
-            modals.forEach(id => {
-                let mod = document.getElementById(id);
-                if (mod && mod.style.display === 'flex') mod.style.display = 'none';
-            });
-        }
-    });// 🔴 नर्सिंग फुल-स्क्रीन हिस्ट्री लॉजिक
+    // 🔴 नर्सिंग फुल-स्क्रीन हिस्ट्री लॉजिक
     let nursingHistoryData = [];
 
     function openHistoryModal() {
@@ -1547,7 +1497,6 @@
         document.getElementById('nursingHistoryOverlay').style.display = 'none';
     }
 
-    // Patient Search Logic
     document.getElementById('h_patientSearch').addEventListener('input', function(e) {
         let val = e.target.value.toLowerCase().trim();
         if(val === "") {
@@ -1571,7 +1520,6 @@
             let cleanPatient = ind.patient.replace("[URGENT] ", "").trim();
             let statusColor = ind.status === 'Dispatched' ? '#27ae60' : '#e74c3c';
             
-            // 🔴 FIX: वेळेसोबत AM/PM व्यवस्थित दिसेल
             let timeParts = ind.time.split(" ");
             let displayTime = timeParts.length > 2 ? timeParts[1] + " " + timeParts[2] : ind.time;
             
