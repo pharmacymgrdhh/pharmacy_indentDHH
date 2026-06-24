@@ -644,7 +644,10 @@
             btnConfirm.disabled = false;
 
             modal.style.display = 'flex';
-            setTimeout(() => input.focus(), 100);
+            setTimeout(() => {
+    input.focus();
+    input.select();
+}, 100);
 
             const processPasskey = () => {
                 let enteredKey = input.value.trim();
@@ -683,10 +686,17 @@
                 resolve({ verified: false });
             };
             input.onkeydown = function(e) {
-                if(e.key === 'Enter') { e.preventDefault(); processPasskey(); }
-            };
-        });
+
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        btnConfirm.click();
     }
+
+    if (e.key === 'Escape') {
+        e.preventDefault();
+        btnCancel.click();
+    }
+};
 
     function logoutUser() {
         if(!confirm("Are you sure you want to log out?")) return;
@@ -988,25 +998,49 @@
     }
 
     // 🔴 4. Mark as Dispatched अपडेट (फार्मसी)
+    // 🔴 4. Mark as Dispatched अपडेट (फार्मसी)
     async function markAsDispatched() {
         if(!currentSelectedIndent) return; 
         
         let passkeyResult = await verifyUserPasskey("Dispatch Indent");
         if (!passkeyResult.verified) return; 
         
-        let actualPharmacist = passkeyResult.userName; // 🔴 जो पासकी टाकेल तो
+        let actualPharmacist = passkeyResult.userName; 
 
-        const btn = document.getElementById('p_dispatchBtn'); btn.innerHTML = "Updating..."; btn.disabled = true;
+        const btn = document.getElementById('p_dispatchBtn'); 
+        let originalText = btn.innerHTML; 
+        btn.innerHTML = "Updating..."; 
+        btn.disabled = true;
         
         fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: "markDispatched", indentNo: currentSelectedIndent, pharmacyLogin: loggedInName, dispatchBy: actualPharmacist }) })
-        .then(res => res.json()).then(data => {
+        .then(async res => {
+            if (!res.ok) throw new Error("Server Status: " + res.status);
+            const text = await res.text();
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                throw new Error("Invalid response from server. Please check SCRIPT_URL.");
+            }
+        })
+        .then(data => {
             if(data.success) {
                 showToast("Dispatched successfully!", "success"); 
                 document.getElementById('detailsContainer').style.display = 'none'; 
                 document.getElementById('placeholder').style.display = 'block'; 
                 currentSelectedIndent = null; 
                 fetchPendingIndents(true); 
+            } else {
+                showToast("Update Failed: " + (data.message || "Server Error"), "error");
             }
+        })
+        .catch(err => {
+            console.error("Fetch Error:", err);
+            showToast("Error: " + err.message, "error");
+            fetchPendingIndents(true);
+        })
+        .finally(() => {
+            btn.innerHTML = originalText; 
+            btn.disabled = false;
         });
     }
 
@@ -1017,20 +1051,42 @@
         let passkeyResult = await verifyUserPasskey("Ready for Collection");
         if (!passkeyResult.verified) return; 
         
-        let actualPharmacist = passkeyResult.userName; // 🔴 जो पासकी टाकेल तो
+        let actualPharmacist = passkeyResult.userName; 
 
         const btn = document.getElementById('p_readyBtn'); 
-        btn.innerHTML = "Updating..."; btn.disabled = true;
+        let originalText = btn.innerHTML;
+        btn.innerHTML = "Updating..."; 
+        btn.disabled = true;
         
         fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: "markReadyForDispatch", indentNo: currentSelectedIndent, readyBy: actualPharmacist }) })
-        .then(res => res.json()).then(data => {
+        .then(async res => {
+            if (!res.ok) throw new Error("Server Status: " + res.status);
+            const text = await res.text();
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                throw new Error("Invalid response from server. Please check SCRIPT_URL.");
+            }
+        })
+        .then(data => {
             if(data.success) {
                 showToast("Marked as Ready!", "success"); 
                 document.getElementById('detailsContainer').style.display = 'none'; 
                 document.getElementById('placeholder').style.display = 'block'; 
                 currentSelectedIndent = null; 
                 fetchPendingIndents(true); 
+            } else {
+                showToast("Failed: " + (data.message || "Unknown error"), "error");
             }
+        })
+        .catch(err => {
+            console.error("Fetch Error:", err);
+            showToast("Error: " + err.message, "error");
+            fetchPendingIndents(true);
+        })
+        .finally(() => {
+            btn.innerHTML = originalText; 
+            btn.disabled = false;
         });
     }
     
