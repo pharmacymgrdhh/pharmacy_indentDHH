@@ -709,39 +709,46 @@
     function initNursing() { fetchMasterData(); }
     
     function fetchMasterData() {
-        fetch(SCRIPT_URL + "?action=getDropdownData&t=" + new Date().getTime()).then(res => res.json()).then(data => {
-            const wardSelect = document.getElementById('n_wardName'); 
-            wardSelect.innerHTML = '<option value="">-- Select --</option>'; 
-            let uniqueWards = new Set();
-            if(data.wards) {
-                data.wards.forEach(w => { 
-                    let wName = typeof w === 'object' ? w.name : w; 
-                    let wUnit = typeof w === 'object' ? w.unit : loggedInUnit; 
-                    if (wUnit === loggedInUnit && !uniqueWards.has(wName.trim())) {
-                        uniqueWards.add(wName.trim()); wardSelect.innerHTML += `<option value="${wName}">${wName}</option>`; 
-                    }
-                });
-            }
-            const docList = document.getElementById('doctorList'); docList.innerHTML = ''; 
-            if(data.doctors) data.doctors.forEach(d => { docList.innerHTML += `<option value="${d}">`; });
-            if(data.medicines) globalMedicines = data.medicines;
-            document.querySelectorAll('.loading-text').forEach(el => el.style.display = 'none');
+        const cachedStr = localStorage.getItem('careSync_masterData');
+        const cacheTime = localStorage.getItem('careSync_masterData_time');
+        const now = new Date().getTime();
+
+        // जर ब्राउझरमध्ये डेटा असेल आणि तो १२ तासांपेक्षा जुना नसेल, तर तोच वापरा
+        if (cachedStr && cacheTime && (now - parseInt(cacheTime)) < 43200000) {
+            applyMasterData(JSON.parse(cachedStr));
+            return;
+        }
+
+        fetch(SCRIPT_URL + "?action=getDropdownData&t=" + now)
+        .then(res => res.json())
+        .then(data => {
+            localStorage.setItem('careSync_masterData', JSON.stringify(data));
+            localStorage.setItem('careSync_masterData_time', now.toString());
+            applyMasterData(data);
         });
     }
 
-    const medInput = document.getElementById('n_medicineName'); const medDropdown = document.getElementById('medDropdown');
-    
-    medInput.addEventListener('keydown', function(e) {
-        let x = document.getElementById("medDropdown"); if (x) x = x.getElementsByClassName("med-item"); if (!x || x.length === 0) return;
-        if (e.key === "ArrowDown") { currentFocus++; addActive(x); } else if (e.key === "ArrowUp") { currentFocus--; addActive(x); } else if (e.key === "Enter") { e.preventDefault(); if (currentFocus > -1) { if (x) x[currentFocus].click(); } }
-    });
-
-    function addActive(x) {
-        if (!x) return false; removeActive(x);
-        if (currentFocus >= x.length) currentFocus = 0; if (currentFocus < 0) currentFocus = (x.length - 1);
-        x[currentFocus].classList.add("autocomplete-active"); x[currentFocus].scrollIntoView({ block: "nearest", behavior: "smooth" });
+    // मास्टर डेटा UI वर लावण्यासाठी वेगळे फंक्शन
+    function applyMasterData(data) {
+        const wardSelect = document.getElementById('n_wardName'); 
+        wardSelect.innerHTML = '<option value="">-- Select --</option>'; 
+        let uniqueWards = new Set();
+        if(data.wards) {
+            data.wards.forEach(w => { 
+                let wName = typeof w === 'object' ? w.name : w; 
+                let wUnit = typeof w === 'object' ? w.unit : loggedInUnit; 
+                if (wUnit === loggedInUnit && !uniqueWards.has(wName.trim())) {
+                    uniqueWards.add(wName.trim()); wardSelect.innerHTML += `<option value="${wName}">${wName}</option>`; 
+                }
+            });
+        }
+        const docList = document.getElementById('doctorList'); docList.innerHTML = ''; 
+        if(data.doctors) data.doctors.forEach(d => { docList.innerHTML += `<option value="${d}">`; });
+        if(data.medicines) globalMedicines = data.medicines;
+        document.querySelectorAll('.loading-text').forEach(el => el.style.display = 'none');
     }
-    function removeActive(x) { for (let i = 0; i < x.length; i++) { x[i].classList.remove("autocomplete-active"); } }
+
+    const medInput = document.getElementById('n_medicineName'); const medDropdown = document.getElementById('medDropdown');
 
     medInput.addEventListener('input', function() {
         currentFocus = -1; let val = this.value; 
@@ -772,6 +779,48 @@
         }
         medDropdown.style.display = limit > 0 ? 'block' : 'none';
     });
+
+// ==========================================
+    // 🔴 KEYBOARD NAVIGATION FOR MEDICINE DROPDOWN
+    // ==========================================
+    medInput.addEventListener("keydown", function(e) {
+        let x = document.getElementById("medDropdown");
+        if (x) x = x.getElementsByClassName("med-item");
+        if (!x || x.length === 0) return;
+
+        if (e.key === "ArrowDown") {
+            currentFocus++;
+            addActive(x);
+        } else if (e.key === "ArrowUp") {
+            currentFocus--;
+            addActive(x);
+        } else if (e.key === "Enter") {
+            e.preventDefault(); // फॉर्म सबमिट होण्यापासून थांबवणे
+            if (currentFocus > -1) {
+                if (x) x[currentFocus].click();
+            } else if (x.length === 1) {
+                // जर लिस्टमध्ये फक्त 1 च औषध असेल, तर थेट ते सिलेक्ट करणे
+                x[0].click();
+            }
+        }
+    });
+
+    function addActive(x) {
+        if (!x) return false;
+        removeActive(x);
+        if (currentFocus >= x.length) currentFocus = 0;
+        if (currentFocus < 0) currentFocus = (x.length - 1);
+        x[currentFocus].classList.add("autocomplete-active");
+        
+        // जे आयटम सिलेक्ट केलेय, ते स्क्रोल करून दिसायला हवे
+        x[currentFocus].scrollIntoView({ block: "nearest" });
+    }
+
+    function removeActive(x) {
+        for (let i = 0; i < x.length; i++) {
+            x[i].classList.remove("autocomplete-active");
+        }
+    }
     
     document.addEventListener('click', function(e) { if (e.target !== medInput) medDropdown.style.display = 'none'; });
     document.getElementById('n_wardName').addEventListener('change', function() { document.getElementById('opdFields').style.display = this.value.toUpperCase().includes("OPD") ? 'flex' : 'none'; });
@@ -877,7 +926,11 @@
     }
 
     let allIndents = []; let currentSelectedIndent = null; let notifiedIndents = new Set(); 
-    function initPharmacy() { if ("Notification" in window && Notification.permission !== "granted") Notification.requestPermission(); fetchPendingIndents(); setInterval(() => fetchPendingIndents(false), 30000); }
+    function initPharmacy() { 
+    if ("Notification" in window && Notification.permission !== "granted") Notification.requestPermission(); 
+    fetchPendingIndents(true); 
+    setInterval(() => fetchPendingIndents(false), 300000); // ५ मिनिटे (300000 ms)
+}
 
     function fetchPendingIndents(isManual = false) {
         if(isManual) document.getElementById('indentListContainer').innerHTML = '<p style="text-align:center; color: #7f8c8d;">Loading data...</p>';
@@ -1103,9 +1156,16 @@
 
     function initAdmin() { fetchAdminData(); }
 
-    function fetchAdminData() {
+    // जुने fetchAdminData() काढून हे टाका:
+    function fetchAdminData(startDate = '', endDate = '') {
         showToast("Fetching Admin Data...", "success");
-        fetch(SCRIPT_URL + "?action=getAdminDashboardData&t=" + new Date().getTime())
+        
+        // URL मध्ये तारखा ऍड करणे
+        let url = SCRIPT_URL + "?action=getAdminDashboardData&t=" + new Date().getTime();
+        if (startDate) url += "&from=" + startDate;
+        if (endDate) url += "&to=" + endDate;
+
+        fetch(url)
         .then(res => res.json())
         .then(data => {
             let rawIndents = data.indents || []; let grouped = {};
@@ -1116,9 +1176,7 @@
                         indentNo: row.indentNo, dateStr: row.dateStr || row.date, timestamp: tStamp,
                         ward: row.ward, patient: row.patient || row.patientName, doctor: row.doctor || row.doctorName, 
                         status: row.status, responseTime: row.responseTime, dispatchTime: row.dispatchTime, 
-                        submitUser: row.submitUser || "-",   
-                        dispensedBy: row.dispensedBy || "-",  
-                        medicines: [] 
+                        submitUser: row.submitUser || "-", dispensedBy: row.dispensedBy || "-", medicines: [] 
                     };
                 }
                 let mName = row.medicine || row.medicine_name || row.itemName || row.name; let mQty = row.qty || row.quantity;
@@ -1126,20 +1184,25 @@
             });
             globalAdminIndents = Object.values(grouped);
             
-            populateAdminDropdowns(data.settings.wards); 
-            renderAdminWards(data.settings.wards); 
-            if(data.settings.users && typeof renderAdminUsers === "function") {
-                renderAdminUsers(data.settings.users);
+            // फक्त पहिल्यांदा लोड होताना ड्रॉपडाउन भरा
+            if(!startDate && !endDate) {
+                populateAdminDropdowns(data.settings.wards); 
+                renderAdminWards(data.settings.wards); 
+                if(data.settings.users && typeof renderAdminUsers === "function") {
+                    renderAdminUsers(data.settings.users);
+                }
             }
             
-            let tbody = document.getElementById('adminSearchResults');
-            if(tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#7f8c8d; padding:20px;">Please apply Date/Unit filters and click Search to view records.</td></tr>';
+            // जर सर्च केला असेल, तर लगेच लिस्ट अपडेट करा
+            if (startDate || endDate) {
+                executeFrontendSearchFilters(); 
+            } else {
+                let tbody = document.getElementById('adminSearchResults');
+                if(tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#7f8c8d; padding:20px;">Please apply Date/Unit filters and click Search to view records.</td></tr>';
+            }
             
-            showToast("Admin Data Loaded. Users & Wards are ready.", "success");
-        }).catch(err => { 
-            showToast("Error loading data", "error"); 
-            console.error(err);
-        });
+            showToast("Admin Data Loaded.", "success");
+        }).catch(err => { showToast("Error loading data", "error"); console.error(err); });
     }
 
     function populateAdminDropdowns(activeWardsData) {
