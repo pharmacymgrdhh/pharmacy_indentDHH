@@ -864,14 +864,16 @@
             dispensedByEl.innerText = "-";
         }
 
-        const tbody = document.getElementById('prtMedicineList'); tbody.innerHTML = '';
+        const tbody = document.getElementById('prtMedicineList'); let html = '';
         items.forEach(med => {
             let n = med.name || med.displayName;
             let q = med.qty || med.quantity || "-"; 
             let opd = ""; 
             if(n.includes("[")) { let p = n.split("["); n = p[0].trim(); opd = `<br><span style="font-size:13px; color:#555;">[${p[1]}</span>`; }
-            tbody.innerHTML += `<tr><td colspan="3" style="font-weight:500; border:1px solid #b2ebf2; padding:8px;">${n} ${opd}</td><td style="text-align:center; font-weight:500; border:1px solid #b2ebf2; padding:8px;">${q}</td></tr>`;
+            html += `<tr><td colspan="3" style="font-weight:500; border:1px solid #b2ebf2; padding:8px;">${n} ${opd}</td><td style="text-align:center; font-weight:500; border:1px solid #b2ebf2; padding:8px;">${q}</td></tr>`;
         });
+	
+	tbody.innerHTML = html;
     }
 
     let allIndents = []; let currentSelectedIndent = null; let notifiedIndents = new Set(); 
