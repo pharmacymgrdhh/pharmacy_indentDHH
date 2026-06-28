@@ -437,6 +437,26 @@
     <!--             JAVASCRIPT                     -->
     <!-- ========================================== -->
     <script>
+function getUrlParameter(name) {
+    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+    var results = regex.exec(location.search);
+    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+}
+
+// पेज लोड होताच डेटा भरण्यासाठी
+window.addEventListener('load', function() {
+    var incidentId = getUrlParameter('incidentId');
+    if (incidentId) {
+        // तुमच्या HTML मधील इनपुट बॉक्सचा ID 'incidentNo' आहे असे गृहीत धरून
+        var inputField = document.getElementById('incidentNo'); 
+        if (inputField) {
+            inputField.value = incidentId;
+            inputField.readOnly = true; // युजरला हा नंबर बदलता येणार नाही
+            inputField.style.backgroundColor = "#e9ecef"; // युजरला कळेल की हे लॉक आहे
+        }
+    }
+});
         // 1. Initialization
         document.addEventListener("DOMContentLoaded", () => {
             init();
