@@ -234,7 +234,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>Incident No. <span class="req">*</span></label>
-                        <input type="text" id="incidentNo" value="INC-2026-069" readonly>
+                        <input type="text" id="incidentNo" value="" readonly>
                     </div>
                     <div class="form-group">
                         <label>Date of Incident <span class="req">*</span></label>
@@ -432,43 +432,38 @@
 
         </form>
     </div>
-
-    <!-- ========================================== -->
-    <!--             JAVASCRIPT                     -->
-    <!-- ========================================== -->
-    <script>
-function getUrlParameter(name) {
-    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-    var results = regex.exec(location.search);
-    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-}
-
-// पेज लोड होताच डेटा भरण्यासाठी
-window.addEventListener('load', function() {
-    var incidentId = getUrlParameter('incidentId');
-    if (incidentId) {
-        // तुमच्या HTML मधील इनपुट बॉक्सचा ID 'incidentNo' आहे असे गृहीत धरून
-        var inputField = document.getElementById('incidentNo'); 
-        if (inputField) {
-            inputField.value = incidentId;
-            inputField.readOnly = true; // युजरला हा नंबर बदलता येणार नाही
-            inputField.style.backgroundColor = "#e9ecef"; // युजरला कळेल की हे लॉक आहे
-        }
+<script>
+    // ==========================================
+    //             JAVASCRIPT                     
+    // ==========================================
+    
+    // --- १. नवीन फंक्शन: URL मधून Incident ID वाचण्यासाठी ---
+    function getUrlParameter(name) {
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        var results = regex.exec(location.search);
+        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
     }
-});
-        // 1. Initialization
-        document.addEventListener("DOMContentLoaded", () => {
-            init();
-        });
+    // -----------------------------------------------------
 
-        function init() {
-            // Auto-fill today's date for convenience
-            document.getElementById('incidentDate').valueAsDate = new Date();
-            
-            // For Future GAS Integration: Load existing data if opened in Edit Mode
-            // loadExistingInvestigation();
+    document.addEventListener("DOMContentLoaded", () => {
+        init();
+    });
+
+    function init() {
+        // Auto-fill today's date for convenience
+        document.getElementById('incidentDate').valueAsDate = new Date();
+        
+        // --- २. नवीन कोड: URL मधला नंबर 'incidentNo' बॉक्समध्ये भरण्यासाठी ---
+        var urlIncidentId = getUrlParameter('incidentId');
+        if (urlIncidentId) {
+            document.getElementById('incidentNo').value = urlIncidentId;
+        } else {
+            // जर लिंकमध्ये ID नसेल, तर बॉक्स रिकामा राहील
+            document.getElementById('incidentNo').value = "No ID Found"; 
         }
+        // ------------------------------------------------------------------
+    }
 
         // 2. Conditional Logic Handling (Google Form style Dynamic Show/Hide)
         function toggleSections() {
