@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CareSync ERP</title>
+    <title>CareSync</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
@@ -64,6 +64,8 @@
         .autocomplete-items .med-item.autocomplete-active { background-color: #eef4f9 !important; border-left: 3px solid #4276b6 !important; }
         .autocomplete-items .med-item.autocomplete-active .med-brand { color: #1a3d61 !important; }
 
+
+
         /* ================= PHARMACY CSS ================= */
         .p-header { background-color: #4276b6; color: white; padding: 15px 25px; width: 100%; box-sizing: border-box; position: fixed; top: 0; display: flex; justify-content: space-between; align-items: center; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .p-header h2 { margin: 0; font-size: 20px; font-weight: 500; }
@@ -122,7 +124,7 @@
         #printTemplate { display: none; }
         @media print {
             body, html { background-color: white; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; color: #000; }
-            #loginOverlay, .nursing-wrapper, .p-header, .p-main, #adminSection, .toast, .footer { display: none !important; }
+            #loginOverlay, .nursing-wrapper, .p-header, .p-main, #adminSection, .toast, .footer, #nursingHistoryOverlay { display: none !important; }
             #printTemplate { display: block !important; width: 180mm; padding: 10px; box-sizing: border-box; }
             .prt-header-container { display: flex; align-items: center; border-bottom: 2px solid #333; padding-bottom: 12px; margin-bottom: 15px; }
             .prt-logo { height: 60px; margin-right: 15px; }
@@ -140,6 +142,128 @@
             body.canon-mode #printTemplate { display: block !important; position: absolute !important; top: 180mm !important; left: 10mm !important; width: 180mm !important; max-width: 180mm !important; transform: rotate(-90deg) !important; transform-origin: top left !important; }
             @page { margin: 10mm; size: auto; }
         }
+.history-action-btn{
+    width:36px;
+    height:36px;
+    border:none;
+    border-radius:6px;
+    background:#f4f6f9;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:0.2s;
+}
+
+.history-action-btn:hover{
+    background:#4276b6;
+    color:#fff;
+}
+/* ================= PRO INCIDENT MODAL CSS ================= */
+.modalOverlay {
+    position: fixed; 
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.5); /* Modern dark backdrop */
+    z-index: 26000;
+    align-items: center; justify-content: center; 
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.modalBox {
+    background: #ffffff; 
+    border-radius: 12px; 
+    width: 750px; max-width: 95%;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    display: flex; flex-direction: column; overflow: hidden;
+    animation: slideUp 0.3s ease-out; 
+    border: 1px solid #e2e8f0;
+}
+
+.modalHeader {
+    background: #f8fafc; 
+    border-bottom: 1px solid #e2e8f0;
+    padding: 18px 25px; 
+    display: flex; justify-content: space-between; align-items: center;
+}
+
+.modalHeader h3 { 
+    margin: 0; font-size: 18px; font-weight: 600; color: #1e293b; 
+    display: flex; align-items: center; gap: 8px; 
+}
+
+.modalCloseBtn {
+    background: #f1f5f9; border: none; color: #64748b;
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 16px; transition: all 0.2s;
+}
+
+.modalCloseBtn:hover { 
+    background: #fee2e2; color: #ef4444; transform: rotate(90deg); 
+}
+
+.modalBody { 
+    padding: 25px; max-height: 70vh; overflow-y: auto; 
+}
+
+.modalGrid { 
+    display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; 
+}
+
+.modalGrid.full { 
+    grid-template-columns: 1fr; 
+}
+
+.inc-form-group { display: flex; flex-direction: column; }
+.inc-form-group label { 
+    font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px; 
+}
+
+.inc-form-group input, .inc-form-group select, .inc-form-group textarea {
+    padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; 
+    font-size: 14px; color: #334155; transition: all 0.2s; 
+    background: #f8fafc; outline: none; font-family: 'Roboto', sans-serif;
+}
+
+.inc-form-group input:focus, .inc-form-group select:focus, .inc-form-group textarea:focus {
+    border-color: #4276b6; background: #ffffff; 
+    box-shadow: 0 0 0 3px rgba(66, 118, 182, 0.1);
+}
+
+.inc-checkbox-label {
+    display: flex; align-items: center; gap: 8px; font-size: 14px; 
+    font-weight: 500; color: #475569; cursor: pointer;
+    background: #fff5f5; padding: 12px; border-radius: 6px; border: 1px solid #ffe4e6;
+}
+
+.modalFooter {
+    padding: 15px 25px; background: #f8fafc; border-top: 1px solid #e2e8f0;
+    display: flex; justify-content: flex-end; gap: 12px;
+}
+
+.btn-cancel { 
+    background: white; color: #64748b; border: 1px solid #cbd5e1; 
+    padding: 10px 20px; border-radius: 6px; cursor: pointer; 
+    font-weight: 500; transition: 0.2s; 
+}
+
+.btn-cancel:hover { background: #f1f5f9; color: #334155; }
+
+.btn-submit-inc { 
+    background: #4f46e5; color: white; border: none; 
+    padding: 10px 24px; border-radius: 6px; cursor: pointer; 
+    font-weight: 600; transition: 0.2s; 
+    box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2); 
+}
+
+.btn-submit-inc:hover { 
+    background: #4338ca; transform: translateY(-1px); 
+    box-shadow: 0 6px 12px rgba(79, 70, 229, 0.3); 
+}
     </style>
 </head>
 <body>
@@ -239,7 +363,6 @@
                 </label>
                 <button class="btn btn-submit" id="n_submitBtn" onclick="submitIndent()" style="margin-top: 0; flex: 1;">Send to Pharmacy</button>
             </div>
-            
             <button class="btn" style="background-color: #f39c12; display: none;" id="n_printBtn" onclick="printIndent()">Print Indent</button>
         </div>
     </div>
@@ -252,7 +375,7 @@
             </div>
             <div style="display: flex; align-items: center; gap: 15px;">
                 <span id="p_displayUnitName" class="unit-badge">Unit: -</span>
-                <button class="refresh-btn" onclick="fetchPendingIndents(true)">↻ Refresh</button>
+                <button class="refresh-btn" onclick="fetchPendingIndents(true)">Refresh</button>
                 <div style="display: flex; align-items: center; gap: 12px; margin-left: 10px; border-left: 1px solid rgba(255,255,255,0.3); padding-left: 15px;">
                     <span id="p_userDisplay" style="color: white; font-weight: 500; font-size: 14px;">👤 Name (Role)</span>
                     <button class="logout-icon-btn" onclick="logoutUser()" title="Log Off">
@@ -270,11 +393,26 @@
             <div class="right-panel">
                 <div id="placeholder" style="text-align: center; color: #a0aec0; margin-top: 20%; font-size: 16px;">Select an indent from the list to view details.</div>
                 <div id="detailsContainer" class="details-container">
-                    <div class="action-bar">
-                        <button style="background: transparent; border: none; font-size: 16px; font-weight: bold; cursor: pointer; color: #4276b6;" onclick="printIndent()">Print</button>
-                        <button class="btn-dispatch" id="p_readyBtn" style="background-color: #f39c12; margin-right: 10px;" onclick="markAsReady()">Ready for Collection</button>
-                        <button class="btn-dispatch" id="p_dispatchBtn" onclick="markAsDispatched()">Mark as Dispatched</button>
-                    </div>
+                    <div class="action-bar" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px;">
+    
+    <!-- 🔴 Incident Report Icon Button (Left side) -->
+    <button id="p_reportBtn" 
+            onclick="openSafetyLog()" 
+            title="Safety Log" 
+            class="history-action-btn" 
+            style="border: 1px solid #e11d48; color: #e11d48; background: #fff1f2;">
+        <span class="material-symbols-outlined">assignment_late</span>
+    </button>
+
+    <!-- 🔵 Other Actions (Right side) -->
+    <div style="display: flex; gap: 10px;">
+        <button style="background: transparent; border: none; font-size: 16px; font-weight: bold; cursor: pointer; color: #4276b6; display: flex; align-items: center; gap: 5px;" onclick="printIndent()">
+            <span class="material-symbols-outlined">print</span> Print
+        </button>
+        <button class="btn-dispatch" id="p_readyBtn" style="background-color: #f39c12;" onclick="markAsReady()">Ready for Collection</button>
+        <button class="btn-dispatch" id="p_dispatchBtn" onclick="markAsDispatched()">Mark as Dispatched</button>
+    </div>
+</div>
                     <div class="patient-info">
                         <div style="grid-column: span 2;"><strong style="color: #e53e3e; font-size: 16px; display: none;" id="p_urgentTag">[URGENT ]</strong></div>
                         <div><strong>Indent No:</strong> <span id="lblIndentNo" style="color: #333; font-weight: 400;"></span></div>
@@ -425,8 +563,6 @@
                                 <select id="nu_role" style="width:100%; padding:8px; border:2px solid #27ae60; border-radius:4px; outline:none; font-weight:bold; color:#2c598f; background:white;">
                                     <option value="PHARMACY">Pharmacist</option>
                                     <option value="INCHARGE">Pharmacy Incharge</option>
-                                    <option value="PURCHASE ASSISTANT">Purchase Assistant</option>
-                                    <option value="PURCHASE MANAGER">Purchase Manager</option>
                                     <option value="RESIDENT">Resident (Nursing)</option>
                                     <option value="ADMIN">Admin</option>
                                 </select>
@@ -495,13 +631,23 @@
     </div>
 
     <div id="nursingHistoryOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f4f7f9; z-index: 25000; flex-direction: column;">
-        <div class="p-header" style="position: relative; z-index: 2;">
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <h2 style="margin: 0; font-size: 20px;">🕒 Today's Indents: <span id="h_wardDisplay" style="color:#f1c40f;"></span></h2>
+        
+        <div class="p-header" style="position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center;">
+            
+            <div style="display: flex; align-items: center;">
+                <h2 style="margin: 0; font-size: 20px; color: white;">
+                    🕒 Today's Indents: <span id="h_wardDisplay" style="color:#f1c40f;"></span>
+                </h2>
             </div>
+
             <div style="display: flex; align-items: center; gap: 15px;">
+                
                 <input type="text" id="h_patientSearch" placeholder="🔍 Search Patient Name..." style="padding: 8px 15px; border-radius: 20px; border: none; outline: none; width: 250px; font-size: 14px; color: #333;">
-                <button onclick="closeHistoryOverlay()" style="background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.2s;">Close ✖</button>
+
+                <button onclick="closeHistoryOverlay()" style="background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.2s;">
+                    Close ✖
+                </button>
+
             </div>
         </div>
 
@@ -510,14 +656,69 @@
                 <h3 style="color: #ce936b; border-bottom: 2px solid #f0f0f0; padding-bottom: 12px; margin-top: 0; font-weight: 500;">Indent List (Today)</h3>
                 <div id="h_indentListContainer"></div>
             </div>
+            
             <div class="right-panel" style="flex: 1; padding: 25px; overflow-y: auto;">
                 <div id="h_placeholder" style="text-align: center; color: #a0aec0; margin-top: 20%; font-size: 16px;">Select an indent from the list to view details.</div>
-                
-                <div id="h_detailsContainer" class="details-container" style="display: none; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e0e0e0;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px;">
-                        <h3 style="margin: 0; color: #4276b6; font-size: 18px;">Indent Details</h3>
-                        <div id="h_statusBadge"></div>
-                    </div>
+                <div id="h_detailsContainer"
+     class="details-container"
+     style="display:none;
+            background:#fff;
+            padding:25px;
+            border-radius:8px;
+            box-shadow:0 4px 12px rgba(0,0,0,.05);
+            border:1px solid #e0e0e0;">
+                <div style="display:flex;
+            justify-content:space-between;
+            align-items:center;
+            border-bottom:1px solid #eee;
+            padding-bottom:15px;
+            margin-bottom:20px;">
+
+    <h3 style="margin:0; color:#4276b6; font-size:18px;">
+        Indent Details
+    </h3>
+
+    <div style="display:flex; align-items:center; gap:10px;">
+
+        <!-- Status -->
+        <div id="h_statusBadge"></div>
+
+        <!-- Received & Verified -->
+        <button id="btnVerifyIndent"
+                onclick="verifyHistoryIndent()"
+                title="Received & Verified"
+                class="history-action-btn">
+
+            <span class="material-symbols-outlined">
+                verified
+            </span>
+        </button>
+
+        <!-- Print -->
+        <button id="btnPrintHistory"
+                onclick="printHistoryIndent()"
+                title="Print Indent"
+                class="history-action-btn">
+
+            <span class="material-symbols-outlined">
+                print
+            </span>
+        </button>
+
+        <!-- Report Log -->
+        <button id="btnReportLog"
+                onclick="openSafetyLog()"
+                title="Report Safety Log"
+                class="history-action-btn">
+
+            <span class="material-symbols-outlined">
+                assignment_late
+            </span>
+        </button>
+
+    </div>
+
+</div>
                     <div class="patient-info" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; background: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0; color: #2c598f; font-size: 14px;">
                         <div><strong>Indent No:</strong> <span id="h_lblIndentNo" style="color: #333;"></span></div>
                         <div><strong>Request Time:</strong> <span id="h_lblDate" style="color: #333;"></span></div>
@@ -533,24 +734,6 @@
         </div>
     </div>
 
-    <div id="passkeyModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 20000; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
-        <div style="background: #fff; width: 350px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); overflow: hidden; text-align: center; font-family: 'Roboto', sans-serif;">
-            <div style="background: #e74c3c; color: white; padding: 20px;">
-                <span class="material-symbols-outlined" style="font-size: 40px; margin-bottom: 10px;">lock</span>
-                <h3 style="margin: 0; font-weight: 500; font-size: 18px;" id="passkeyActionText">Security Verification</h3>
-            </div>
-            <div style="padding: 25px;">
-                <p style="margin-top: 0; margin-bottom: 20px; color: #555; font-size: 14px;">Enter your 4-digit Passkey to confirm.</p>
-                <input type="password" id="customPasskeyInput" maxlength="4" placeholder="****" autocomplete="new-password" style="width: 150px; padding: 12px; font-size: 24px; text-align: center; border: 2px solid #ced4da; border-radius: 8px; outline: none; letter-spacing: 10px; font-weight: bold; color: #333; background:#f8fafc;">
-                <p id="passkeyErrorText" style="color: #e74c3c; font-size: 13px; font-weight: bold; margin-top: 10px; display: none;">❌ Incorrect Passkey!</p>
-            </div>
-            <div style="display: flex; border-top: 1px solid #edf2f7; background: #f8fafc;">
-                <button id="btnCancelPasskey" style="flex: 1; padding: 15px; border: none; background: transparent; color: #64748b; font-weight: bold; font-size: 15px; cursor: pointer; border-right: 1px solid #edf2f7; transition: 0.2s;" onmouseover="this.style.backgroundColor='#f1f5f9'" onmouseout="this.style.backgroundColor='transparent'">Cancel</button>
-                <button id="btnConfirmPasskey" style="flex: 1; padding: 15px; border: none; background: transparent; color: #e74c3c; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.2s;" onmouseover="this.style.backgroundColor='#fff5f5'" onmouseout="this.style.backgroundColor='transparent'">Confirm</button>
-            </div>
-        </div>
-    </div>
-
 <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwkxbyHQMljgU6AaEHj95UH2K5C2RXRdScUOzZrF8PSMuzw2kmLlHaMvrzVMG4dL88I/exec';
 	setTimeout(() => {
@@ -560,7 +743,8 @@
     let loggedInUnit = ""; 
     let currentRole = "";
     let loggedInName = ""; 
-    let loggedInPasskey = ""; 
+    let loggedInPasskey = "";
+    let loggedInUserId = ""; 
 
     function showToast(message, type = 'success') {
         const toast = document.getElementById("toast"); toast.innerText = message; toast.className = "toast show " + type;
@@ -588,7 +772,8 @@
                 loggedInUnit = data.unit; 
                 currentRole = data.role;
                 loggedInName = data.name;
-                loggedInPasskey = data.passkey; 
+                loggedInPasskey = data.passkey;
+		loggedInUserId = uid; 
                 
                 document.getElementById('loginOverlay').style.display = 'none';
                 if(typeof requestNotifications === "function") requestNotifications();
@@ -632,6 +817,14 @@
     // 🔴 1. नवीन ग्लोबल पासकी फंक्शन (जे सर्व्हरवरून नाव आणेल)
     function verifyUserPasskey(actionName) {
         return new Promise((resolve) => {
+
+	console.log("modal =", document.getElementById('passkeyModal'));
+console.log("input =", document.getElementById('customPasskeyInput'));
+console.log("error =", document.getElementById('passkeyErrorText'));
+console.log("confirm =", document.getElementById('btnConfirmPasskey'));
+console.log("cancel =", document.getElementById('btnCancelPasskey'));
+console.log("action =", document.getElementById('passkeyActionText'));
+
             let modal = document.getElementById('passkeyModal');
             let input = document.getElementById('customPasskeyInput');
             let errorText = document.getElementById('passkeyErrorText');
@@ -644,10 +837,7 @@
             btnConfirm.disabled = false;
 
             modal.style.display = 'flex';
-            setTimeout(() => {
-    input.focus();
-    input.select();
-}, 100);
+            setTimeout(() => input.focus(), 100);
 
             const processPasskey = () => {
                 let enteredKey = input.value.trim();
@@ -709,46 +899,39 @@
     function initNursing() { fetchMasterData(); }
     
     function fetchMasterData() {
-        const cachedStr = localStorage.getItem('careSync_masterData');
-        const cacheTime = localStorage.getItem('careSync_masterData_time');
-        const now = new Date().getTime();
-
-        // जर ब्राउझरमध्ये डेटा असेल आणि तो १२ तासांपेक्षा जुना नसेल, तर तोच वापरा
-        if (cachedStr && cacheTime && (now - parseInt(cacheTime)) < 43200000) {
-            applyMasterData(JSON.parse(cachedStr));
-            return;
-        }
-
-        fetch(SCRIPT_URL + "?action=getDropdownData&t=" + now)
-        .then(res => res.json())
-        .then(data => {
-            localStorage.setItem('careSync_masterData', JSON.stringify(data));
-            localStorage.setItem('careSync_masterData_time', now.toString());
-            applyMasterData(data);
+        fetch(SCRIPT_URL + "?action=getDropdownData&t=" + new Date().getTime()).then(res => res.json()).then(data => {
+            const wardSelect = document.getElementById('n_wardName'); 
+            wardSelect.innerHTML = '<option value="">-- Select --</option>'; 
+            let uniqueWards = new Set();
+            if(data.wards) {
+                data.wards.forEach(w => { 
+                    let wName = typeof w === 'object' ? w.name : w; 
+                    let wUnit = typeof w === 'object' ? w.unit : loggedInUnit; 
+                    if (wUnit === loggedInUnit && !uniqueWards.has(wName.trim())) {
+                        uniqueWards.add(wName.trim()); wardSelect.innerHTML += `<option value="${wName}">${wName}</option>`; 
+                    }
+                });
+            }
+            const docList = document.getElementById('doctorList'); docList.innerHTML = ''; 
+            if(data.doctors) data.doctors.forEach(d => { docList.innerHTML += `<option value="${d}">`; });
+            if(data.medicines) globalMedicines = data.medicines;
+            document.querySelectorAll('.loading-text').forEach(el => el.style.display = 'none');
         });
     }
 
-    // मास्टर डेटा UI वर लावण्यासाठी वेगळे फंक्शन
-    function applyMasterData(data) {
-        const wardSelect = document.getElementById('n_wardName'); 
-        wardSelect.innerHTML = '<option value="">-- Select --</option>'; 
-        let uniqueWards = new Set();
-        if(data.wards) {
-            data.wards.forEach(w => { 
-                let wName = typeof w === 'object' ? w.name : w; 
-                let wUnit = typeof w === 'object' ? w.unit : loggedInUnit; 
-                if (wUnit === loggedInUnit && !uniqueWards.has(wName.trim())) {
-                    uniqueWards.add(wName.trim()); wardSelect.innerHTML += `<option value="${wName}">${wName}</option>`; 
-                }
-            });
-        }
-        const docList = document.getElementById('doctorList'); docList.innerHTML = ''; 
-        if(data.doctors) data.doctors.forEach(d => { docList.innerHTML += `<option value="${d}">`; });
-        if(data.medicines) globalMedicines = data.medicines;
-        document.querySelectorAll('.loading-text').forEach(el => el.style.display = 'none');
-    }
-
     const medInput = document.getElementById('n_medicineName'); const medDropdown = document.getElementById('medDropdown');
+    
+    medInput.addEventListener('keydown', function(e) {
+        let x = document.getElementById("medDropdown"); if (x) x = x.getElementsByClassName("med-item"); if (!x || x.length === 0) return;
+        if (e.key === "ArrowDown") { currentFocus++; addActive(x); } else if (e.key === "ArrowUp") { currentFocus--; addActive(x); } else if (e.key === "Enter") { e.preventDefault(); if (currentFocus > -1) { if (x) x[currentFocus].click(); } }
+    });
+
+    function addActive(x) {
+        if (!x) return false; removeActive(x);
+        if (currentFocus >= x.length) currentFocus = 0; if (currentFocus < 0) currentFocus = (x.length - 1);
+        x[currentFocus].classList.add("autocomplete-active"); x[currentFocus].scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+    function removeActive(x) { for (let i = 0; i < x.length; i++) { x[i].classList.remove("autocomplete-active"); } }
 
     medInput.addEventListener('input', function() {
         currentFocus = -1; let val = this.value; 
@@ -779,48 +962,6 @@
         }
         medDropdown.style.display = limit > 0 ? 'block' : 'none';
     });
-
-// ==========================================
-    // 🔴 KEYBOARD NAVIGATION FOR MEDICINE DROPDOWN
-    // ==========================================
-    medInput.addEventListener("keydown", function(e) {
-        let x = document.getElementById("medDropdown");
-        if (x) x = x.getElementsByClassName("med-item");
-        if (!x || x.length === 0) return;
-
-        if (e.key === "ArrowDown") {
-            currentFocus++;
-            addActive(x);
-        } else if (e.key === "ArrowUp") {
-            currentFocus--;
-            addActive(x);
-        } else if (e.key === "Enter") {
-            e.preventDefault(); // फॉर्म सबमिट होण्यापासून थांबवणे
-            if (currentFocus > -1) {
-                if (x) x[currentFocus].click();
-            } else if (x.length === 1) {
-                // जर लिस्टमध्ये फक्त 1 च औषध असेल, तर थेट ते सिलेक्ट करणे
-                x[0].click();
-            }
-        }
-    });
-
-    function addActive(x) {
-        if (!x) return false;
-        removeActive(x);
-        if (currentFocus >= x.length) currentFocus = 0;
-        if (currentFocus < 0) currentFocus = (x.length - 1);
-        x[currentFocus].classList.add("autocomplete-active");
-        
-        // जे आयटम सिलेक्ट केलेय, ते स्क्रोल करून दिसायला हवे
-        x[currentFocus].scrollIntoView({ block: "nearest" });
-    }
-
-    function removeActive(x) {
-        for (let i = 0; i < x.length; i++) {
-            x[i].classList.remove("autocomplete-active");
-        }
-    }
     
     document.addEventListener('click', function(e) { if (e.target !== medInput) medDropdown.style.display = 'none'; });
     document.getElementById('n_wardName').addEventListener('change', function() { document.getElementById('opdFields').style.display = this.value.toUpperCase().includes("OPD") ? 'flex' : 'none'; });
@@ -913,24 +1054,18 @@
             dispensedByEl.innerText = "-";
         }
 
-        const tbody = document.getElementById('prtMedicineList'); let html = '';
+        const tbody = document.getElementById('prtMedicineList'); tbody.innerHTML = '';
         items.forEach(med => {
             let n = med.name || med.displayName;
             let q = med.qty || med.quantity || "-"; 
             let opd = ""; 
             if(n.includes("[")) { let p = n.split("["); n = p[0].trim(); opd = `<br><span style="font-size:13px; color:#555;">[${p[1]}</span>`; }
-            html += `<tr><td colspan="3" style="font-weight:500; border:1px solid #b2ebf2; padding:8px;">${n} ${opd}</td><td style="text-align:center; font-weight:500; border:1px solid #b2ebf2; padding:8px;">${q}</td></tr>`;
+            tbody.innerHTML += `<tr><td colspan="3" style="font-weight:500; border:1px solid #b2ebf2; padding:8px;">${n} ${opd}</td><td style="text-align:center; font-weight:500; border:1px solid #b2ebf2; padding:8px;">${q}</td></tr>`;
         });
-	
-	tbody.innerHTML = html;
     }
 
     let allIndents = []; let currentSelectedIndent = null; let notifiedIndents = new Set(); 
-    function initPharmacy() { 
-    if ("Notification" in window && Notification.permission !== "granted") Notification.requestPermission(); 
-    fetchPendingIndents(true); 
-    setInterval(() => fetchPendingIndents(false), 300000); // ५ मिनिटे (300000 ms)
-}
+    function initPharmacy() { if ("Notification" in window && Notification.permission !== "granted") Notification.requestPermission(); fetchPendingIndents(); setInterval(() => fetchPendingIndents(false), 30000); }
 
     function fetchPendingIndents(isManual = false) {
         if(isManual) document.getElementById('indentListContainer').innerHTML = '<p style="text-align:center; color: #7f8c8d;">Loading data...</p>';
@@ -1046,7 +1181,6 @@
     }
 
     // 🔴 4. Mark as Dispatched अपडेट (फार्मसी)
-    // 🔴 4. Mark as Dispatched अपडेट (फार्मसी)
     async function markAsDispatched() {
         if(!currentSelectedIndent) return; 
         
@@ -1156,16 +1290,9 @@
 
     function initAdmin() { fetchAdminData(); }
 
-    // जुने fetchAdminData() काढून हे टाका:
-    function fetchAdminData(startDate = '', endDate = '') {
+    function fetchAdminData() {
         showToast("Fetching Admin Data...", "success");
-        
-        // URL मध्ये तारखा ऍड करणे
-        let url = SCRIPT_URL + "?action=getAdminDashboardData&t=" + new Date().getTime();
-        if (startDate) url += "&from=" + startDate;
-        if (endDate) url += "&to=" + endDate;
-
-        fetch(url)
+        fetch(SCRIPT_URL + "?action=getAdminDashboardData&t=" + new Date().getTime())
         .then(res => res.json())
         .then(data => {
             let rawIndents = data.indents || []; let grouped = {};
@@ -1176,7 +1303,9 @@
                         indentNo: row.indentNo, dateStr: row.dateStr || row.date, timestamp: tStamp,
                         ward: row.ward, patient: row.patient || row.patientName, doctor: row.doctor || row.doctorName, 
                         status: row.status, responseTime: row.responseTime, dispatchTime: row.dispatchTime, 
-                        submitUser: row.submitUser || "-", dispensedBy: row.dispensedBy || "-", medicines: [] 
+                        submitUser: row.submitUser || "-",   
+                        dispensedBy: row.dispensedBy || "-",  
+                        medicines: [] 
                     };
                 }
                 let mName = row.medicine || row.medicine_name || row.itemName || row.name; let mQty = row.qty || row.quantity;
@@ -1184,25 +1313,20 @@
             });
             globalAdminIndents = Object.values(grouped);
             
-            // फक्त पहिल्यांदा लोड होताना ड्रॉपडाउन भरा
-            if(!startDate && !endDate) {
-                populateAdminDropdowns(data.settings.wards); 
-                renderAdminWards(data.settings.wards); 
-                if(data.settings.users && typeof renderAdminUsers === "function") {
-                    renderAdminUsers(data.settings.users);
-                }
+            populateAdminDropdowns(data.settings.wards); 
+            renderAdminWards(data.settings.wards); 
+            if(data.settings.users && typeof renderAdminUsers === "function") {
+                renderAdminUsers(data.settings.users);
             }
             
-            // जर सर्च केला असेल, तर लगेच लिस्ट अपडेट करा
-            if (startDate || endDate) {
-                executeFrontendSearchFilters(); 
-            } else {
-                let tbody = document.getElementById('adminSearchResults');
-                if(tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#7f8c8d; padding:20px;">Please apply Date/Unit filters and click Search to view records.</td></tr>';
-            }
+            let tbody = document.getElementById('adminSearchResults');
+            if(tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#7f8c8d; padding:20px;">Please apply Date/Unit filters and click Search to view records.</td></tr>';
             
-            showToast("Admin Data Loaded.", "success");
-        }).catch(err => { showToast("Error loading data", "error"); console.error(err); });
+            showToast("Admin Data Loaded. Users & Wards are ready.", "success");
+        }).catch(err => { 
+            showToast("Error loading data", "error"); 
+            console.error(err);
+        });
     }
 
     function populateAdminDropdowns(activeWardsData) {
@@ -1589,7 +1713,7 @@
         if(!ward) return alert("❌ Please select a Ward first to view today's history.");
         
         let fullWardName = loggedInUnit + " - " + ward;
-        document.getElementById('h_wardDisplay').innerText = fullWardName;
+        //document.getElementById('h_wardDisplay').innerText = fullWardName;
         
         document.getElementById('nursingHistoryOverlay').style.display = 'flex';
         document.getElementById('h_placeholder').style.display = 'block';
@@ -1650,38 +1774,550 @@
     }
 
     function showHistoryDetails(indentNo) {
-        let ind = nursingHistoryData.find(i => i.indentNo === indentNo);
-        if(!ind) return;
+    let ind = nursingHistoryData.find(i => i.indentNo === indentNo);
+    if(!ind) return;
+
+    currentHistoryIndent = ind;
         
-        document.getElementById('h_placeholder').style.display = 'none';
-        document.getElementById('h_detailsContainer').style.display = 'block';
-        
-        let cleanPatient = ind.patient.replace("[URGENT] ", "").trim();
-        let badgeHtml = ind.status === 'Dispatched' 
-            ? `<span style="background:#27ae60; color:white; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:bold;">Dispatched at ${ind.dispatchTime}</span>` 
-            : `<span style="background:#e74c3c; color:white; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:bold;">Pending in Pharmacy</span>`;
-        
-        document.getElementById('h_statusBadge').innerHTML = badgeHtml;
-        document.getElementById('h_lblIndentNo').innerText = ind.indentNo;
-        document.getElementById('h_lblDate').innerText = ind.time;
-        document.getElementById('h_lblPatient').innerText = cleanPatient;
-        document.getElementById('h_lblDoctor').innerText = ind.doctor;
-        
-        let tbody = document.getElementById('h_medicineTableBody');
-        tbody.innerHTML = '';
-        ind.medicines.forEach((m, idx) => {
-            let n = m.name; let opd = ""; 
-            if(n.includes("[")) { 
-                let p = n.split("["); n = p[0].trim(); 
-                opd = `<br><span style="color:#ce936b; font-size:12px;">[${p[1]}</span>`; 
+    document.getElementById('h_placeholder').style.display = 'none';
+    document.getElementById('h_detailsContainer').style.display = 'block';
+    
+    let cleanPatient = ind.patient.replace("[URGENT] ", "").trim();
+    let badgeHtml = ind.status === 'Dispatched' 
+        ? `<span style="background:#27ae60; color:white; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:bold;">Dispatched at ${ind.dispatchTime}</span>` 
+        : `<span style="background:#e74c3c; color:white; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:bold;">Pending in Pharmacy</span>`;
+    
+    document.getElementById('h_statusBadge').innerHTML = badgeHtml;
+    document.getElementById('h_lblIndentNo').innerText = ind.indentNo;
+    document.getElementById('h_lblDate').innerText = ind.time;
+    document.getElementById('h_lblPatient').innerText = cleanPatient;
+    document.getElementById('h_lblDoctor').innerText = ind.doctor;
+
+    // ==========================================
+    // 🔴 NEW LOGIC: Enable/Disable Buttons based on Status
+    // ==========================================
+    let btnVerify = document.getElementById('btnVerifyIndent');
+    let btnReport = document.getElementById('btnReportLog');
+    
+    if (ind.status === 'Dispatched') {
+        // Active State
+        btnVerify.disabled = false;
+        btnVerify.style.opacity = "1";
+        btnVerify.style.cursor = "pointer";
+        btnVerify.title = "Received & Verified";
+
+        btnReport.disabled = false;
+        btnReport.style.opacity = "1";
+        btnReport.style.cursor = "pointer";
+        btnReport.title = "Report Safety Log";
+    } else {
+        // Disabled State
+        btnVerify.disabled = true;
+        btnVerify.style.opacity = "0.4";
+        btnVerify.style.cursor = "not-allowed";
+        btnVerify.title = "Action disabled: Indent is not Dispatched yet";
+
+        btnReport.disabled = true;
+        btnReport.style.opacity = "0.4";
+        btnReport.style.cursor = "not-allowed";
+        btnReport.title = "Action disabled: Indent is not Dispatched yet";
+    }
+    // ==========================================
+    
+    let tbody = document.getElementById('h_medicineTableBody');
+    tbody.innerHTML = '';
+    ind.medicines.forEach((m, idx) => {
+        let n = m.name; let opd = ""; 
+        if(n.includes("[")) { 
+            let p = n.split("["); n = p[0].trim(); 
+            opd = `<br><span style="color:#ce936b; font-size:12px;">[${p[1]}</span>`; 
+        }
+        tbody.innerHTML += `<tr>
+            <td style="border:1px solid #eee; padding:10px;">${idx+1}</td>
+            <td style="border:1px solid #eee; padding:10px;"><b>${n}</b> ${opd}</td>
+            <td style="border:1px solid #eee; padding:10px; text-align:center;">${m.qty}</td>
+        </tr>`;
+    });
+
+    populatePrint(
+        cleanPatient,
+        ind.ward,
+        ind.time,
+        ind.indentNo,
+        ind.doctor,
+        ind.medicines,
+        ind.submitUser || "-"
+    );
+}
+
+function printHistoryIndent() {
+
+    // History मधील माहिती घ्या
+    let patient = document.getElementById('h_lblPatient').innerText || "-";
+    let indentNo = document.getElementById('h_lblIndentNo').innerText || "-";
+    let date = document.getElementById('h_lblDate').innerText || "-";
+    let doctor = document.getElementById('h_lblDoctor').innerText || "-";
+    let ward = document.getElementById('h_wardDisplay').innerText || "-";
+
+    let items = [];
+
+    document.querySelectorAll("#h_medicineTableBody tr").forEach(row => {
+
+        let cols = row.querySelectorAll("td");
+
+        if(cols.length >= 3){
+
+            items.push({
+                name: cols[1].innerText,
+                qty: cols[2].innerText
+            });
+
+        }
+
+    });
+
+    // Print Template Fill करा
+    populatePrint(
+        patient,
+        ward,
+        date,
+        indentNo,
+        doctor,
+        items,
+        loggedInName
+    );
+
+    // Canon Mode फक्त Pharmacy साठी
+    document.body.classList.remove("canon-mode");
+
+    if(loggedInUnit &&
+       loggedInUnit.toUpperCase() === "DHIMSR-PHARMACY"){
+
+        document.body.classList.add("canon-mode");
+
+    }
+
+    window.print();
+
+    setTimeout(function(){
+        document.body.classList.remove("canon-mode");
+    },1000);
+
+}
+// ==========================================
+// Toggle logic for Informed Staff Name
+// ==========================================
+function toggleInformedName() {
+    let selectVal = document.getElementById("incDoctorInformed").value;
+    let divName = document.getElementById("divInformedName");
+    
+    if (selectVal === "Yes") {
+        divName.style.display = "block";
+    } else {
+        divName.style.display = "none";
+        document.getElementById("incInformedName").value = ""; // लपवताना व्हॅल्यू क्लिअर करणे
+    }
+}
+function openSafetyLog() {
+    var modal = document.getElementById("incidentModal");
+    if (!modal) return;
+
+    // 1. Identify context to auto-fill Reference, Unit, and Department
+    let refNo = "";
+    let dept = "";
+    let loc = loggedInUnit; // Unit defaults to logged in unit
+
+    // Check if triggered from Nursing History Modal
+    if (typeof currentHistoryIndent !== 'undefined' && currentHistoryIndent) {
+        refNo = currentHistoryIndent.indentNo;
+        dept = currentHistoryIndent.ward || "";
+    } 
+    // Check if triggered from Pharmacy Dashboard
+    else if (typeof currentSelectedIndent !== 'undefined' && currentSelectedIndent) {
+        refNo = currentSelectedIndent;
+        dept = "Pharmacy"; 
+    }
+
+    if (!refNo) {
+        alert("❌ Please select an indent first to report Safety log.");
+        return;
+    }
+
+    // 2. Auto-fill the Read-Only Fields
+    document.getElementById("incReference").value = refNo;
+    document.getElementById("incWhere").value = loc;
+    document.getElementById("incDepartment").value = dept;
+
+    // 3. Reset manual entry fields
+    if (document.getElementById("incWhen")) {
+        if (typeof currentHistoryIndent !== "undefined" && currentHistoryIndent && currentHistoryIndent.time) {
+            try {
+                // "Sat 27/06/2026 10:15 AM" या स्ट्रिंगला तोडून YYYY-MM-DDThh:mm मध्ये बनवणे
+                let timeStr = currentHistoryIndent.time;
+                let parts = timeStr.trim().split(" ");
+                
+                // जर स्ट्रिंगमध्ये Day (Mon, Tue) असेल, तर इंडेक्स 1 पासून डेटा पकडणे
+                let datePart = parts.length >= 3 && parts[0].includes("/") ? parts[0] : parts[1];
+                let timePart = parts.length >= 3 && parts[0].includes("/") ? parts[1] : parts[2];
+                let ampmPart = parts.length >= 3 && parts[0].includes("/") ? parts[2] : parts[3];
+
+                let dp = datePart.split("/");
+                let y = dp[2], m = dp[1], d = dp[0];
+
+                let tp = timePart.split(":");
+                let hrs = parseInt(tp[0], 10);
+                let mins = tp[1];
+
+                if (ampmPart === "PM" && hrs < 12) hrs += 12;
+                if (ampmPart === "AM" && hrs === 12) hrs = 0;
+                let formattedHrs = String(hrs).padStart(2, '0');
+
+                // फायनल स्ट्रिंग जी datetime-local ला सपोर्ट करेल
+                document.getElementById("incWhen").value = `${y}-${m}-${d}T${formattedHrs}:${mins}`;
+            } catch (e) {
+                console.error("Auto-fill time parsing failed:", e);
+                document.getElementById("incWhen").value = ""; // Error आल्यास blank ठेवणे
             }
-            tbody.innerHTML += `<tr>
-                <td style="border:1px solid #eee; padding:10px;">${idx+1}</td>
-                <td style="border:1px solid #eee; padding:10px;"><b>${n}</b> ${opd}</td>
-                <td style="border:1px solid #eee; padding:10px; text-align:center;">${m.qty}</td>
-            </tr>`;
+        } else {
+            document.getElementById("incWhen").value = "";
+        }
+    }
+    
+    if(document.getElementById("incStaff")) document.getElementById("incStaff").value = "";
+    if(document.getElementById("incPatientId")) document.getElementById("incPatientId").value = "";
+    if(document.getElementById("incDescription")) document.getElementById("incDescription").value = "";
+    if(document.getElementById("incImmediateAction")) document.getElementById("incImmediateAction").value = "";
+    if(document.getElementById("incDoctorInformed")) {
+        document.getElementById("incDoctorInformed").value = "No";
+        toggleInformedName(); 
+    }
+
+    // 4. Show Modal
+    modal.style.display = "flex";
+}
+async function verifyHistoryIndent(){
+
+    if(!currentHistoryIndent){
+        alert("Please select an indent first.");
+        return;
+    }
+
+    const result = await verifyUserPasskey("Received & Verified");
+
+    if(!result.verified){
+        return;
+    }
+
+    const payload = {
+        action: "verifyIndent",
+
+        indentNo: currentHistoryIndent.indentNo,
+        unit: loggedInUnit,
+        ward: currentHistoryIndent.ward,
+        patient: currentHistoryIndent.patient,
+
+        userId: loggedInUserId,
+        userName: result.userName,
+
+        remarks: ""
+    };
+
+    fetch(SCRIPT_URL,{
+    method:"POST",
+    body:JSON.stringify(payload)
+})
+.then(r => r.json())
+.then(res=>{
+
+    if(res.success){
+
+        alert(
+            "✅ Indent Verified Successfully\n\n" +
+            "Verified By : " + result.userName
+        );
+
+        // History Refresh
+        loadHistoryData();
+
+        // Same indent पुन्हा open करा
+        showHistoryDetails(currentHistoryIndent.indentNo);
+
+    }else{
+
+        alert(res.message);
+
+    }
+
+})
+.catch(err => {
+
+    console.error(err);
+    alert("Verification failed.");
+
+});
+}
+async function submitIncident() {
+    // 1. Raw date-time value ghene (Format: 2026-06-26T17:17)
+    const rawWhen = document.getElementById("incWhen").value;
+    if (!rawWhen) {
+        alert("❌ Please select the Date and Time (When Happened).");
+        return;
+    }
+
+    // 2. Date-Time la "26/06/2026 05:17 PM" format madhe convert karne
+    let formattedWhen = "";
+    try {
+        let parts = rawWhen.split("T");
+        let dateParts = parts[0].split("-"); // ["2026", "06", "26"]
+        let timeParts = parts[1].split(":"); // ["17", "17"]
+        
+        let year = dateParts[0];
+        let month = dateParts[1];
+        let day = dateParts[2];
+        
+        let hrs = parseInt(timeParts[0], 10);
+        let mins = timeParts[1];
+        let ampm = hrs >= 12 ? 'PM' : 'AM';
+        
+        hrs = hrs % 12;
+        hrs = hrs ? hrs : 12; // 00 hrs aseltar 12 karne
+        let hrsStr = String(hrs).padStart(2, '0');
+        
+        formattedWhen = `${day}/${month}/${year} ${hrsStr}:${mins} ${ampm}`;
+    } catch (e) {
+        console.error("Date formatting error:", e);
+        formattedWhen = rawWhen; // Fallback jar error aala tar original string combinations tashi rahil
+    }
+
+    const desc = document.getElementById("incDescription").value.trim();
+    if (desc === "") {
+        alert("❌ Description is mandatory.");
+        return;
+    }
+
+    const informedStatus = document.getElementById("incDoctorInformed").value;
+    let informedName = "";
+    if (informedStatus === "Yes") {
+        informedName = document.getElementById("incInformedName").value.trim();
+        if (informedName === "") {
+            alert("❌ Please enter the Name and Designation of the informed staff.");
+            return;
+        }
+    }
+    
+    const btn = document.querySelector('.btn-submit-inc');
+    let origText = btn.innerText;
+    btn.innerText = "Submitting...";
+    btn.disabled = true;
+	
+// ===== Read Selected Photos with Flexible Total Size Logic =====
+    const files = document.getElementById("incPhoto").files;
+    const TOTAL_MAX_SIZE_MB = 5; // 5MB Total Limit
+    const INDIVIDUAL_MAX_SIZE_MB = 2; // प्रत्येक फाईल जास्तीत जास्त 2MB
+
+    let totalSize = 0;
+    let photos = [];
+
+    // 1. आधी सर्व फाईल्सची साईझ चेक करा
+    for (let i = 0; i < files.length; i++) {
+        if (files[i].size > INDIVIDUAL_MAX_SIZE_MB * 1024 * 1024) {
+            alert("❌ " + files[i].name + " खूप मोठी आहे (जास्तीत जास्त 2MB अलोउड आहे).");
+            btn.innerText = origText;
+            btn.disabled = false;
+            return;
+        }
+        totalSize += files[i].size;
+    }
+
+    // Total size check
+    if (totalSize > TOTAL_MAX_SIZE_MB * 1024 * 1024) {
+        alert("❌ सर्व फोटोंची एकत्रित साईझ 5MB पेक्षा जास्त होत आहे. कृपया कमी फोटो निवडा.");
+        btn.innerText = origText;
+        btn.disabled = false;
+        return;
+    }
+
+    // 2. आता फोटो रीड करायला सुरुवात करा (Base64)
+    for (let i = 0; i < files.length; i++) {
+        const base64 = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = e => resolve(e.target.result.split(",")[1]);
+            reader.onerror = reject;
+            reader.readAsDataURL(files[i]);
+        });
+
+        photos.push({
+            fileName: files[i].name,
+            mimeType: files[i].type,
+            fileData: base64
         });
     }
+    // Payload configuration
+    const payload = {
+        action: "saveIncident",
+        referenceNo: document.getElementById("incReference").value,
+        when: formattedWhen, // 🔴 Ithe aata Google Sheet la "26/06/2026 05:17 PM" ya format madhe data send hoil
+        where: document.getElementById("incWhere").value,
+        department: document.getElementById("incDepartment").value,
+        involvedStaff: document.getElementById("incStaff").value,
+        patientId: document.getElementById("incPatientId").value,
+        description: desc,
+        immediateAction: document.getElementById("incImmediateAction").value,
+        informed: informedStatus,
+        informedStaffDetails: informedStatus === "Yes" ? informedName : "N/A", 
+        reportedBy: loggedInUserId, 
+        reporterName: loggedInName,
+        designation: currentRole,
+        photos: photos
+    };
+
+    fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(payload)
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (res.success) {
+            showToast("Safety Logged Successfully!", "success");
+            document.getElementById("incidentModal").style.display = "none";
+        } else {
+            alert("❌ Failed: " + res.message);
+        }
+    })
+    .catch(err => {
+        console.error("Incident Submit Error:", err);
+        alert("❌ Connection error while submitting report.");
+    })
+    .finally(() => {
+        btn.innerText = origText;
+        btn.disabled = false;
+    });
+}
 </script>
+<!-- === MISSING PASSKEY MODAL CODE START === -->
+<div id="passkeyModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.5); z-index:99999; align-items:center; justify-content:center;">
+
+    <div style="background:#fff; width:340px; border-radius:10px; padding:22px; text-align:center; box-shadow:0 8px 25px rgba(0,0,0,.25);">
+
+        <h3 id="passkeyActionText"
+            style="margin:0 0 18px; color:#4276b6;">
+            Security Verification
+        </h3>
+
+        <input
+            id="customPasskeyInput"
+            type="password"
+            placeholder="Enter Passkey"
+            style="width:100%; padding:11px; box-sizing:border-box;">
+
+        <div id="passkeyErrorText"
+             style="display:none; color:#e74c3c; margin-top:10px; font-size:13px;">
+        </div>
+
+        <div style="display:flex; justify-content:center; gap:10px; margin-top:20px;">
+
+            <button id="btnCancelPasskey"
+                    style="padding:10px 18px;">
+                Cancel
+            </button>
+
+            <button id="btnConfirmPasskey"
+                    style="padding:10px 18px; background:#27ae60; color:#fff;">
+                Confirm
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+<!-- === MISSING PASSKEY MODAL CODE END === -->
+<!-- ================= INCIDENT REPORT ================= -->
+
+<div id="incidentModal" class="modalOverlay" style="display:none;">
+    <div class="modalBox">
+        
+        <div class="modalHeader">
+            <h3><span class="material-symbols-outlined" style="color:#e74c3c;">assignment_late</span> Patient Safety Log</h3>
+            <button class="modalCloseBtn" onclick="document.getElementById('incidentModal').style.display='none'" title="Close">✕</button>
+        </div>
+
+        <div class="modalBody">
+            <div class="modalGrid">
+                <div class="inc-form-group">
+                    <label>Reference (Indent No)</label>
+                    <input type="text" id="incReference" readonly style="background:#e2e8f0; font-weight:bold; color:#1e293b; cursor:not-allowed;">
+                </div>
+                <div class="inc-form-group">
+                    <label>When Happened <span style="color:red;">*</span></label>
+                    <input type="datetime-local" id="incWhen">
+                </div>
+                
+                <div class="inc-form-group">
+                    <label>Where Happened (Unit)</label>
+                    <input type="text" id="incWhere" readonly style="background:#e2e8f0; color:#475569; cursor:not-allowed;">
+                </div>
+                <div class="inc-form-group">
+                    <label>Department (Ward/Pharmacy)</label>
+                    <input type="text" id="incDepartment" readonly style="background:#e2e8f0; color:#475569; cursor:not-allowed;">
+                </div>
+                <div class="inc-form-group">
+                    <label>Involved Staff</label>
+                    <input type="text" id="incStaff" placeholder="Name or ID">
+                </div>
+            </div>
+
+            <div class="modalGrid full">
+                <div class="inc-form-group">
+                    <label>Patient ID (If Available)</label>
+                    <input type="text" id="incPatientId" placeholder="Enter Patient ID">
+                </div>
+                <div class="inc-form-group">
+                    <label>Description <span style="color:red;">*</span></label>
+                    <textarea id="incDescription" rows="4" placeholder="Briefly describe exactly what happened..."></textarea>
+                </div>
+                <div class="inc-form-group">
+                    <label>Immediate Action Taken</label>
+                    <textarea id="incImmediateAction" rows="3" placeholder="What steps were taken immediately?"></textarea>
+                </div>
+            </div>
+
+            <div class="modalGrid">
+                <div class="inc-form-group">
+    <label>Supporting Images </label>
+    <input type="file"
+           id="incPhoto"
+           accept=".jpg,.jpeg,image/jpeg"
+           multiple
+           style="padding: 7px 10px;">
+           
+    <small style="display:block; margin-top:5px; color:#666;">
+        Total Limit 5MB  • JPG/JPEG only • 2 MB per photo
+    </small>
+
+    <div id="photoPreviewContainer" style="margin-top:10px;"></div>
+</div>
+                <div class="inc-form-group">
+                    <label>Doctor / Nursing Staff Informed?</label>
+                    <select id="incDoctorInformed" onchange="toggleInformedName()">
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modalGrid full" id="divInformedName" style="display:none; margin-top: -5px; margin-bottom: 15px;">
+                <div class="inc-form-group">
+                    <label>Name & Designation of Informed Staff <span style="color:red;">*</span></label>
+                    <input type="text" id="incInformedName" placeholder="e.g. Dr. Ramesh (RMO) or Sister Sunita (Incharge)">
+                </div>
+            </div>         
+
+        <div class="modalFooter">
+            <button class="btn-cancel" onclick="document.getElementById('incidentModal').style.display='none'">Cancel</button>
+            <button class="btn-submit-inc" onclick="submitIncident()">Submit Final Report</button>
+        </div>
+
+    </div>
+</div>
 </body>
 </html>
