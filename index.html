@@ -1250,6 +1250,7 @@
             if (!proceed) {
                 return; 
             }
+		}
         let passkeyResult = await verifyUserPasskey("Dispatch Indent");
         if (!passkeyResult.verified) return; 
         let actualPharmacist = passkeyResult.userName; 
