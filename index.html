@@ -1245,9 +1245,11 @@
         let isReadyDone = (ind && ind.status === 'Ready for Collection') || readyBtn.disabled;
 
         if (!isReadyDone) {
-            alert("⚠️ Ready for collection not done!");
-            return; 
-        }
+            // युजरला विचारेल, जर 'Cancel' वर क्लिक केले तरच थांबेल. 'OK' वर क्लिक केले तर प्रोसेस पुढे जाईल.
+            let proceed = confirm("⚠️ Ready for collection not done, do you want to proceed?");
+            if (!proceed) {
+                return; 
+            }
         let passkeyResult = await verifyUserPasskey("Dispatch Indent");
         if (!passkeyResult.verified) return; 
         let actualPharmacist = passkeyResult.userName; 
