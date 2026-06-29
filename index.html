@@ -1160,7 +1160,25 @@
         fetch(SCRIPT_URL + "?action=getPendingIndents&t=" + new Date().getTime()).then(res => res.json()).then(data => {
             let grouped = {};
             data.forEach(row => {
-                if(!grouped[row.indentNo]) grouped[row.indentNo] = { indentNo: row.indentNo, date: row.date, ward: row.ward, patientName: row.patient, doctor: row.doctor, submitUser: row.submitUser || row.submitBy || "-", status: row.status || "Pending", medicines: [] };
+                
+                // इथे आपण नवीन Bulletproof लॉजिक वापरत आहोत
+                let currentStatus = normaliseStatus(row.status);
+                
+                // लोकल ट्रॅकिंग
+                let existingIndent = allIndents.find(i => i.indentNo === row.indentNo);
+                if (existingIndent && existingIndent.status === 'READY FOR COLLECTION' && currentStatus !== 'DISPATCHED' && currentStatus !== 'VERIFIED') {
+                    currentStatus = 'READY FOR COLLECTION'; 
+                }
+
+                if(!grouped[row.indentNo]) {
+                    grouped[row.indentNo] = { 
+                        indentNo: row.indentNo, date: row.date, ward: row.ward, 
+                        patientName: row.patient, doctor: row.doctor, 
+                        submitUser: row.submitUser || row.submitBy || "-", 
+                        status: currentStatus, 
+                        medicines: [] 
+                    };
+                }
                 if(row.medicine) grouped[row.indentNo].medicines.push({ name: row.medicine, qty: row.qty });
             });
             allIndents = Object.values(grouped);
@@ -1217,8 +1235,19 @@
         let readyBtn = document.getElementById('p_readyBtn');
         if(readyBtn) {
             readyBtn.style.display = 'inline-block'; 
-            if(ind.status === 'Ready for Collection') { readyBtn.disabled = true; readyBtn.style.backgroundColor = '#95a5a6'; readyBtn.style.cursor = 'not-allowed'; readyBtn.innerText = "Ready ✓"; } 
-            else { readyBtn.disabled = false; readyBtn.style.backgroundColor = '#f39c12'; readyBtn.style.cursor = 'pointer'; readyBtn.innerText = "Ready for Collection"; }
+            
+            // Uppercase स्टेटस चेक करत आहोत
+            if(ind.status === 'READY FOR COLLECTION') { 
+                readyBtn.disabled = true; 
+                readyBtn.style.backgroundColor = '#95a5a6'; 
+                readyBtn.style.cursor = 'not-allowed'; 
+                readyBtn.innerText = "Ready ✓"; 
+            } else { 
+                readyBtn.disabled = false; 
+                readyBtn.style.backgroundColor = '#f39c12'; 
+                readyBtn.style.cursor = 'pointer'; 
+                readyBtn.innerText = "Ready for Collection"; 
+            }
         }
 
         let isUrgent = String(ind.patientName).includes("[URGENT]"); let cleanPatient = ind.patientName.replace("[URGENT] ", "").trim();
@@ -1250,7 +1279,7 @@
             if (!proceed) {
                 return; 
             }
-		}
+        }
         let passkeyResult = await verifyUserPasskey("Dispatch Indent");
         if (!passkeyResult.verified) return; 
         let actualPharmacist = passkeyResult.userName; 
@@ -2078,6 +2107,13 @@
         document.getElementById(tabId).classList.add('active');
         btn.classList.add('active');
     }
+    function normaliseStatus(raw) {
+  return String(raw ?? "").trim().toUpperCase();
+}
+
+const STATUS_READY      = "READY FOR COLLECTION";
+const STATUS_DISPATCHED = "DISPATCHED";
+const STATUS_VERIFIED   = "VERIFIED";
 </script>
 </body>
 </html>
