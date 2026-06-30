@@ -2077,28 +2077,23 @@
     // ==========================================
     function saveEmailSettings() {
         let adminEmail = document.getElementById('set_adminEmail').value.trim();
-        let adminStatus = document.getElementById('set_adminToggle').checked ? "ON" : "OFF";
+        let adminStatus = document.getElementById('set_adminToggle').checked ? "Active" : "Inactive";
         
         let pharmEmail = document.getElementById('set_pharmEmail').value.trim();
-        let pharmStatus = document.getElementById('set_pharmToggle').checked ? "ON" : "OFF";
+        let pharmStatus = document.getElementById('set_pharmToggle').checked ? "Active" : "Inactive";
 
         let btn = document.getElementById('btnSaveEmail');
-        let origText = btn.innerText;
-        btn.innerText = "Saving...";
-        btn.disabled = true;
+        let origText = btn.innerText; btn.innerText = "Saving..."; btn.disabled = true;
 
-        let payload = {
-            action: "saveEmailConfig",
-            adminEmail: adminEmail,
-            adminStatus: adminStatus,
-            pharmacyEmail: pharmEmail,
-            pharmacyStatus: pharmStatus
-        };
+        // Create two separate requests mapping to the backend format
+        let p1 = fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "saveEmailConfig", department: "SAFETY_INCIDENT", status: adminStatus, toRole: "Admin", toEmail: adminEmail, ccRole: "", ccEmail: "", bccRole: "", bccEmail: "" }) });
+        let p2 = fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "saveEmailConfig", department: "PHARMACY_INDENT", status: pharmStatus, toRole: "Pharmacy", toEmail: pharmEmail, ccRole: "", ccEmail: "", bccRole: "", bccEmail: "" }) });
 
-        fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) })
-        .then(r => r.json()).then(res => {
-            if(res.success) { showToast("Email Settings Saved Successfully!", "success"); } 
-            else { alert("Error: " + res.message); }
+        Promise.all([p1, p2])
+        .then(responses => Promise.all(responses.map(r => r.json())))
+        .then(results => {
+            if(results[0].success && results[1].success) { showToast("Email Settings Saved Successfully!", "success"); } 
+            else { alert("Partial Error: Check settings again."); }
         })
         .catch(err => alert("Connection error while saving settings."))
         .finally(() => { btn.innerText = origText; btn.disabled = false; });
