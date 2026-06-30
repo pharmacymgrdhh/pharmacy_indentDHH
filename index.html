@@ -1474,17 +1474,43 @@
         let rowsHtml = ""; 
         filtered.forEach(ind => {
             let statusBadge = "";
-            if (ind.status === 'Pending') statusBadge = `<div class="tat-badge tat-pending">Pending<br><span style="font-size:9px; font-weight:normal;">(Raised by: ${ind.submitUser || 'Staff'})</span></div>`;
-            else if (ind.status === 'Ready for Collection') statusBadge = `<div class="tat-badge tat-ready">Ready<br><span style="font-size:9px; font-weight:normal;">(Prep by: ${ind.readyBy || 'Staff'})</span></div>`;
-            else if (ind.status === 'Dispatched') statusBadge = `<div class="tat-badge tat-dispatch">Dispatched<br><span style="font-size:9px; font-weight:normal;">(By: ${ind.dispensedBy || 'Pharm'})</span></div>`;
-            else if (ind.status === 'Verified') statusBadge = `<div class="tat-badge tat-verified">Verified<br><span style="font-size:9px; font-weight:normal;">(By: ${ind.verifiedBy || 'Ward'})</span></div>`;
+            
+            // 🔴 1. Case-Insensitive Status (Yellow Badge Fix)
+            let stat = String(ind.status).toLowerCase().trim(); 
+            
+            if (stat === 'pending') statusBadge = `<div class="tat-badge tat-pending">Pending<br><span style="font-size:9px; font-weight:normal;">(Raised by: ${ind.submitUser || 'Staff'})</span></div>`;
+            else if (stat === 'ready for collection' || stat === 'ready') statusBadge = `<div class="tat-badge tat-ready">Ready<br><span style="font-size:9px; font-weight:normal;">(Prep by: ${ind.readyBy || 'Staff'})</span></div>`;
+            else if (stat === 'dispatched') statusBadge = `<div class="tat-badge tat-dispatch">Dispatched<br><span style="font-size:9px; font-weight:normal;">(By: ${ind.dispensedBy || 'Pharm'})</span></div>`;
+            else if (stat === 'verified') statusBadge = `<div class="tat-badge tat-verified">Verified<br><span style="font-size:9px; font-weight:normal;">(By: ${ind.verifiedBy || 'Ward'})</span></div>`;
             else statusBadge = `<div class="tat-badge tat-pending">${ind.status}</div>`;
 
+            // 🔴 2. Dynamic TAT Calculation ("-- Mins" & "doctor Mins" Fix)
+            let tRaised = parseTatDate(ind.dateStr);
+            let tEnd = null;
+            
+            if (stat === 'verified') {
+                tEnd = parseTatDate(ind.verifiedTime);
+            } else if (stat === 'dispatched') {
+                tEnd = parseTatDate(ind.dispatchTime);
+            }
+            
+            let totalTatStr = "--";
+            
+            if (tRaised && tEnd) {
+                // स्वतः वेळ कॅल्क्युलेट करेल
+                let diffMins = Math.round((tEnd - tRaised) / 60000);
+                totalTatStr = diffMins >= 0 ? diffMins : 0;
+            } else {
+                // जर जुन्या रेकॉर्ड्समध्ये तारखा नसतील, तर फक्त नंबर असेल तरच घेईल
+                let fallback = parseInt(ind.responseTime);
+                totalTatStr = !isNaN(fallback) ? fallback : "--"; 
+            }
+
             let tatDisplay = "";
-            if (ind.status === 'Pending' || ind.status === 'Ready for Collection') {
+            if (stat === 'pending' || stat === 'ready for collection' || stat === 'ready') {
                 tatDisplay = `<button class="tat-timer-btn pending" onclick="openTatModal('${ind.indentNo}')" title="View Live TAT Tracker"><span class="material-symbols-outlined">hourglass_empty</span> In Process</button>`;
             } else {
-                tatDisplay = `<button class="tat-timer-btn completed" onclick="openTatModal('${ind.indentNo}')" title="View Full TAT Breakdown"><span class="material-symbols-outlined">timer</span> ${ind.responseTime || '--'} Mins</button>`;
+                tatDisplay = `<button class="tat-timer-btn completed" onclick="openTatModal('${ind.indentNo}')" title="View Full TAT Breakdown"><span class="material-symbols-outlined">timer</span> ${totalTatStr} Mins</button>`;
             }
             
             let cleanPatient = String(ind.patient).replace("[URGENT] ", "<span style='color:#e11d48; font-weight:bold; background:#ffe4e6; padding:3px 6px; border-radius:4px; font-size:10px; margin-right:6px; border:1px solid #fda4af;'>URGENT</span> ");
