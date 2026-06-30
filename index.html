@@ -1720,14 +1720,14 @@
         document.getElementById('h_detailsContainer').style.display = 'block';
         
         let cleanPatient = ind.patient.replace("[URGENT] ", "").trim();
-        
-        // 🔴 FIX: सर्व Status साठी अचूक Badges
+        let currentStat = String(ind.status).toLowerCase().trim();
         let badgeHtml = "";
-        if (ind.status === 'Verified') {
+        
+        if (currentStat === 'verified') {
             badgeHtml = `<span style="background:#15803d; color:white; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:bold;">✅ Received & Verified</span>`;
-        } else if (ind.status === 'Dispatched') {
+        } else if (currentStat === 'dispatched') {
             badgeHtml = `<span style="background:#27ae60; color:white; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:bold;">🚚 Dispatched at ${ind.dispatchTime}</span>`;
-        } else if (ind.status === 'Ready for Collection') {
+        } else if (currentStat === 'ready for collection') {
             badgeHtml = `<span style="background:#f39c12; color:white; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:bold;">📦 Ready for Collection</span>`;
         } else {
             badgeHtml = `<span style="background:#e74c3c; color:white; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:bold;">⏳ Pending in Pharmacy</span>`;
@@ -1739,57 +1739,59 @@
         document.getElementById('h_lblPatient').innerText = cleanPatient; 
         document.getElementById('h_lblDoctor').innerText = ind.doctor;
 
-        // 🔴 FIX: Action Buttons Enable/Disable Logic
         let btnVerify = document.getElementById('btnVerifyIndent'); 
         let btnReport = document.getElementById('btnReportLog');
         
-        if (ind.status === 'Dispatched') {
-            // फक्त Verify बटण चालू राहील, Report बटण बंद राहील.
+        if (currentStat === 'dispatched') {
             btnVerify.disabled = false; btnVerify.style.opacity = "1"; btnVerify.style.cursor = "pointer"; btnVerify.title = "Received & Verified";
-            
             btnReport.disabled = true; btnReport.style.opacity = "0.4"; btnReport.style.cursor = "not-allowed"; btnReport.title = "Please verify the indent first to report a safety log";
-            
-        } else if (ind.status === 'Verified') {
-            // Verify झाल्यावर Verify बटण बंद होईल आणि Report बटण चालू होईल.
+        } else if (currentStat === 'verified') {
             btnVerify.disabled = true; btnVerify.style.opacity = "0.4"; btnVerify.style.cursor = "not-allowed"; btnVerify.title = "Already Verified";
-            
             btnReport.disabled = false; btnReport.style.opacity = "1"; btnReport.style.cursor = "pointer"; btnReport.title = "Report Safety Log";
-            
         } else {
-            // Pending किंवा Ready असताना दोन्ही बटणे बंद राहतील.
             btnVerify.disabled = true; btnVerify.style.opacity = "0.4"; btnVerify.style.cursor = "not-allowed"; btnVerify.title = "Action disabled: Indent is not Dispatched yet";
             btnReport.disabled = true; btnReport.style.opacity = "0.4"; btnReport.style.cursor = "not-allowed"; btnReport.title = "Action disabled: Indent is not Verified yet";
         }
         
-        let tbody = document.getElementById('h_medicineTableBody'); tbody.innerHTML = '';
+        // 🔴 OPTIMIZATION FIX: लूपमध्ये DOM अपडेट न करता सर्व डेटा आधी मेमरीत बनवणे
+        let tbody = document.getElementById('h_medicineTableBody'); 
+        let rowsHtml = ''; // एक तात्पुरती स्ट्रिंग तयार केली
+        
         ind.medicines.forEach((m, idx) => {
             let n = m.name; let opd = ""; 
             if(n.includes("[")) { let p = n.split("["); n = p[0].trim(); opd = `<br><span style="color:#ce936b; font-size:12px;">[${p[1]}</span>`; }
-            tbody.innerHTML += `<tr><td style="border:1px solid #eee; padding:10px;">${idx+1}</td><td style="border:1px solid #eee; padding:10px;"><b>${n}</b> ${opd}</td><td style="border:1px solid #eee; padding:10px; text-align:center;">${m.qty}</td></tr>`;
+            // इथे += वापरून डेटा स्ट्रिंगमध्ये ॲड करत आहोत, थेट स्क्रीनवर नाही.
+            rowsHtml += `<tr><td style="border:1px solid #eee; padding:10px;">${idx+1}</td><td style="border:1px solid #eee; padding:10px;"><b>${n}</b> ${opd}</td><td style="border:1px solid #eee; padding:10px; text-align:center;">${m.qty}</td></tr>`;
         });
+        
+        // लूप संपल्यावर फक्त एकदाच टेबल अपडेट केले, ज्यामुळे लोडिंग 10x फास्ट होईल.
+        tbody.innerHTML = rowsHtml; 
     }
+    function printAdminIndent(indentNo) {
+        let matches = globalAdminIndents.filter(i => i.indentNo === indentNo);
+        if(matches.length === 0) return;
+        let ind = matches[0]; 
 
-    function printHistoryIndent() {
-        let ind = currentHistoryIndent;
-        if(!ind) return;
+        let cleanPatient = String(ind.patient || ind.patientName || "").replace("[URGENT] ", "");
+        let reqTime = formatCDate(ind.dateStr || ind.date);
+
+        let dispTime = "-";
+        let stat = String(ind.status).toLowerCase().trim();
         
-        let cleanPatient = ind.patient.replace("[URGENT] ", "").trim();
-        
-        // 🔴 FIX: Dispatch Time & Status
-        let dispTime = null;
-        if (ind.status === 'Dispatched' || ind.status === 'Verified') {
-            dispTime = ind.dispatchTime && ind.dispatchTime !== "-" ? ind.dispatchTime : "Dispatched";
+        if (stat === 'dispatched' || stat === 'verified') {
+            if (ind.dispatchTime) { dispTime = formatCDate(ind.dispatchTime); } 
+            else if (ind.responseTime) {
+                let parts = (ind.dateStr || ind.date).split(" "); let dp = parts[0].split("/"); let tp = parts[1] ? parts[1].split(":") : ["00", "00"];
+                let isPM = parts[2] && parts[2].toUpperCase() === 'PM'; let hrs = parseInt(tp[0], 10);
+                if (isPM && hrs < 12) hrs += 12; if (!isPM && hrs === 12) hrs = 0;
+                let reqMs = new Date(dp[2], parseInt(dp[1], 10) - 1, dp[0], hrs, parseInt(tp[1], 10)).getTime();
+                let dispMs = reqMs + (parseInt(ind.responseTime) * 60000); dispTime = formatCDate(dispMs);
+            } else { dispTime = "Dispatched"; }
         }
-        
-        // 🔴 FIX: Ward Name Recovery
-        let safeWard = ind.ward || document.getElementById('h_wardDisplay').innerText || "-";
-        
-        // 🔴 FIX: Passing exact Submitter (ind.submitUser) and Dispenser (ind.dispensedBy)
-        populatePrint(cleanPatient, safeWard, ind.time, ind.indentNo, ind.doctor, ind.medicines, ind.submitUser, dispTime, ind.dispensedBy);
-        
+
+        populatePrint(cleanPatient, ind.ward, reqTime, ind.indentNo, ind.doctor, ind.medicines || matches, ind.submitUser, dispTime, ind.dispensedBy);
         executePrintIndent();
     }
-
     function toggleInformedName() {
         let selectVal = document.getElementById("incDoctorInformed").value; let divName = document.getElementById("divInformedName");
         if (selectVal === "Yes") { divName.style.display = "block"; } else { divName.style.display = "none"; document.getElementById("incInformedName").value = ""; }
