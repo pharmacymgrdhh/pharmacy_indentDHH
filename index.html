@@ -1767,6 +1767,21 @@
         // लूप संपल्यावर फक्त एकदाच टेबल अपडेट केले, ज्यामुळे लोडिंग 10x फास्ट होईल.
         tbody.innerHTML = rowsHtml; 
     }
+	function printHistoryIndent() {
+        let ind = currentHistoryIndent;
+        if(!ind) return;
+        let cleanPatient = ind.patient.replace("[URGENT] ", "").trim();
+        
+        let stat = String(ind.status).toLowerCase().trim();
+        let dispTime = null;
+        if (stat === 'dispatched' || stat === 'verified') {
+            dispTime = ind.dispatchTime && ind.dispatchTime !== "-" ? ind.dispatchTime : "Dispatched";
+        }
+        
+        let safeWard = ind.ward || document.getElementById('h_wardDisplay').innerText || "-";
+        populatePrint(cleanPatient, safeWard, ind.time, ind.indentNo, ind.doctor, ind.medicines, ind.submitUser, dispTime, ind.dispensedBy);
+        executePrintIndent();
+    }
     function printAdminIndent(indentNo) {
         let matches = globalAdminIndents.filter(i => i.indentNo === indentNo);
         if(matches.length === 0) return;
