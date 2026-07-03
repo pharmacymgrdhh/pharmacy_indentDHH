@@ -2158,9 +2158,17 @@
         modal.style.display = "flex";
     }
 
+    // 🔴 'Received & Verified' करताना Double Check करण्यासाठी अपडेटेड फंक्शन
     async function verifyHistoryIndent(){
         try {
             if(!currentHistoryIndent){ alert("Please select an indent first."); return; }
+            
+            // 🔴 नवीन 'Double Check' अलर्ट पॉपअप (पासकी विचारण्यापूर्वी)
+            let doubleCheck = confirm("⚠️ DOUBLE CHECK \n\nHave you checked the Right Patient & Right Dose?\n(तुम्ही योग्य पेशंट आणि योग्य डोस तपासला आहे का?)");
+            if (!doubleCheck) { 
+                return; // जर नर्सने 'Cancel' केले, तर प्रोसेस इथेच थांबेल
+            }
+
             const result = await verifyUserPasskey("Received & Verified");
             if(!result.verified){ return; }
 
@@ -2184,7 +2192,6 @@
             document.getElementById('globalLoader').style.display = 'none'; // UNLOCK UI
         }
     }
-
     async function submitIncident() {
         try {
             const rawWhen = document.getElementById("incWhen").value;
