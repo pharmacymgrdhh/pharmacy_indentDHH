@@ -1223,11 +1223,24 @@
         matchedItems.sort((a, b) => { let nameA = a.split("|")[0].trim(); let nameB = b.split("|")[0].trim(); return (searchHistory[nameB] || 0) - (searchHistory[nameA] || 0); });
         medDropdown.innerHTML = ''; let limit = Math.min(matchedItems.length, 40);
         for (let i = 0; i < limit; i++) {
-            let parts = matchedItems[i].split("|"); let medName = parts[0].trim();
+            let parts = matchedItems[i].split("|"); 
+            let medName = parts[0].trim();
+            let generic = (parts[1] && !parts[1].includes("HIGH RISK") && !parts[1].includes("LASA")) ? parts[1].trim() : "";
+            
+            let badges = "";
+            if(matchedItems[i].includes("HIGH RISK")) badges += `<span style="background:#fff5f5; color:#e74c3c; padding:2px 6px; border-radius:4px; font-size:9px; border:1px solid #fed7d7; margin-left:5px;">⚠️ HIGH RISK</span>`;
+            if(matchedItems[i].includes("LASA")) badges += `<span style="background:#fffbeb; color:#d97706; padding:2px 6px; border-radius:4px; font-size:9px; border:1px solid #fde68a; margin-left:5px;">🔍 LASA</span>`;
+
             let div = document.createElement('div'); div.className = "med-item"; 
             let isPopular = (searchHistory[medName] > 5) ? '<span style="color:#f39c12; font-size:10px;">★</span> ' : '';
-            div.innerHTML = `<div class="med-brand">${isPopular}${medName}</div>` + (parts[1] ? `<div class="med-comp">${parts[1].trim()}</div>` : "");
-            div.addEventListener('click', function() { medInput.value = medName; medDropdown.style.display = 'none'; searchHistory[medName] = (searchHistory[medName] || 0) + 1; localStorage.setItem('careSync_medHistory', JSON.stringify(searchHistory)); });
+            div.innerHTML = `<div class="med-brand">${isPopular}${medName}${badges}</div>` + (generic ? `<div class="med-comp">${generic}</div>` : "");
+            
+            div.addEventListener('click', function() { 
+                medInput.value = medName; // फक्त औषधाचे मूळ नाव सिलेक्ट होईल
+                medDropdown.style.display = 'none'; 
+                searchHistory[medName] = (searchHistory[medName] || 0) + 1; 
+                localStorage.setItem('careSync_medHistory', JSON.stringify(searchHistory)); 
+            });
             medDropdown.appendChild(div);
         }
         medDropdown.style.display = limit > 0 ? 'block' : 'none';
@@ -1253,8 +1266,9 @@
     function updateNTable() {
         const tbody = document.getElementById('tableBody'); tbody.innerHTML = ''; 
         indentList.forEach((item, i) => { 
+            let alertData = getMedAlerts(item.displayName); // 🔴 स्मार्ट कॉल
             tbody.innerHTML += `<tr>
-                <td style="font-weight: 500; color: #2c598f;">${item.displayName}</td>
+                <td style="font-weight: ${alertData.fontWeight}; color: ${alertData.color};">${item.displayName}${alertData.badges}</td>
                 <td style="width: 100px; text-align: center;">
                     <input type="number" min="1" value="${item.quantity}" 
                            onchange="updateItemQty(${i}, this.value)" 
@@ -1402,7 +1416,11 @@
     }
 
     let allIndents = []; let currentSelectedIndent = null; let notifiedIndents = new Set(); 
-    function initPharmacy() { if ("Notification" in window && Notification.permission !== "granted") Notification.requestPermission(); fetchPendingIndents(); setInterval(() => fetchPendingIndents(false), 30000); }
+    function initPharmacy() { 
+        fetchMasterData(); // 🔴 ही नवीन लाईन ॲड करा
+        if ("Notification" in window && Notification.permission !== "granted") Notification.requestPermission(); 
+        fetchPendingIndents(); setInterval(() => fetchPendingIndents(false), 30000); 
+    }
 
     function fetchPendingIndents(isManual = false) {
         if(isManual) document.getElementById('indentListContainer').innerHTML = '<p style="text-align:center; color: #7f8c8d;">Loading data...</p>';
@@ -1494,8 +1512,10 @@
         
         const tbody = document.getElementById('medicineTableBody'); tbody.innerHTML = '';
         ind.medicines.forEach((med, idx) => {
-            let n = med.name; let opd = ""; if(n.includes("[")) { let p = n.split("["); n = p[0].trim(); opd = `<br><span style="color:#ce936b;">[${p[1]}</span>`; }
-            tbody.innerHTML += `<tr><td>${idx+1}</td><td><b>${n}</b> ${opd}</td><td>${med.qty}</td></tr>`;
+            let n = med.name; let opd = ""; 
+            if(n.includes("[")) { let p = n.split("["); n = p[0].trim(); opd = `<br><span style="color:#ce936b; font-size:12px;">[${p[1]}</span>`; }
+            let alertData = getMedAlerts(n); // 🔴 स्मार्ट कॉल
+            tbody.innerHTML += `<tr><td>${idx+1}</td><td style="color:${alertData.color}; font-weight:${alertData.fontWeight};"><b>${n}</b>${alertData.badges} ${opd}</td><td>${med.qty}</td></tr>`;
         });
         
         let st2 = normaliseStatus(ind.status);
@@ -1607,7 +1627,10 @@
         document.getElementById(tabId).style.display = 'block'; btn.classList.add('active');
     }
 
-    function initAdmin() { fetchAdminData(); }
+    function initAdmin() { 
+        fetchMasterData(); // 🔴 ही नवीन लाईन ॲड करा
+        fetchAdminData(); 
+    }
 
     function fetchAdminData() {
         showToast("Fetching Admin Data...", "success");
@@ -2095,7 +2118,8 @@
         ind.medicines.forEach((m, idx) => {
             let n = m.name; let opd = ""; 
             if(n.includes("[")) { let p = n.split("["); n = p[0].trim(); opd = `<br><span style="color:#ce936b; font-size:12px;">[${p[1]}</span>`; }
-            rowsHtml += `<tr><td style="border:1px solid #eee; padding:10px;">${idx+1}</td><td style="border:1px solid #eee; padding:10px;"><b>${n}</b> ${opd}</td><td style="border:1px solid #eee; padding:10px; text-align:center;">${m.qty}</td></tr>`;
+            let alertData = getMedAlerts(n); // 🔴 स्मार्ट कॉल
+            rowsHtml += `<tr><td style="border:1px solid #eee; padding:10px;">${idx+1}</td><td style="border:1px solid #eee; padding:10px; color:${alertData.color}; font-weight:${alertData.fontWeight};"><b>${n}</b>${alertData.badges} ${opd}</td><td style="border:1px solid #eee; padding:10px; text-align:center;">${m.qty}</td></tr>`;
         });
         
         tbody.innerHTML = rowsHtml; 
@@ -2593,6 +2617,25 @@
         updateNTable();
         document.getElementById('n_kitSelect').value = "";
         showToast(`✅ Successfully loaded ${itemsToLoad.length} items from ${selectedKit}!`, "success");
+    }
+    // 🔴 Helper Function: औषधाचे बॅज आणि रंग ठरवण्यासाठी
+    function getMedAlerts(medName) {
+        if (!globalMedicines || globalMedicines.length === 0) return { badges: "", color: "inherit", fontWeight: "500" };
+        let baseName = medName.split("[")[0].trim().toUpperCase();
+        let found = globalMedicines.find(m => m.split("|")[0].trim().toUpperCase() === baseName);
+        let badges = ""; let color = "inherit"; let weight = "500";
+        
+        if(found) {
+            if(found.includes("HIGH RISK")) {
+                badges += ` <span style="background:#fff5f5; color:#e74c3c; padding:2px 6px; border-radius:4px; font-size:10px; border:1px solid #fed7d7; margin-left:8px; vertical-align:middle; font-weight:bold;">⚠️ HIGH RISK</span>`;
+                color = "#e74c3c"; weight = "bold";
+            }
+            if(found.includes("LASA")) {
+                badges += ` <span style="background:#fffbeb; color:#d97706; padding:2px 6px; border-radius:4px; font-size:10px; border:1px solid #fde68a; margin-left:8px; vertical-align:middle; font-weight:bold;">🔍 LASA</span>`;
+                if(!found.includes("HIGH RISK")) color = "#d97706"; weight = "bold";
+            }
+        }
+        return { badges: badges, color: color, fontWeight: weight };
     }
 </script>
 </body>
