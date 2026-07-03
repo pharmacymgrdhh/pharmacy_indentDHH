@@ -41,7 +41,7 @@
         label { display: block; margin-bottom: 6px; font-weight: 500; color: #4276b6; font-size: 14px; }
         .round-cb { width: 18px; height: 18px; border-radius: 50%; vertical-align: middle; accent-color: #ce936b; cursor: pointer; }
         .opd-section { display: none; background: #f4f8fc; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #d0e1f3; }
-        input[type="text"], input[type="number"], input[type="password"], input[type="date"], select { width: 100%; padding: 10px 12px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box; font-size: 14px; color: #333; transition: border-color 0.3s; font-family: 'Roboto', sans-serif; }
+        input[type="text"], input[type="number"], input[type="password"], input[type="email"], input[type="date"], select { width: 100%; padding: 10px 12px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box; font-size: 14px; color: #333; transition: border-color 0.3s; font-family: 'Roboto', sans-serif; }
         input:focus, select:focus { border-color: #4276b6; outline: none; }
         
         .btn { background-color: #4276b6; color: white; padding: 12px 15px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 15px; font-weight: 500; margin-top: 10px; transition: 0.2s; font-family: 'Roboto', sans-serif; }
@@ -151,7 +151,7 @@
             body, html { background-color: white; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; color: #000; }
             
             /* Hide all Screen UI Elements strictly by ID */
-            #toast, #loginOverlay, #nursingSection, #pharmacySection, #adminSection, #nursingHistoryOverlay, #passkeyModal, #incidentModal, #tatModal, .footer { display: none !important; }
+            #toast, #loginOverlay, #nursingSection, #pharmacySection, #adminSection, #nursingHistoryOverlay, #passkeyModal, #incidentModal, #tatModal, #globalLoader, .footer { display: none !important; }
             
             /* Print Indent Logic */
             body.print-indent #printTemplate { display: block !important; width: 180mm; padding: 10mm; box-sizing: border-box; margin: 0 auto; position: static; }
@@ -240,9 +240,37 @@
         .set-content { display: none; }
         .set-content.active { display: block; animation: fadeIn 0.3s; }
 
+/* ================= MODERN MASTER FILTER CSS ================= */
+        .modern-input { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; color: #334155; outline: none; transition: all 0.2s; background: #f8fafc; height: 36px; box-sizing: border-box; }
+        .modern-input:focus { border-color: #4f46e5; background: #ffffff; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+        .master-panel { background: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; padding: 20px; margin-bottom: 20px; }
+        .master-panel-title { margin: 0 0 15px 0; color: #1e293b; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
+/* ================= FLIP SWITCH & MODERN FILTERS ================= */
+        .modern-input { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; color: #334155; outline: none; transition: all 0.2s; background: #f8fafc; height: 36px; box-sizing: border-box; }
+        .modern-input:focus { border-color: #4f46e5; background: #ffffff; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+        .master-panel { background: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; padding: 20px; }
+        .master-panel-title { margin: 0 0 15px 0; color: #1e293b; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
+        
+        /* The Flip Switch UI */
+        .view-switch-wrapper { display: flex; justify-content: flex-end; margin-bottom: 15px; }
+        .view-switch { display: inline-flex; background: #e2e8f0; border-radius: 8px; padding: 4px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); }
+        .view-btn { background: transparent; border: none; padding: 8px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; color: #64748b; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px; outline: none; }
+        .view-btn:hover { color: #334155; }
+        .view-btn.active { background: #ffffff; color: #4f46e5; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transform: scale(1.02); }
+        
+        /* Smooth Fade Animation for flipping */
+        .flip-section { animation: fadeInScale 0.3s ease-out; }
+        @keyframes fadeInScale { 0% { opacity: 0; transform: scale(0.98); } 100% { opacity: 1; transform: scale(1); } }
+
     </style>
 </head>
 <body>
+
+    <div id="globalLoader" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.7); z-index:999999; flex-direction:column; align-items:center; justify-content:center;">
+        <div style="width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #4276b6; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px;"></div>
+        <div style="background:#4276b6; color:white; padding:10px 25px; border-radius:20px; font-weight:bold; box-shadow:0 4px 15px rgba(0,0,0,0.2);">Processing, please wait...</div>
+        <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+    </div>
 
     <div id="toast" class="toast"></div>
 
@@ -297,6 +325,20 @@
                 <input type="text" id="n_prescribedBy" list="doctorList" autocomplete="off">
                 <datalist id="doctorList"></datalist>
             </div>
+            <!-- 🔴 MINIMALISTIC QUICK LOAD KIT SECTION -->
+            <div class="form-group" style="margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 20px;">
+                <label style="color: #64748b; font-weight: 600; display:flex; align-items:center; gap:5px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <span class="material-symbols-outlined" style="font-size: 16px; color: #f59e0b;">bolt</span> Quick Load Template
+                </label>
+                <div style="display: flex; gap: 10px; margin-top: 6px;">
+                    <select id="n_kitSelect" style="flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 4px; outline: none; font-size: 14px; background: #f8fafc; color: #334155; transition: 0.2s;">
+                        <option value="">-- Select Template --</option>
+                    </select>
+                    <button type="button" style="background: white; color: #4f46e5; border: 1px solid #4f46e5; border-radius: 4px; padding: 0 20px; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px; font-size: 14px; white-space: nowrap;" onmouseover="this.style.background='#4f46e5'; this.style.color='white'" onmouseout="this.style.background='white'; this.style.color='#4f46e5'" onclick="loadSelectedKit()">
+                        <span class="material-symbols-outlined" style="font-size: 18px;">Download</span>Load
+                    </button>
+                </div>
+            </div>
 
             <div class="form-row">
                 <div class="form-group" style="flex: 2; position: relative;">
@@ -335,6 +377,12 @@
                     <input type="checkbox" id="n_isUrgent" style="width: 18px; height: 18px; accent-color: #e53e3e;">
                     Urgent
                 </label>
+                
+                <!-- 🔴 NEW: Clear List Button -->
+                <button type="button" onclick="clearIndentList()" style="background: white; color: #e74c3c; border: 1px solid #e74c3c; border-radius: 4px; padding: 11px 15px; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.2s; white-space: nowrap; display: flex; align-items: center; gap: 5px;" onmouseover="this.style.background='#fff5f5'" onmouseout="this.style.background='white'">
+                    <span class="material-symbols-outlined" style="font-size: 18px !important;">delete_sweep</span> Clear
+                </button>
+                
                 <button class="btn btn-submit" id="n_submitBtn" onclick="submitIndent()" style="margin-top: 0; flex: 1;">Send to Pharmacy</button>
             </div>
             <button class="btn" style="background-color: #f39c12; display: none;" id="n_printBtn" onclick="executePrintIndent()">Print Indent</button>
@@ -380,23 +428,26 @@
                         </div>
                     </div>
                     <div class="patient-info">
-                        <div style="grid-column: span 2;"><strong style="color: #e53e3e; font-size: 16px; display: none;" id="p_urgentTag">[URGENT ]</strong></div>
-                        <div><strong>Indent No:</strong> <span id="lblIndentNo" style="color: #333; font-weight: 400;"></span></div>
-                        <div><strong>Date Time:</strong> <span id="lblDate" style="color: #333; font-weight: 400;"></span></div>
-                        <div><strong>Unit/Ward:</strong> <span id="lblWard" style="color: #333; font-weight: 400;"></span></div>
-                        <div><strong>Patient Name:</strong> <span id="lblPatient" style="color: #333; font-weight: 400;"></span></div>
-                        <div style="grid-column: span 2;"><strong>Prescribed By:</strong> <span id="lblDoctor" style="color: #333; font-weight: 400;"></span></div>
+                        <div><strong>Indent No:</strong> <span id="lblIndentNo" style="color: #333;"></span></div>
+                        <div><strong>Request Time:</strong> <span id="lblDate" style="color: #333;"></span></div>
+                        <div><strong>Patient Name:</strong> <span id="lblPatient" style="color: #333;"></span> <span id="p_urgentTag" style="display:none; color:white; font-size:12px; font-weight:bold; background:#e74c3c; padding:2px 6px; border-radius:4px; margin-left:5px;">URGENT</span></div>
+                        <div><strong>Prescribed By:</strong> <span id="lblDoctor" style="color: #333;"></span></div>
+                        <div style="grid-column: span 2;"><strong>Ward/Unit:</strong> <span id="lblWard" style="color: #333;"></span></div>
                     </div>
+                    
                     <div class="table-scroll-container">
                         <table class="p-table">
-                            <thead><tr><th>Sr. No.</th><th>Medicine / Consumable</th><th>Quantity</th></tr></thead>
+                            <thead>
+                                <tr>
+                                    <th>Sr. No.</th>
+                                    <th>Medicine / Consumable</th>
+                                    <th style="text-align:center;">Quantity</th>
+                                </tr>
+                            </thead>
                             <tbody id="medicineTableBody"></tbody>
                         </table>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
 
     <div id="adminSection" style="display: none;">
         <div class="p-header">
@@ -422,11 +473,9 @@
                     <button id="nav-home" class="pro-nav-btn active" onclick="switchAdminTab('tab-home', this)">
                         <span class="material-symbols-outlined">grid_view</span> <span class="module-title-text">Dashboard</span>
                     </button>
-                    <button id="nav-analytics" class="pro-nav-btn" onclick="switchAdminTab('tab-analytics', this)">
-                        <span class="material-symbols-outlined">monitoring</span> <span class="module-title-text">Live Analytics</span>
-                    </button>
-                    <button id="nav-search" class="pro-nav-btn" onclick="switchAdminTab('tab-search', this)">
-                        <span class="material-symbols-outlined">manage_search</span> <span class="module-title-text">Indent Monitor</span>
+                    <!-- जुने nav-analytics आणि nav-search डिलीट कर आणि हे टाक -->
+                    <button id="nav-monitor" class="pro-nav-btn" onclick="switchAdminTab('tab-monitor', this)">
+                        <span class="material-symbols-outlined">insights</span> <span class="module-title-text">Analytics & Monitor</span>
                     </button>
                     <button id="nav-masters" class="pro-nav-btn" onclick="switchAdminTab('tab-masters', this)">
                         <span class="material-symbols-outlined">upload_file</span> <span class="module-title-text">Master Import</span>
@@ -504,45 +553,73 @@
                     </div>
                 </div>
 
-                <div id="tab-analytics" class="admin-tab-content" style="padding: 0;">
+                <!-- ================= UNIFIED ANALYTICS & MONITOR TAB ================= -->
+                <div id="tab-monitor" class="admin-tab-content" style="padding: 0;">
                     <div style="max-width: 1200px; margin: 0 auto;">
-                        <h2 style="margin-top:0; color:#1e293b; font-weight:600; margin-bottom: 20px;">Live Analytics</h2>
-                        <div class="filter-grid">
-                            <div><label>Start Date:</label><input type="date" id="g_startDate"></div>
-                            <div><label>End Date:</label><input type="date" id="g_endDate"></div>
-                            <div><label>Unit:</label><select id="g_unit"><option value="">All Units</option></select></div>
-                            <div><label>Ward:</label><select id="g_ward"><option value="">All Wards</option></select></div>
-                            <div><button class="compact-btn" onclick="updateAdminAnalytics()">Apply Filters</button></div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px;">
+                            <div>
+                                <h2 style="margin:0; color:#1e293b; font-weight:600; font-size:24px;">Analytics & Indent Monitor</h2>
+                                <div style="font-size: 13px; color: #64748b; margin-top: 4px;">Live tracking, performance insights, and detailed logs</div>
+                            </div>
                         </div>
-                        <div style="display: flex; gap: 20px;">
-                            <div class="graph-container" style="flex: 1; text-align: center;"><h3 style="margin-top: 0; color: #4276b6; font-weight: 500;">Live Status</h3><div style="height: 250px; position: relative; margin: 0 auto; width: 100%;"><canvas id="adminPieChart"></canvas></div></div>
-                            <div class="graph-container" style="flex: 2;"><h3 style="margin-top: 0; color: #4276b6; font-weight: 500;">Pharmacy Response Time (Avg. Mins)</h3><div style="height: 250px; position: relative; width: 100%;"><canvas id="adminLineChart"></canvas></div></div>
-                        </div>
-                    </div>
-                </div>
 
-                <div id="tab-search" class="admin-tab-content" style="padding: 0;">
-                    <div style="max-width: 1200px; margin: 0 auto;">
-                        <h2 style="margin-top:0; color:#1e293b; font-weight:600; margin-bottom: 20px;">Indent Monitor</h2>
-                        <div style="display: flex; gap: 8px; margin-bottom: 15px; background-color: #fff; padding: 12px 15px; border: 1px solid #d1e3e8; border-radius: 8px; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); flex-wrap: nowrap; overflow-x: auto;">
-                            <span style="font-size: 14px; color: #216796; font-weight: bold; white-space: nowrap;">Filters:</span>
-                            <input type="date" id="s_startDate" title="From Date" style="padding: 6px; font-size: 13px; border: 1px solid #ced4da; border-radius: 4px; outline:none; height: 34px; width: 115px; flex-shrink: 0; color: #2c598f; font-weight: 500; cursor: pointer;">
-                            <input type="date" id="s_endDate" title="To Date" style="padding: 6px; font-size: 13px; border: 1px solid #ced4da; border-radius: 4px; outline:none; height: 34px; width: 115px; flex-shrink: 0; color: #2c598f; font-weight: 500; cursor: pointer;">
-                            <select id="s_unit" style="padding: 6px; border: 1px solid #ced4da; border-radius: 4px; flex: 1; min-width: 100px; height: 34px; outline:none; font-size: 13px; color: #333;"><option value="">All Units</option></select>
-                            <select id="s_ward" style="padding: 6px; border: 1px solid #ced4da; border-radius: 4px; flex: 1.5; min-width: 110px; height: 34px; outline:none; font-size: 13px; color: #333;"><option value="">All Wards</option></select>
-                            <input type="text" id="s_patientName" placeholder="Patient Name" style="padding: 6px; border: 1px solid #ced4da; border-radius: 4px; flex: 1.5; min-width: 120px; height: 34px; outline:none; font-size: 13px;">
-                            <input type="text" id="s_indentNo" placeholder="Indent No" style="padding: 6px; border: 1px solid #ced4da; border-radius: 4px; flex: 1; min-width: 100px; height: 34px; outline:none; font-size: 13px;">
-                            <button class="btn-dispatch" style="margin: 0; padding: 0 15px; background-color: #4f46e5; height: 34px; font-size: 14px; flex-shrink: 0; border-radius: 4px;" onclick="executeAdminSearch()">Search</button>
-                            <button style="margin: 0; padding: 0 12px; background-color: #f8fafc; color: #475569; border: 1px solid #cbd5e1; height: 34px; border-radius: 4px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; font-weight: 600; cursor: pointer; flex-shrink: 0; transition: all 0.2s;" onclick="document.getElementById('s_startDate').value=''; document.getElementById('s_endDate').value=''; document.getElementById('s_unit').value=''; document.getElementById('s_ward').value=''; document.getElementById('s_patientName').value=''; document.getElementById('s_indentNo').value=''; executeAdminSearch();" title="Clear Filters"><span class="material-symbols-outlined" style="font-size: 16px;">filter_alt_off</span> Clear</button>
+                        <!-- 1. Sleek Unified Filter Bar -->
+                        <div style="background: white; padding: 15px 20px; border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+                            <span style="font-size: 14px; color: #4f46e5; font-weight: 700; display:flex; align-items:center; gap:4px;"><span class="material-symbols-outlined" style="font-size:18px;">tune</span> </span>
+                            <input type="date" id="m_startDate" title="From Date" class="modern-input" style="width: 125px;">
+                            <input type="date" id="m_endDate" title="To Date" class="modern-input" style="width: 125px;">
+                            <select id="m_unit" class="modern-input" style="width: 110px;"><option value="">All Units</option></select>
+                            <select id="m_ward" class="modern-input" style="width: 140px;"><option value="">All Wards</option></select>
+                            <input type="text" id="m_patientName" placeholder="Patient Name" class="modern-input" style="flex: 1; min-width: 120px;">
+                            <input type="text" id="m_indentNo" placeholder="Indent No" class="modern-input" style="width: 120px;">
+                            
+                            <button class="btn-dispatch" style="background-color: #4f46e5; padding: 0 20px; height: 36px; border-radius: 6px; display:flex; align-items:center; gap:6px; font-weight:600;" onclick="executeMasterMonitor()">
+                                <span class="material-symbols-outlined" style="font-size:16px;">search</span> Search
+                            </button>
+                            <button style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 0 15px; height: 36px; border-radius: 6px; cursor: pointer; font-weight: 600; transition:0.2s;" onclick="clearMasterMonitor()">Clear</button>
                         </div>
-                        <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); padding: 15px; border: 1px solid #e0e0e0;">
-                            <div style="height: 400px; overflow-y: auto; border-radius: 4px; background: #fff;">
+
+                        <!-- 🔴 THE FLIP SWITCH (Right Corner below filters) -->
+                        <div class="view-switch-wrapper">
+                            <div class="view-switch">
+                                <button id="btnViewCharts" class="view-btn active" onclick="flipMonitorView('charts')">
+                                    <span class="material-symbols-outlined">analytics</span> Live Analytics
+                                </button>
+                                <button id="btnViewTable" class="view-btn" onclick="flipMonitorView('table')">
+                                    <span class="material-symbols-outlined">table_rows</span> Data Table
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 🔴 VIEW 1: CHARTS (Default Active) -->
+                        <div id="view-charts" class="flip-section" style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
+                            <div class="master-panel" style="margin-bottom: 0;">
+                                <div class="master-panel-title"><span class="material-symbols-outlined" style="color:#e74c3c;">donut_large</span> Live Indent Status</div>
+                                <div style="height: 250px; position: relative;"><canvas id="adminPieChart"></canvas></div>
+                            </div>
+                            <div class="master-panel" style="margin-bottom: 0;">
+                                <div class="master-panel-title"><span class="material-symbols-outlined" style="color:#3b82f6;">moving</span> Average TAT Trend (Mins)</div>
+                                <div style="height: 250px; position: relative;"><canvas id="adminLineChart"></canvas></div>
+                            </div>
+                        </div>
+
+                        <!-- 🔴 VIEW 2: DATA TABLE (Hidden by Default) -->
+                        <div id="view-table" class="flip-section master-panel" style="display: none; padding-top: 15px;">
+                            <div class="master-panel-title" style="justify-content: space-between; border-bottom: none; padding-bottom: 5px;">
+                                <div style="display:flex; align-items:center; gap:8px;"><span class="material-symbols-outlined" style="color:#27ae60;">list_alt</span> Detailed Indent Log</div>
+                                <span id="m_recordCount" style="font-size:12px; background:#eef2ff; color:#4f46e5; padding:4px 10px; border-radius:12px; font-weight:700;">0 Records</span>
+                            </div>
+                            <div style="height: 400px; overflow-y: auto; border-radius: 6px; border: 1px solid #f1f5f9;">
                                 <table class="p-table" style="font-size: 13px; margin-top: 0; border: none;">
-                                    <thead><tr><th>Date</th><th>Indent No</th><th>Patient Name</th><th>Ward</th><th>Status</th><th>TAT (Mins)</th><th>Action</th></tr></thead>
+                                    <thead style="background:#f8fafc;">
+                                        <tr><th>Date</th><th>Indent No</th><th>Patient Name</th><th>Ward</th><th>Status</th><th>TAT (Mins)</th><th>Action</th></tr>
+                                    </thead>
                                     <tbody id="adminSearchResults"></tbody>
                                 </table>
                             </div>
                         </div>
+
                     </div>
                 </div>
 
@@ -562,23 +639,38 @@
                         <div class="settings-nav">
                             <button class="set-nav-btn active" onclick="switchSettingTab('set-users', this)"><span class="material-symbols-outlined">manage_accounts</span> User & Role Master</button>
                             <button class="set-nav-btn" onclick="switchSettingTab('set-wards', this)"><span class="material-symbols-outlined">local_hospital</span> Ward Master</button>
-                            <button class="set-nav-btn" onclick="switchSettingTab('set-emails', this)"><span class="material-symbols-outlined">forward_to_inbox</span> Email Settings</button>
+                            <button class="set-nav-btn" onclick="switchSettingTab('set-emails', this)"><span class="material-symbols-outlined">account_tree</span> Role & Email Routing</button>
                         </div>
 
                         <div id="set-users" class="set-content active">
                             <div style="background: #f8fafc; padding: 12px 15px; border-radius: 6px; border: 1px dashed #cbd5e1; margin-bottom: 20px; font-size: 13px; color: #475569;">
                                 <strong>🛡️ Access Rights (Role Master):</strong><br>
-                                <span style="color:#e74c3c; font-weight:bold;">ADMIN:</span> Full System Control & Masters &nbsp;|&nbsp; 
-                                <span style="color:#f39c12; font-weight:bold;">INCHARGE:</span> Pharmacy Dashboard + Reports &nbsp;|&nbsp; 
-                                <span style="color:#27ae60; font-weight:bold;">PHARMACY:</span> Indent Processing Only &nbsp;|&nbsp; 
-                                <span style="color:#3b82f6; font-weight:bold;">RESIDENT:</span> Nursing/Ward Portal Only
+                                <span style="color:#e74c3c; font-weight:bold;">ADMIN:</span> Full System &nbsp;|&nbsp; 
+                                <span style="color:#f39c12; font-weight:bold;">INCHARGE:</span> Pharmacy &nbsp;|&nbsp; 
+                                <span style="color:#27ae60; font-weight:bold;">PHARMACY:</span> Indent Only &nbsp;|&nbsp; 
+                                <span style="color:#3b82f6; font-weight:bold;">RESIDENT:</span> Ward Portal &nbsp;|&nbsp;
+                                <span style="color:#d35400; font-weight:bold;">REVIEWER:</span> RCA Entry &nbsp;|&nbsp; 
+                                <span style="color:#8e44ad; font-weight:bold;">APPROVER:</span> Final Closure
                             </div>
 
-                            <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 15px; margin-bottom: 20px; background: #f0fdf4; padding: 15px; border-radius: 6px; border: 1px solid #bbf7d0; align-items: end;">
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; background: #f0fdf4; padding: 15px; border-radius: 6px; border: 1px solid #bbf7d0;">
                                 <div><label style="font-size:12px; font-weight:bold; color:#166534;">User ID *</label><input type="text" id="nu_id" placeholder="EMP101" style="width:100%; padding:8px; border:1px solid #ced4da; border-radius:4px; outline:none; text-transform:uppercase;"></div>
                                 <div><label style="font-size:12px; font-weight:bold; color:#166534;">Full Name *</label><input type="text" id="nu_name" placeholder="Ramesh Patil" style="width:100%; padding:8px; border:1px solid #ced4da; border-radius:4px; outline:none;"></div>
-                                <div><label style="font-size:12px; font-weight:bold; color:#166534;">Password *</label><input type="text" id="nu_pass" placeholder="***" style="width:100%; padding:8px; border:1px solid #ced4da; border-radius:4px; outline:none;"></div>
-                                <div><label style="font-size:12px; font-weight:bold; color:#e74c3c;">Passkey *</label><input type="password" id="nu_passkey" placeholder="1234" style="width:100%; padding:8px; border:1px solid #ffcdd2; background:#fff5f5; border-radius:4px; outline:none; font-weight:bold; text-align:center;"></div>
+                                
+                                <div><label style="font-size:12px; font-weight:bold; color:#166534;">Email ID (For Auto-Routing)</label><input type="email" id="nu_email" placeholder="user@hospital.com" style="width:100%; padding:8px; border:1px solid #ced4da; border-radius:4px; outline:none;"></div>
+                                
+                                <div>
+                                    <label style="font-size:12px; font-weight:bold; color:#27ae60;">Role (Rights) *</label>
+                                    <select id="nu_role" style="width:100%; padding:8px; border:2px solid #27ae60; border-radius:4px; outline:none; font-weight:bold; color:#2c598f; background:white;">
+                                        <option value="PHARMACY">Pharmacist</option>
+                                        <option value="INCHARGE">Pharmacy Incharge</option>
+                                        <option value="RESIDENT">Resident (Nursing)</option>
+                                        <option value="ADMIN">Super Admin</option>
+                                        <option value="REVIEWER" style="color:#d35400;">Safety Officer (Reviewer)</option>
+                                        <option value="APPROVER" style="color:#8e44ad;">Management (Approver)</option>
+                                    </select>
+                                </div>
+                                
                                 <div>
                                     <label style="font-size:12px; font-weight:bold; color:#166534;">Unit *</label>
                                     <select id="nu_unit" style="width:100%; padding:8px; border:1px solid #ced4da; border-radius:4px; outline:none; background:white;">
@@ -588,24 +680,18 @@
                                         <option value="BMCCU-PHARMACY">BMCCU - Pharmacy</option>
                                     </select>
                                 </div>
-                                <div>
-                                    <label style="font-size:12px; font-weight:bold; color:#27ae60;">Role (Rights) *</label>
-                                    <select id="nu_role" style="width:100%; padding:8px; border:2px solid #27ae60; border-radius:4px; outline:none; font-weight:bold; color:#2c598f; background:white;">
-                                        <option value="PHARMACY">Pharmacist</option>
-                                        <option value="INCHARGE">Pharmacy Incharge</option>
-                                        <option value="RESIDENT">Resident (Nursing)</option>
-                                        <option value="ADMIN">Admin</option>
-                                    </select>
-                                </div>
-                                <div style="grid-column: span 6; border-top: 1px solid #bbf7d0; padding-top: 15px; margin-top: 5px; display: flex; justify-content: flex-end; gap: 15px;">
-                                    <button class="btn-dispatch" id="btnCancelEditUser" style="background-color: #94a3b8; padding: 10px 20px; font-size: 14px; display: none;" onclick="clearUserForm()">Cancel Edit</button>
-                                    <button class="btn-dispatch" id="btnSaveUser" style="background-color: #22c55e; padding: 10px 25px; font-size: 14px;" onclick="createNewUser()">+ Save User</button>
+                                <div><label style="font-size:12px; font-weight:bold; color:#166534;">Password *</label><input type="text" id="nu_pass" placeholder="***" style="width:100%; padding:8px; border:1px solid #ced4da; border-radius:4px; outline:none;"></div>
+                                <div><label style="font-size:12px; font-weight:bold; color:#e74c3c;">Passkey *</label><input type="password" id="nu_passkey" placeholder="****" style="width:100%; padding:8px; border:1px solid #ffcdd2; background:#fff5f5; border-radius:4px; outline:none; font-weight:bold; text-align:center;"></div>
+                                
+                                <div style="display: flex; justify-content: flex-end; align-items: flex-end; gap: 10px;">
+                                    <button class="btn-dispatch" id="btnCancelEditUser" style="background-color: #94a3b8; padding: 8px 15px; font-size: 13px; display: none; width:100%;" onclick="clearUserForm()">Cancel</button>
+                                    <button class="btn-dispatch" id="btnSaveUser" style="background-color: #22c55e; padding: 8px 15px; font-size: 13px; width: 100%;" onclick="createNewUser()">+ Save User</button>
                                 </div>
                             </div>
                             <div style="max-height: 400px; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 6px;">
                                 <table class="p-table" style="font-size: 13px; margin-top: 0; border: none; width: 100%;">
                                     <thead style="background-color: #f8fafc;">
-                                        <tr><th>User ID</th><th>Full Name</th><th>Unit</th><th>Role (Rights)</th><th style="text-align:center;">Password</th><th style="text-align:center;">Passkey</th><th style="text-align: center;">Action</th></tr>
+                                        <tr><th>User ID</th><th>Full Name</th><th>Email ID</th><th>Unit</th><th>Role (Rights)</th><th style="text-align:center;">Passkey</th><th style="text-align: center;">Action</th></tr>
                                     </thead>
                                     <tbody id="adminUsersList"></tbody>
                                 </table>
@@ -627,33 +713,79 @@
                         </div>
 
                         <div id="set-emails" class="set-content">
-                            <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">
-                                <div style="background: #f8fafc; padding: 15px 20px; border-radius: 6px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
-                                    <div style="flex: 1;">
-                                        <h4 style="margin: 0 0 5px 0; color: #334155;">Admin Safety Log Alerts</h4>
-                                        <div style="font-size: 12px; color: #64748b;">Receive emails when a new Patient Safety Incident is reported.</div>
-                                        <input type="text" id="set_adminEmail" placeholder="admin@hospital.com" style="margin-top: 10px; width: 100%; max-width: 300px; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; outline: none; font-size: 13px;">
-                                    </div>
-                                    <label class="toggle-switch" title="Turn ON/OFF Admin Emails">
-                                      <input type="checkbox" id="set_adminToggle">
+                            <div style="background: #f8fafc; padding: 25px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px; background: white; padding: 15px; border-radius: 6px; border: 1px solid #cbd5e1; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                                    <label style="font-weight: bold; color: #1e293b; font-size: 15px;">Department (Process):</label>
+                                    <select id="es_department" style="padding: 10px 15px; border: 2px solid #4f46e5; border-radius: 6px; font-size: 15px; color: #4f46e5; font-weight: 600; width: 300px; outline: none;">
+                                        <option value="SAFETY_INCIDENT">Incident & Safety Tracker</option>
+                                        <option value="PHARMACY_INDENT">Pharmacy Indents</option>
+                                    </select>
+                                    <label class="toggle-switch" title="Turn ON/OFF Emails for this Department" style="margin-left: auto;">
+                                      <input type="checkbox" id="es_toggle" checked>
                                       <span class="t-slider"></span>
                                     </label>
+                                    <span style="font-size:12px; color:#64748b; font-weight:bold;">Enable Alerts</span>
                                 </div>
 
-                                <div style="background: #f8fafc; padding: 15px 20px; border-radius: 6px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
-                                    <div style="flex: 1;">
-                                        <h4 style="margin: 0 0 5px 0; color: #334155;">Pharmacy New Indent Alerts</h4>
-                                        <div style="font-size: 12px; color: #64748b;">Notify pharmacy when a new URGENT or normal indent is raised.</div>
-                                        <input type="text" id="set_pharmEmail" placeholder="pharmacy@hospital.com" style="margin-top: 10px; width: 100%; max-width: 300px; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; outline: none; font-size: 13px;">
-                                    </div>
-                                    <label class="toggle-switch" title="Turn ON/OFF Pharmacy Emails">
-                                      <input type="checkbox" id="set_pharmToggle">
-                                      <span class="t-slider"></span>
-                                    </label>
+                                <table style="width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                                    <thead>
+                                        <tr style="background:#e2e8f0; color:#334155;">
+                                            <th style="padding: 12px; border: 1px solid #cbd5e1; text-align: left; width: 15%;">Send Type</th>
+                                            <th style="padding: 12px; border: 1px solid #cbd5e1; text-align: left; width: 35%;">Role-Dropdown (Mapped To)</th>
+                                            <th style="padding: 12px; border: 1px solid #cbd5e1; text-align: left;">Target Email Address</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td style="padding: 12px; border: 1px solid #cbd5e1; font-weight:bold; color:#1e293b;">TO Address</td>
+                                            <td style="padding: 12px; border: 1px solid #cbd5e1;">
+                                                <select id="es_toRole" style="width:100%; padding:8px; border:1px solid #ced4da; border-radius:4px; outline:none;" onchange="fetchEmailForRole(this, 'es_toEmail')">
+                                                    <option value="">-- Select Role --</option>
+                                                    <option value="REVIEWER">Safety Officer (Reviewer)</option>
+                                                    <option value="APPROVER">Management (Approver)</option>
+                                                    <option value="INCHARGE">Pharmacy Incharge</option>
+                                                    <option value="ADMIN">Super Admin</option>
+                                                </select>
+                                            </td>
+                                            <td style="padding: 12px; border: 1px solid #cbd5e1;">
+                                                <input type="email" id="es_toEmail" placeholder="Will auto-fetch from User Master" style="width:100%; padding:8px; border:1px solid #ced4da; border-radius:4px; outline:none;">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 12px; border: 1px solid #cbd5e1; font-weight:bold; color:#1e293b;">Cc</td>
+                                            <td style="padding: 12px; border: 1px solid #cbd5e1;">
+                                                <select id="es_ccRole" style="width:100%; padding:8px; border:1px solid #ced4da; border-radius:4px; outline:none;" onchange="fetchEmailForRole(this, 'es_ccEmail')">
+                                                    <option value="">-- Select Role --</option>
+                                                    <option value="REVIEWER">Safety Officer (Reviewer)</option>
+                                                    <option value="APPROVER">Management (Approver)</option>
+                                                    <option value="INCHARGE">Pharmacy Incharge</option>
+                                                    <option value="ADMIN">Super Admin</option>
+                                                </select>
+                                            </td>
+                                            <td style="padding: 12px; border: 1px solid #cbd5e1;">
+                                                <input type="email" id="es_ccEmail" placeholder="Will auto-fetch from User Master" style="width:100%; padding:8px; border:1px solid #ced4da; border-radius:4px; outline:none;">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 12px; border: 1px solid #cbd5e1; font-weight:bold; color:#1e293b;">Bcc</td>
+                                            <td style="padding: 12px; border: 1px solid #cbd5e1;">
+                                                <select id="es_bccRole" style="width:100%; padding:8px; border:1px solid #ced4da; border-radius:4px; outline:none;" onchange="fetchEmailForRole(this, 'es_bccEmail')">
+                                                    <option value="">-- Select Role --</option>
+                                                    <option value="REVIEWER">Safety Officer (Reviewer)</option>
+                                                    <option value="APPROVER">Management (Approver)</option>
+                                                    <option value="INCHARGE">Pharmacy Incharge</option>
+                                                    <option value="ADMIN">Super Admin</option>
+                                                </select>
+                                            </td>
+                                            <td style="padding: 12px; border: 1px solid #cbd5e1;">
+                                                <input type="email" id="es_bccEmail" placeholder="Will auto-fetch from User Master" style="width:100%; padding:8px; border:1px solid #ced4da; border-radius:4px; outline:none;">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div style="margin-top: 20px; text-align: right;">
+                                    <button class="btn-dispatch" id="btnSaveEmailMapping" style="background-color: #4f46e5; padding: 12px 30px; font-size: 15px;" onclick="saveDynamicEmailSettings()">Save Configuration</button>
                                 </div>
-                            </div>
-                            <div style="margin-top: 20px; text-align: right; border-top: 1px solid #e2e8f0; padding-top: 15px;">
-                                <button class="btn-dispatch" id="btnSaveEmail" style="background-color: #4f46e5; padding: 10px 30px;" onclick="saveEmailSettings()">Save Preferences</button>
                             </div>
                         </div>
 
@@ -669,7 +801,15 @@
                         <div style="max-height: 400px; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 6px;">
                             <table class="p-table" style="font-size: 13px; margin-top: 0; border: none; width: 100%;">
                                 <thead style="background-color: #f0f8fa;">
-                                    <tr><th>Incident No</th><th>Date & Time</th><th>Department / Ward</th><th>Reporter Details</th><th>Brief Description</th><th style="text-align:center;">Action</th></tr>
+                                    <tr>
+                                        <th>Incident No</th>
+                                        <th>Date & Time</th>
+                                        <th>Department</th>
+                                        <th>Primary Observer</th>
+                                        <th>Status</th>
+                                        <th>Investigator/Approver</th>
+                                        <th style="text-align:center;">Action</th>
+                                    </tr>
                                 </thead>
                                 <tbody id="incidentTrackerResults"></tbody>
                             </table>
@@ -863,6 +1003,26 @@
         </div>
     </div>
 
+    <div id="printSelectModal" class="modalOverlay" style="display:none; z-index: 30000;">
+        <div class="modalBox" style="width: 380px;">
+            <div class="modalHeader" style="background:#f8fafc;">
+                <h3><span class="material-symbols-outlined" style="color:#0d9488;">print</span> Print Document</h3>
+                <button class="modalCloseBtn" onclick="document.getElementById('printSelectModal').style.display='none'">✕</button>
+            </div>
+            <div class="modalBody" style="text-align:center; padding: 30px 20px;">
+                <p style="margin-top:0; color:#475569; font-size:14px;">Select the document you want to print for<br><b id="printModalIncNo" style="color:#1e293b; font-size:16px;"></b></p>
+                <div style="display:flex; flex-direction:column; gap:15px; margin-top:25px;">
+                    <button class="btn-dispatch" style="background:#e11d48; width:100%; padding:14px; font-size:14px; display:flex; justify-content:center; align-items:center; gap:8px;" onclick="executePrintAnnexI()">
+                        <span class="material-symbols-outlined">description</span> Print Annexure I (Report)
+                    </button>
+                    <button id="btnPrintAnnex2" class="btn-dispatch" style="background:#8e44ad; width:100%; padding:14px; font-size:14px; display:flex; justify-content:center; align-items:center; gap:8px;" onclick="executePrintAnnexII()">
+                        <span class="material-symbols-outlined">troubleshoot</span> Print Annexure II (RCA)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="tatModal" class="modalOverlay" style="display:none;">
         <div class="modalBox" style="width: 500px; max-width: 95%;">
             <div class="modalHeader">
@@ -908,10 +1068,12 @@
     </div>
 
 <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwkxbyHQMljgU6AaEHj95UH2K5C2RXRdScUOzZrF8PSMuzw2kmLlHaMvrzVMG4dL88I/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzymM_BdjSLBvGuwwVDWk04P31MRV8jLa50nDpNWnnsdRGLva6IVjmEA0xxnAz4ywYS/exec';
 	setTimeout(() => { fetch(SCRIPT_URL + "?action=ping", { mode: 'no-cors' }).catch(() => {}); }, 500);
 
     let loggedInUnit = ""; let currentRole = ""; let loggedInName = ""; let loggedInPasskey = ""; let loggedInUserId = ""; 
+
+    function normaliseStatus(raw) { return String(raw || "PENDING").trim().toUpperCase(); }
 
     function showToast(message, type = 'success') {
         const toast = document.getElementById("toast"); toast.innerText = message; toast.className = "toast show " + type;
@@ -1000,6 +1162,8 @@
     }
 
     let indentList = []; let globalMedicines = []; let currentFocus = -1;
+    let globalKits = []; // 🔴 NEW: Kits साठवण्यासाठी
+
     function initNursing() { fetchMasterData(); }
     
     function fetchMasterData() {
@@ -1015,6 +1179,20 @@
             const docList = document.getElementById('doctorList'); docList.innerHTML = ''; 
             if(data.doctors) data.doctors.forEach(d => { docList.innerHTML += `<option value="${d}">`; });
             if(data.medicines) globalMedicines = data.medicines;
+            
+            // 🔴 FIX: Kits ड्रॉपडाऊनमध्ये भरणे
+            if(data.kits && data.kits.length > 0) {
+                globalKits = data.kits;
+                let uniqueKits = new Set(globalKits.map(k => k.templateName));
+                const kitSelect = document.getElementById('n_kitSelect');
+                if(kitSelect) {
+                    kitSelect.innerHTML = '<option value="">-- Select Template --</option>';
+                    uniqueKits.forEach(kName => {
+                        kitSelect.innerHTML += `<option value="${kName}">${kName}</option>`;
+                    });
+                }
+            }
+            
             document.querySelectorAll('.loading-text').forEach(el => el.style.display = 'none');
         });
     }
@@ -1074,9 +1252,46 @@
         indentList.push({ displayName: finalName, quantity: qty }); updateNTable(); document.getElementById('n_medicineName').value = ''; document.getElementById('n_quantity').value = '';
     }
 
+    // 🔴 1. FIX: टेबलमध्ये Quantity बॉक्स Editable केला
     function updateNTable() {
         const tbody = document.getElementById('tableBody'); tbody.innerHTML = ''; 
-        indentList.forEach((item, i) => { tbody.innerHTML += `<tr><td>${item.displayName}</td><td>${item.quantity}</td><td class="delete-btn" onclick="indentList.splice(${i}, 1); updateNTable()">Remove</td></tr>`; });
+        indentList.forEach((item, i) => { 
+            tbody.innerHTML += `<tr>
+                <td style="font-weight: 500; color: #2c598f;">${item.displayName}</td>
+                <td style="width: 100px; text-align: center;">
+                    <input type="number" min="1" value="${item.quantity}" 
+                           onchange="updateItemQty(${i}, this.value)" 
+                           style="width: 80%; padding: 6px; border: 1px solid #ced4da; border-radius: 4px; text-align: center; font-weight: bold; color: #333; outline: none;">
+                </td>
+                <td class="delete-btn" style="text-align: center;" onclick="indentList.splice(${i}, 1); updateNTable()">
+                    <span class="material-symbols-outlined" style="font-size: 20px !important;" title="Remove">delete</span>
+                </td>
+            </tr>`; 
+        });
+    }
+
+    // 🔴 2. नवीन फंक्शन: नर्सने Quantity बदलल्यावर ती सिस्टीममध्ये सेव्ह करण्यासाठी
+    function updateItemQty(index, newQty) {
+        if(newQty && newQty > 0) {
+            indentList[index].quantity = newQty; // नवीन आकडा सेव्ह होईल
+        } else {
+            alert("Quantity cannot be zero or empty!");
+            updateNTable(); // चुकीचा आकडा टाकल्यास जुनाच आकडा परत आणेल
+        }
+    }
+    // 🔴 एका क्लिकवर पूर्ण लिस्ट रिकामी करण्यासाठी
+    function clearIndentList() {
+        if (indentList.length === 0) {
+            alert("The list is already empty!");
+            return;
+        }
+        
+        // सुरक्षेसाठी विचारणे जेणेकरून चुकून मेहनत वाया जाऊ नये
+        if (confirm("⚠️ Are you sure you want to clear the entire medicine list?")) {
+            indentList = []; // Array रिकामा करणे
+            updateNTable();  // टेबल रिफ्रेश करणे
+            showToast("List cleared successfully!", "success");
+        }
     }
 
     // 🔴 Helper function to populate the Print Template accurately
@@ -1125,31 +1340,68 @@
         setTimeout(() => { document.body.classList.remove('canon-mode', 'print-indent'); }, 1000);
     }
 
+    // 🔴 1. Error-Proof 'Send to Pharmacy' Logic
     async function submitIndent() {
-        const ward = document.getElementById('n_wardName').value; let pName = document.getElementById('n_patientName').value.trim(); const doc = document.getElementById('n_prescribedBy').value.trim(); 
-        if(!ward) { alert("❌ Please select a Ward."); return; } if(!pName) { alert("❌ Please enter Patient Name."); return; } if(!doc) { alert("❌ Please select 'Prescribed By' (Doctor Name)."); return; }
-        if (indentList.length === 0) { alert("❌ Please add at least one medicine."); return; }
+        try {
+            const ward = document.getElementById('n_wardName').value; 
+            let pName = document.getElementById('n_patientName').value.trim(); 
+            const doc = document.getElementById('n_prescribedBy').value.trim(); 
+            
+            if(!ward) { alert("❌ Please select a Ward."); return; } 
+            if(!pName) { alert("❌ Please enter Patient Name."); return; } 
+            if(!doc) { alert("❌ Please select 'Prescribed By' (Doctor Name)."); return; }
+            if (indentList.length === 0) { alert("❌ Please add at least one medicine."); return; }
 
-        let passkeyResult = await verifyUserPasskey("Send Indent to Pharmacy");
-        if (!passkeyResult.verified) return; 
-        let actualSubmitter = passkeyResult.userName; 
+            let passkeyResult = await verifyUserPasskey("Send Indent to Pharmacy");
+            if (!passkeyResult.verified) return; 
+            let actualSubmitter = passkeyResult.userName; 
 
-        if(document.getElementById('n_isUrgent').checked) pName = "[URGENT] " + pName;
-        
-        const btn = document.getElementById('n_submitBtn'); btn.innerHTML = "Sending..."; btn.disabled = true;
-        
-        const payload = { action: "submitIndent", unitName: loggedInUnit, wardName: loggedInUnit + " - " + ward, patientName: pName, doctorName: doc, loginUser: loggedInName, submitUser: actualSubmitter, items: indentList.map(i => ({ name: i.displayName, qty: i.quantity })) };
-        
-        fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) })
-        .then(res => res.json()).then(data => {
+            if(document.getElementById('n_isUrgent').checked) pName = "[URGENT] " + pName;
+            
+            const btn = document.getElementById('n_submitBtn'); 
+            btn.innerHTML = "Sending..."; 
+            btn.disabled = true;
+            document.getElementById('globalLoader').style.display = 'flex'; // LOCK UI
+            
+            const payload = { 
+                action: "submitIndent", 
+                unitName: loggedInUnit, 
+                wardName: loggedInUnit + " - " + ward, 
+                patientName: pName, 
+                doctorName: doc, 
+                loginUser: loggedInName, 
+                submitUser: actualSubmitter, 
+                items: indentList.map(i => ({ name: i.displayName, qty: i.quantity })) 
+            };
+            
+            let response = await fetch(SCRIPT_URL, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+                body: JSON.stringify(payload) 
+            });
+            
+            if(!response.ok) throw new Error("Server responded with status: " + response.status);
+            let data = await response.json();
+            
             if(data.success) {
                 showToast("Indent Sent Successfully!", "success"); 
                 let newIndentNo = data.indentNo || "Pending";
                 populatePrint(pName, loggedInUnit + " - " + ward, formatCDate(new Date().toISOString()), newIndentNo, doc, indentList, actualSubmitter, null, null);
                 document.getElementById('n_printBtn').style.display = 'block';
-                indentList = []; updateNTable(); document.getElementById('n_patientName').value = ''; document.getElementById('n_isUrgent').checked = false; btn.innerHTML = "Send to Pharmacy"; btn.disabled = false;
+                indentList = []; updateNTable(); 
+                document.getElementById('n_patientName').value = ''; 
+                document.getElementById('n_isUrgent').checked = false; 
+            } else {
+                alert("❌ Failed to send indent: " + (data.message || "Unknown error."));
             }
-        }).catch(err => { alert("Connection Error!"); btn.innerHTML = "Send to Pharmacy"; btn.disabled = false; });
+        } catch(err) {
+            console.error("Submit Indent Error:", err);
+            alert("❌ Connection Error! Please check your internet or wait a few seconds."); 
+        } finally {
+            const btn = document.getElementById('n_submitBtn'); 
+            if(btn) { btn.innerHTML = "Send to Pharmacy"; btn.disabled = false; }
+            document.getElementById('globalLoader').style.display = 'none'; // UNLOCK UI
+        }
     }
 
     let allIndents = []; let currentSelectedIndent = null; let notifiedIndents = new Set(); 
@@ -1160,11 +1412,7 @@
         fetch(SCRIPT_URL + "?action=getPendingIndents&t=" + new Date().getTime()).then(res => res.json()).then(data => {
             let grouped = {};
             data.forEach(row => {
-                
-                // इथे आपण नवीन Bulletproof लॉजिक वापरत आहोत
                 let currentStatus = normaliseStatus(row.status);
-                
-                // लोकल ट्रॅकिंग
                 let existingIndent = allIndents.find(i => i.indentNo === row.indentNo);
                 if (existingIndent && existingIndent.status === 'READY FOR COLLECTION' && currentStatus !== 'DISPATCHED' && currentStatus !== 'VERIFIED') {
                     currentStatus = 'READY FOR COLLECTION'; 
@@ -1221,7 +1469,7 @@
                 notifiedIndents.add(ind.indentNo); if(isUrgent) hasNewUrgent = true; else hasNewNormal = true;
                 if ("Notification" in window && Notification.permission === "granted") { new Notification(isUrgent ? "URGENT INDENT ALERT" : "New Pharmacy Indent", { body: `Ward: ${ind.ward}\nPatient: ${cleanPatient}`, icon: "https://cdn-icons-png.flaticon.com/512/4320/4320337.png", requireInteraction: isUrgent }); }
             }
-            let badgeHtml = ind.status === 'Ready for Collection' ? `<span style="background:#f39c12; color:white; padding:2px 8px; border-radius:10px; font-size:10px; margin-left:8px; vertical-align:middle;">READY</span>` : ``;
+            let badgeHtml = normaliseStatus(ind.status) === 'READY FOR COLLECTION' ? `<span style="background:#f39c12; color:white; padding:2px 8px; border-radius:10px; font-size:10px; margin-left:8px; vertical-align:middle;">READY</span>` : ``;
             html += `<div class="indent-card ${isUrgent ? 'urgent' : ''}" onclick='showPDetails(${JSON.stringify(ind).replace(/'/g, "&#39;")})'><div class="indent-header"><span style="display:flex; align-items:center;">${ind.indentNo} ${badgeHtml}</span><span style="color:#ce936b; font-size:13px; font-weight: 400;">${formatCDate(ind.date)}</span></div><div style="color: #333; font-size: 14px;"><strong>${cleanPatient}</strong> (${ind.ward})</div></div>`;
         });
         container.innerHTML = html;
@@ -1235,18 +1483,10 @@
         let readyBtn = document.getElementById('p_readyBtn');
         if(readyBtn) {
             readyBtn.style.display = 'inline-block'; 
-            
-            // Uppercase स्टेटस चेक करत आहोत
-            if(ind.status === 'READY FOR COLLECTION') { 
-                readyBtn.disabled = true; 
-                readyBtn.style.backgroundColor = '#95a5a6'; 
-                readyBtn.style.cursor = 'not-allowed'; 
-                readyBtn.innerText = "Ready ✓"; 
+            if(normaliseStatus(ind.status) === 'READY FOR COLLECTION') { 
+                readyBtn.disabled = true; readyBtn.style.backgroundColor = '#95a5a6'; readyBtn.style.cursor = 'not-allowed'; readyBtn.innerText = "Ready ✓"; 
             } else { 
-                readyBtn.disabled = false; 
-                readyBtn.style.backgroundColor = '#f39c12'; 
-                readyBtn.style.cursor = 'pointer'; 
-                readyBtn.innerText = "Ready for Collection"; 
+                readyBtn.disabled = false; readyBtn.style.backgroundColor = '#f39c12'; readyBtn.style.cursor = 'pointer'; readyBtn.innerText = "Ready for Collection"; 
             }
         }
 
@@ -1261,79 +1501,103 @@
             tbody.innerHTML += `<tr><td>${idx+1}</td><td><b>${n}</b> ${opd}</td><td>${med.qty}</td></tr>`;
         });
         
-        // Populate print perfectly
-        populatePrint(cleanPatient, ind.ward, formatCDate(ind.date), ind.indentNo, ind.doctor, ind.medicines, ind.submitUser, ind.status==='Dispatched' ? ind.dispatchTime : null, ind.dispensedBy);
+        let st2 = normaliseStatus(ind.status);
+        populatePrint(cleanPatient, ind.ward, formatCDate(ind.date), ind.indentNo, ind.doctor, ind.medicines, ind.submitUser, st2 === 'DISPATCHED' ? ind.dispatchTime : null, ind.dispensedBy);
     }
 
+    // 🔴 2. Error-Proof 'Mark as Dispatched' Logic
     async function markAsDispatched() {
-        if(!currentSelectedIndent) return; 
-        // 🔴 SMART FIX: 'बॅकएंड' डेटा सोबतच 'स्क्रीनवरील बटण' डिसेबल झाले आहे का हे पण चेक करेल
-        let ind = allIndents.find(i => i.indentNo === currentSelectedIndent);
-        const readyBtn = document.getElementById('p_readyBtn');
-        
-        let isReadyDone = (ind && ind.status === 'Ready for Collection') || readyBtn.disabled;
+        try {
+            if(!currentSelectedIndent) return; 
+            
+            let ind = allIndents.find(i => i.indentNo === currentSelectedIndent);
+            const readyBtn = document.getElementById('p_readyBtn');
+            
+            let st = ind ? normaliseStatus(ind.status) : "";
+            let isReadyDone = (st === 'READY FOR COLLECTION') || readyBtn.disabled;
 
-        if (!isReadyDone) {
-            // युजरला विचारेल, जर 'Cancel' वर क्लिक केले तरच थांबेल. 'OK' वर क्लिक केले तर प्रोसेस पुढे जाईल.
-            let proceed = confirm("⚠️ Ready for collection not done, do you want to proceed?");
-            if (!proceed) {
-                return; 
+            if (!isReadyDone) {
+                let proceed = confirm("⚠️ 'Ready for Collection' is not done. Do you still want to proceed to Dispatch?");
+                if (!proceed) { return; }
             }
-        }
-        let passkeyResult = await verifyUserPasskey("Dispatch Indent");
-        if (!passkeyResult.verified) return; 
-        let actualPharmacist = passkeyResult.userName; 
+            
+            let passkeyResult = await verifyUserPasskey("Dispatch Indent");
+            if (!passkeyResult.verified) return; 
+            let actualPharmacist = passkeyResult.userName; 
 
-        const btn = document.getElementById('p_dispatchBtn'); let originalText = btn.innerHTML; btn.innerHTML = "Updating..."; btn.disabled = true;
-        
-        fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: "markDispatched", indentNo: currentSelectedIndent, pharmacyLogin: loggedInName, dispatchBy: actualPharmacist }) })
-        .then(async res => { if (!res.ok) throw new Error("Server Status: " + res.status); const text = await res.text(); try { return JSON.parse(text); } catch (e) { throw new Error("Invalid response from server. Please check SCRIPT_URL."); } })
-        .then(data => {
-            if(data.success) { showToast("Dispatched successfully!", "success"); document.getElementById('detailsContainer').style.display = 'none'; document.getElementById('placeholder').style.display = 'block'; currentSelectedIndent = null; fetchPendingIndents(true); } 
-            else { showToast("Update Failed: " + (data.message || "Server Error"), "error"); }
-        })
-        .catch(err => { showToast("Error: " + err.message, "error"); fetchPendingIndents(true); })
-        .finally(() => { btn.innerHTML = originalText; btn.disabled = false; });
+            const btn = document.getElementById('p_dispatchBtn'); 
+            let originalText = btn.innerHTML; 
+            btn.innerHTML = "Updating..."; 
+            btn.disabled = true;
+            document.getElementById('globalLoader').style.display = 'flex'; // LOCK UI
+            
+            let response = await fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: "markDispatched", indentNo: currentSelectedIndent, pharmacyLogin: loggedInName, dispatchBy: actualPharmacist }) });
+            if(!response.ok) throw new Error("Server Status: " + response.status);
+            
+            let data = await response.json();
+
+            if(data.success) { 
+                showToast("Dispatched successfully!", "success"); 
+                document.getElementById('detailsContainer').style.display = 'none'; 
+                document.getElementById('placeholder').style.display = 'block'; 
+                currentSelectedIndent = null; 
+                fetchPendingIndents(true); 
+            } else { 
+                showToast("Update Failed: " + (data.message || "Server Error"), "error"); 
+            }
+        } catch(err) {
+            console.error("Dispatch Error:", err);
+            showToast("Error: Connection Failed", "error"); 
+            fetchPendingIndents(true); 
+        } finally {
+            const btn = document.getElementById('p_dispatchBtn');
+            if(btn) { btn.innerHTML = "Mark as Dispatched"; btn.disabled = false; }
+            document.getElementById('globalLoader').style.display = 'none'; // UNLOCK UI
+        }
     }
 
+    // 🔴 3. Error-Proof 'Mark as Ready' Logic
     async function markAsReady() {
-        if(!currentSelectedIndent) return; 
-        let passkeyResult = await verifyUserPasskey("Ready for Collection");
-        if (!passkeyResult.verified) return; 
-        let actualPharmacist = passkeyResult.userName; 
+        try {
+            if(!currentSelectedIndent) return; 
+            let passkeyResult = await verifyUserPasskey("Ready for Collection");
+            if (!passkeyResult.verified) return; 
+            let actualPharmacist = passkeyResult.userName; 
 
-        const btn = document.getElementById('p_readyBtn'); 
-        let originalText = btn.innerHTML; 
-        btn.innerHTML = "Updating..."; 
-        btn.disabled = true;
-        
-        fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: "markReadyForDispatch", indentNo: currentSelectedIndent, readyBy: actualPharmacist }) })
-        .then(async res => { if (!res.ok) throw new Error("Server Status: " + res.status); const text = await res.text(); try { return JSON.parse(text); } catch (e) { throw new Error("Invalid response from server."); } })
-        .then(data => {
+            const btn = document.getElementById('p_readyBtn'); 
+            btn.innerHTML = "Updating..."; 
+            btn.disabled = true;
+            document.getElementById('globalLoader').style.display = 'flex'; // LOCK UI
+            
+            let response = await fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: "markReadyForDispatch", indentNo: currentSelectedIndent, readyBy: actualPharmacist }) });
+            if(!response.ok) throw new Error("Server Status: " + response.status);
+            
+            let data = await response.json();
+
             if(data.success) { 
                 showToast("Marked as Ready!", "success"); 
-                
                 let ind = allIndents.find(i => i.indentNo === currentSelectedIndent);
-                if (ind) ind.status = 'Ready for Collection';
+                if (ind) ind.status = 'READY FOR COLLECTION'; // Local Tracking
                 
                 btn.innerText = "Ready ✓";
                 btn.style.backgroundColor = '#95a5a6';
                 btn.style.cursor = 'not-allowed';
-                btn.disabled = true; 
-                
-                // 🔴 FIX: इथे fetchPendingIndents() काढून टाकले आहे, जेणेकरून जुना 'Pending' डेटा लगेच लोड होणार नाही.
-            } 
-            else { 
+            } else { 
                 showToast("Failed: " + (data.message || "Unknown error"), "error"); 
-                btn.innerHTML = originalText; 
+                btn.innerHTML = "Ready for Collection"; 
                 btn.disabled = false;
             }
-        })
-        .catch(err => { 
-            showToast("Error: " + err.message, "error"); 
-            btn.innerHTML = originalText; 
-            btn.disabled = false;
-        });
+        } catch(err) {
+            console.error("Ready Status Error:", err);
+            showToast("Error: Connection Failed", "error"); 
+            const btn = document.getElementById('p_readyBtn');
+            if(btn && btn.innerText !== "Ready ✓") { 
+                btn.innerHTML = "Ready for Collection"; 
+                btn.disabled = false; 
+            }
+        } finally {
+            document.getElementById('globalLoader').style.display = 'none'; // UNLOCK UI
+        }
     }
     
     function printIndent() { executePrintIndent(); }
@@ -1385,7 +1649,7 @@
 
     function populateAdminDropdowns(activeWardsData) {
         let units = new Set(); let activeWardsList = new Set();
-        if(activeWardsData) { activeWardsData.forEach(w => { if(w.status && w.status.toLowerCase() === 'active') { units.add(w.unit.trim()); activeWardsList.add(w.name.trim()); } }); }
+        if(activeWardsData) { activeWardsData.forEach(w => { if(w.status && String(w.status).toLowerCase() === 'active') { units.add(w.unit.trim()); activeWardsList.add(w.name.trim()); } }); }
         const gUnit = document.getElementById('g_unit'); const sUnit = document.getElementById('s_unit');
         const gWard = document.getElementById('g_ward'); const sWard = document.getElementById('s_ward');
         gUnit.innerHTML = '<option value="">All Units</option>'; sUnit.innerHTML = '<option value="">All Units</option>';
@@ -1416,98 +1680,118 @@
         return new Date(dStr).getTime();
     }
 
-    function updateAdminAnalytics() {
-        let sDate = document.getElementById('g_startDate').value; let eDate = document.getElementById('g_endDate').value;
-        let unit = document.getElementById('g_unit').value.toUpperCase(); let ward = document.getElementById('g_ward').value.toUpperCase();
-        if (!sDate && !eDate) return;
-        let sTime = sDate ? new Date(sDate + "T00:00:00").getTime() : 0; let eTime = eDate ? new Date(eDate + "T23:59:59").getTime() : Infinity;
+    // ==========================================
+    // 🔴 UNIFIED MASTER MONITOR LOGIC
+    // ==========================================
+    
+    function clearMasterMonitor() {
+        document.getElementById('m_startDate').value = '';
+        document.getElementById('m_endDate').value = '';
+        document.getElementById('m_unit').value = '';
+        document.getElementById('m_ward').value = '';
+        document.getElementById('m_patientName').value = '';
+        document.getElementById('m_indentNo').value = '';
+        executeMasterMonitor(); // Clear केल्यावर सर्व डेटा पुन्हा लोड करेल
+    }
+
+    // ही फंक्शन्स सुरुवातीला ऍडमिन लोड होताना ड्रॉपडाऊन भरायला लागतील
+    function populateAdminDropdowns(activeWardsData) {
+        let units = new Set(); let activeWardsList = new Set();
+        if(activeWardsData) { activeWardsData.forEach(w => { if(w.status && String(w.status).toLowerCase() === 'active') { units.add(w.unit.trim()); activeWardsList.add(w.name.trim()); } }); }
         
+        // आता फक्त m_unit आणि m_ward आहेत
+        const mUnit = document.getElementById('m_unit'); const mWard = document.getElementById('m_ward');
+        if(mUnit) { mUnit.innerHTML = '<option value="">All Units</option>'; units.forEach(u => { mUnit.innerHTML += `<option value="${u}">${u}</option>`; }); }
+        if(mWard) { mWard.innerHTML = '<option value="">All Wards</option>'; activeWardsList.forEach(w => { mWard.innerHTML += `<option value="${w}">${w}</option>`; }); }
+    }
+
+    function executeMasterMonitor() {
+        let sDate = document.getElementById('m_startDate').value; 
+        let eDate = document.getElementById('m_endDate').value;
+        let unit = document.getElementById('m_unit').value.toUpperCase(); 
+        let ward = document.getElementById('m_ward').value.toUpperCase();
+        let patient = document.getElementById('m_patientName').value.toUpperCase(); 
+        let indentNo = document.getElementById('m_indentNo').value.toUpperCase();
+        
+        let sTime = sDate ? new Date(sDate + "T00:00:00").getTime() : 0; 
+        let eTime = eDate ? new Date(eDate + "T23:59:59").getTime() : Infinity;
+        
+        // 1. FILTERING DATA
         let filtered = globalAdminIndents.filter(ind => {
-            let t = ind.timestamp || 0; let uMatch = unit === "" || String(ind.ward).toUpperCase().includes(unit); let wMatch = ward === "" || String(ind.ward).toUpperCase().includes(ward);
-            return (t >= sTime && t <= eTime && uMatch && wMatch);
+            let t = ind.timestamp || 0; 
+            let uMatch = unit === "" || String(ind.ward).toUpperCase().includes(unit); 
+            let wMatch = ward === "" || String(ind.ward).toUpperCase().includes(ward); 
+            let pMatch = patient === "" || String(ind.patient).toUpperCase().includes(patient); 
+            let iMatch = indentNo === "" || String(ind.indentNo).toUpperCase().includes(indentNo);
+            return (t >= sTime && t <= eTime && uMatch && wMatch && pMatch && iMatch);
         });
-        
+
+        // 2. UPDATE RECORD COUNT
+        document.getElementById('m_recordCount').innerText = `${filtered.length} Records`;
+
+        // 3. RENDER CHARTS
         let pending = 0, dispatched = 0, dailyPRT = {};
         filtered.forEach(ind => {
-            if(ind.status === 'Dispatched') {
+            if(normaliseStatus(ind.status) === 'DISPATCHED' || normaliseStatus(ind.status) === 'VERIFIED') {
                 dispatched++;
-                if(!isNaN(ind.responseTime) && ind.responseTime !== null && ind.responseTime !== "") {
+                
+                // TAT Calculation for Line Chart
+                let tRaised = parseTatDate(ind.dateStr);
+                let tEnd = normaliseStatus(ind.status) === 'VERIFIED' ? parseTatDate(ind.verifiedTime) : parseTatDate(ind.dispatchTime);
+                let actualTat = 0;
+                
+                if (tRaised && tEnd) { actualTat = Math.round((tEnd - tRaised) / 60000); } 
+                else { actualTat = parseInt(ind.responseTime) || 0; }
+
+                if(actualTat > 0) {
                     let d = new Date(ind.timestamp || 0); let dKey = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
-                    if(!dailyPRT[dKey]) dailyPRT[dKey] = { sum: 0, count: 0 }; dailyPRT[dKey].sum += parseFloat(ind.responseTime); dailyPRT[dKey].count++;
+                    if(!dailyPRT[dKey]) dailyPRT[dKey] = { sum: 0, count: 0 }; 
+                    dailyPRT[dKey].sum += actualTat; 
+                    dailyPRT[dKey].count++;
                 }
             } else { pending++; }
         });
         
         const ctxPie = document.getElementById('adminPieChart').getContext('2d');
         if(adminPieChartInstance) adminPieChartInstance.destroy();
-        adminPieChartInstance = new Chart(ctxPie, { type: 'doughnut', data: { labels: ['Dispatched', 'Pending'], datasets: [{ data: [dispatched, pending], backgroundColor: ['#27ae60', '#e74c3c'] }] }, options: { responsive: true, maintainAspectRatio: false } });
+        adminPieChartInstance = new Chart(ctxPie, { type: 'doughnut', data: { labels: ['Completed', 'Pending'], datasets: [{ data: [dispatched, pending], backgroundColor: ['#27ae60', '#e74c3c'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font:{size:11} } } } } });
         
         let labels = Object.keys(dailyPRT).sort((a,b) => parseAdminDate(a) - parseAdminDate(b)); 
         let prtData = labels.map(l => (dailyPRT[l].sum / dailyPRT[l].count).toFixed(2));
         
         const ctxLine = document.getElementById('adminLineChart').getContext('2d');
         if(adminLineChartInstance) adminLineChartInstance.destroy();
-        adminLineChartInstance = new Chart(ctxLine, { type: 'line', data: { labels: labels, datasets: [{ label: 'Daily Avg PRT (Mins)', data: prtData, borderColor: '#4276b6', backgroundColor: 'rgba(66, 118, 182, 0.1)', fill: true, tension: 0.2, pointBackgroundColor: '#ce936b' }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } } });
-    }
+        adminLineChartInstance = new Chart(ctxLine, { type: 'line', data: { labels: labels, datasets: [{ label: 'Avg TAT (Mins)', data: prtData, borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.1)', fill: true, tension: 0.4, pointBackgroundColor: '#fff', pointBorderColor: '#4f46e5', pointBorderWidth: 2, pointRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { borderDash: [4, 4], color: '#f1f5f9' } }, x: { grid: { display: false } } } } });
 
-    function executeAdminSearch() {
-        let sDate = document.getElementById('s_startDate').value; let eDate = document.getElementById('s_endDate').value;
-        let unit = document.getElementById('s_unit').value.toUpperCase(); let ward = document.getElementById('s_ward').value.toUpperCase();
-        let patient = document.getElementById('s_patientName').value.toUpperCase(); let indentNo = document.getElementById('s_indentNo').value.toUpperCase();
-        
+        // 4. RENDER TABLE
         let tbody = document.getElementById('adminSearchResults');
-
-        if (!sDate && !eDate && !unit && !ward && !patient && !indentNo) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:#64748b;">Please apply at least one filter to view tracking data.</td></tr>'; return;
-        }
-
-        let sTime = sDate ? new Date(sDate + "T00:00:00").getTime() : 0; let eTime = eDate ? new Date(eDate + "T23:59:59").getTime() : Infinity;
-        
-        let filtered = globalAdminIndents.filter(ind => {
-            let t = ind.timestamp || 0; let uMatch = unit === "" || String(ind.ward).toUpperCase().includes(unit); let wMatch = ward === "" || String(ind.ward).toUpperCase().includes(ward); 
-            let pMatch = patient === "" || String(ind.patient).toUpperCase().includes(patient); let iMatch = indentNo === "" || String(ind.indentNo).toUpperCase().includes(indentNo);
-            return (t >= sTime && t <= eTime && uMatch && wMatch && pMatch && iMatch);
-        }).reverse();
-        
-        if(filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:#ef4444;">No records found for the applied filters.</td></tr>'; return; }
+        if(filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:40px; color:#94a3b8; font-size:15px;">No records found for the applied filters.</td></tr>'; return; }
         
         let rowsHtml = ""; 
-        filtered.forEach(ind => {
+        filtered.reverse().forEach(ind => {
             let statusBadge = "";
+            let stat = normaliseStatus(ind.status); 
             
-            // 🔴 1. Case-Insensitive Status (Yellow Badge Fix)
-            let stat = String(ind.status).toLowerCase().trim(); 
-            
-            if (stat === 'pending') statusBadge = `<div class="tat-badge tat-pending">Pending<br><span style="font-size:9px; font-weight:normal;">(Raised by: ${ind.submitUser || 'Staff'})</span></div>`;
-            else if (stat === 'ready for collection' || stat === 'ready') statusBadge = `<div class="tat-badge tat-ready">Ready<br><span style="font-size:9px; font-weight:normal;">(Prep by: ${ind.readyBy || 'Staff'})</span></div>`;
-            else if (stat === 'dispatched') statusBadge = `<div class="tat-badge tat-dispatch">Dispatched<br><span style="font-size:9px; font-weight:normal;">(By: ${ind.dispensedBy || 'Pharm'})</span></div>`;
-            else if (stat === 'verified') statusBadge = `<div class="tat-badge tat-verified">Verified<br><span style="font-size:9px; font-weight:normal;">(By: ${ind.verifiedBy || 'Ward'})</span></div>`;
+            if (stat === 'PENDING') statusBadge = `<div class="tat-badge tat-pending">Pending<br><span style="font-size:9px; font-weight:normal;">(By: ${ind.submitUser || 'Staff'})</span></div>`;
+            else if (stat === 'READY FOR COLLECTION' || stat === 'READY') statusBadge = `<div class="tat-badge tat-ready">Ready<br><span style="font-size:9px; font-weight:normal;">(Prep: ${ind.readyBy || 'Staff'})</span></div>`;
+            else if (stat === 'DISPATCHED') statusBadge = `<div class="tat-badge tat-dispatch">Dispatched<br><span style="font-size:9px; font-weight:normal;">(By: ${ind.dispensedBy || 'Pharm'})</span></div>`;
+            else if (stat === 'VERIFIED') statusBadge = `<div class="tat-badge tat-verified">Verified<br><span style="font-size:9px; font-weight:normal;">(By: ${ind.verifiedBy || 'Ward'})</span></div>`;
             else statusBadge = `<div class="tat-badge tat-pending">${ind.status}</div>`;
 
-            // 🔴 2. Dynamic TAT Calculation ("-- Mins" & "doctor Mins" Fix)
             let tRaised = parseTatDate(ind.dateStr);
-            let tEnd = null;
-            
-            if (stat === 'verified') {
-                tEnd = parseTatDate(ind.verifiedTime);
-            } else if (stat === 'dispatched') {
-                tEnd = parseTatDate(ind.dispatchTime);
-            }
-            
+            let tEnd = stat === 'VERIFIED' ? parseTatDate(ind.verifiedTime) : (stat === 'DISPATCHED' ? parseTatDate(ind.dispatchTime) : null);
             let totalTatStr = "--";
             
             if (tRaised && tEnd) {
-                // स्वतः वेळ कॅल्क्युलेट करेल
                 let diffMins = Math.round((tEnd - tRaised) / 60000);
                 totalTatStr = diffMins >= 0 ? diffMins : 0;
             } else {
-                // जर जुन्या रेकॉर्ड्समध्ये तारखा नसतील, तर फक्त नंबर असेल तरच घेईल
                 let fallback = parseInt(ind.responseTime);
                 totalTatStr = !isNaN(fallback) ? fallback : "--"; 
             }
 
             let tatDisplay = "";
-            if (stat === 'pending' || stat === 'ready for collection' || stat === 'ready') {
+            if (stat === 'PENDING' || stat === 'READY FOR COLLECTION' || stat === 'READY') {
                 tatDisplay = `<button class="tat-timer-btn pending" onclick="openTatModal('${ind.indentNo}')" title="View Live TAT Tracker"><span class="material-symbols-outlined">hourglass_empty</span> In Process</button>`;
             } else {
                 tatDisplay = `<button class="tat-timer-btn completed" onclick="openTatModal('${ind.indentNo}')" title="View Full TAT Breakdown"><span class="material-symbols-outlined">timer</span> ${totalTatStr} Mins</button>`;
@@ -1541,7 +1825,9 @@
         let reqTime = formatCDate(ind.dateStr || ind.date);
 
         let dispTime = "-";
-        if (ind.status === 'Dispatched' || ind.status === 'Verified') {
+        let stat = normaliseStatus(ind.status);
+        
+        if (stat === 'DISPATCHED' || stat === 'VERIFIED') {
             if (ind.dispatchTime) { dispTime = formatCDate(ind.dispatchTime); } 
             else if (ind.responseTime) {
                 let parts = (ind.dateStr || ind.date).split(" "); let dp = parts[0].split("/"); let tp = parts[1] ? parts[1].split(":") : ["00", "00"];
@@ -1562,7 +1848,7 @@
         let tbody = document.getElementById('adminWardsList'); tbody.innerHTML = '';
         if(!wards) return;
         wards.forEach(w => {
-            let isActive = w.status.toLowerCase() === 'active'; let btnColor = isActive ? '#e74c3c' : '#27ae60'; let btnText = isActive ? 'Disable' : 'Enable';
+            let isActive = String(w.status).toLowerCase() === 'active'; let btnColor = isActive ? '#e74c3c' : '#27ae60'; let btnText = isActive ? 'Disable' : 'Enable';
             tbody.innerHTML += `<tr><td>${w.unit}</td><td style="color: #2c598f; font-weight: 500;">${w.name}</td><td><span style="color: ${isActive ? '#27ae60' : '#e74c3c'}; font-weight: bold;">${w.status}</span></td><td><button style="background: transparent; color: ${btnColor}; border: 1px solid ${btnColor}; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-family: 'Roboto', sans-serif;" onclick="toggleWard('${w.unit}', '${w.name}', '${isActive ? 'Inactive' : 'Active'}')">${btnText}</button></td></tr>`;
         });
     }
@@ -1570,6 +1856,25 @@
     function toggleWard(unit, ward, newStatus) { fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: "toggleWardStatus", unitName: unit, wardName: ward, newStatus: newStatus }) }).then(() => { fetchAdminData(); showToast("Status Updated", "success"); }); }
     function addNewWard() { let unit = document.getElementById('newWardUnit').value; let ward = document.getElementById('newWardName').value.trim(); if(!ward) return alert("Enter ward name!"); fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: "addNewWard", unitName: unit, wardName: ward }) }).then(() => { document.getElementById('newWardName').value = ''; fetchAdminData(); showToast("New Ward Added", "success"); }); }
 
+    // 🔴 1. Auto-Fetch Email Logic based on Role Selection
+    function fetchEmailForRole(selectElement, targetInputId) {
+        let role = selectElement.value;
+        let targetInput = document.getElementById(targetInputId);
+        if(!role) { targetInput.value = ""; return; }
+        
+        if(window.allUsersList) {
+            let matchedUser = window.allUsersList.find(u => u.role === role && u.email);
+            if(matchedUser) {
+                targetInput.value = matchedUser.email;
+                showToast("Email fetched automatically!", "success");
+            } else {
+                targetInput.value = "";
+                showToast("No email found for this role in User Master", "error");
+            }
+        }
+    }
+
+    // 🔴 2. Updated User Master Functions (Handling Email Field)
     function renderAdminUsers(users) {
         window.allUsersList = users || []; 
         let tbody = document.getElementById('adminUsersList'); if(!tbody) return; 
@@ -1578,9 +1883,10 @@
         let rowsHtml = ""; 
         users.forEach(u => { 
             let roleBadge = `<span style="background: #eef4f8; color: #2c598f; padding: 4px 10px; border-radius: 12px; font-weight: bold; font-size: 11px; border: 1px solid #cbd5e1;">${u.role || u.rights}</span>`;
-            rowsHtml += `<tr ondblclick="editUser('${u.userId}', '${u.name}', '${u.password}', '${u.passkey}', '${u.unit}', '${u.role}')" style="cursor: pointer;" title="Double click to edit user">
-                <td style="font-weight: bold; color: #333;">${u.userId}</td><td style="color: #2c598f; font-weight: 500;">${u.name}</td><td>${u.unit}</td><td>${roleBadge}</td>
-                <td style="text-align:center;"><div style="display:flex; justify-content:center; gap:5px; align-items:center;"><input type="password" id="pass_${u.userId}" value="${u.password}" style="width: 80px; padding: 4px; border: 1px solid #e0e0e0; border-radius: 4px; outline: none; text-align:center;" readonly><span class="material-symbols-outlined" onclick="event.stopPropagation(); togglePassVisibility('pass_${u.userId}')" style="cursor:pointer; font-size:18px; color:#7f8c8d;">visibility</span></div></td>
+            rowsHtml += `<tr ondblclick="editUser('${u.userId}', '${u.name}', '${u.email || ''}', '${u.password}', '${u.passkey}', '${u.unit}', '${u.role}')" style="cursor: pointer;" title="Double click to edit user">
+                <td style="font-weight: bold; color: #333;">${u.userId}</td><td style="color: #2c598f; font-weight: 500;">${u.name}</td>
+                <td style="color: #64748b; font-size: 12px;">${u.email || '-'}</td>
+                <td>${u.unit}</td><td>${roleBadge}</td>
                 <td style="font-weight: bold; color: #e74c3c; text-align:center;">****</td>
                 <td style="text-align:center;"><button style="background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-weight:bold; transition: 0.2s;" onclick="event.stopPropagation(); deleteUser('${u.userId}')">X</button></td>
             </tr>`; 
@@ -1591,14 +1897,16 @@
     function clearUserForm() {
         let idBox = document.getElementById('nu_id'); if(!idBox) return;
         idBox.value = ''; idBox.readOnly = false; idBox.style.backgroundColor = 'white';
-        document.getElementById('nu_name').value = ''; document.getElementById('nu_pass').value = ''; document.getElementById('nu_passkey').value = '';
-        let btnSave = document.getElementById('btnSaveUser'); if(btnSave) { btnSave.innerText = "+ Save User"; btnSave.style.backgroundColor = "#4f46e5"; }
+        document.getElementById('nu_name').value = ''; document.getElementById('nu_email').value = ''; 
+        document.getElementById('nu_pass').value = ''; document.getElementById('nu_passkey').value = '';
+        let btnSave = document.getElementById('btnSaveUser'); if(btnSave) { btnSave.innerText = "+ Save User"; btnSave.style.backgroundColor = "#22c55e"; }
         let btnCancel = document.getElementById('btnCancelEditUser'); if(btnCancel) btnCancel.style.display = "none";
     }
 
-    function editUser(id, name, pass, passkey, unit, role) {
+    function editUser(id, name, email, pass, passkey, unit, role) {
         let idBox = document.getElementById('nu_id'); idBox.value = id; idBox.readOnly = true; idBox.style.backgroundColor = '#f1f5f9';
-        document.getElementById('nu_name').value = name; document.getElementById('nu_pass').value = pass; document.getElementById('nu_passkey').value = passkey; 
+        document.getElementById('nu_name').value = name; document.getElementById('nu_email').value = email;
+        document.getElementById('nu_pass').value = pass; document.getElementById('nu_passkey').value = passkey; 
         document.getElementById('nu_unit').value = unit; document.getElementById('nu_role').value = role;
         let btnSave = document.getElementById('btnSaveUser'); if(btnSave) { btnSave.innerText = "✓ Update User"; btnSave.style.backgroundColor = "#10b981"; }
         let btnCancel = document.getElementById('btnCancelEditUser'); if(btnCancel) btnCancel.style.display = "block"; 
@@ -1607,6 +1915,7 @@
 
     async function createNewUser() { 
         let id = document.getElementById('nu_id').value.trim().toUpperCase(); let name = document.getElementById('nu_name').value.trim(); 
+        let email = document.getElementById('nu_email').value.trim();
         let pass = document.getElementById('nu_pass').value.trim(); let passkey = document.getElementById('nu_passkey').value.trim(); 
         let unit = document.getElementById('nu_unit').value; let role = document.getElementById('nu_role').value;
         
@@ -1621,17 +1930,18 @@
         if (!isVerified) return; 
         
         let btn = document.getElementById('btnSaveUser'); let origText = btn.innerText; btn.innerText = "Saving..."; btn.disabled = true;
+        document.getElementById('globalLoader').style.display = 'flex'; // LOCK UI
         
-        fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: "saveUserMaster", userId: id, name: name, password: pass, passkey: passkey, unit: unit, role: role }) })
+        fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: "saveUserMaster", userId: id, name: name, email: email, password: pass, passkey: passkey, unit: unit, role: role }) })
         .then(res => res.json()).then(data => {
-            btn.innerText = origText; btn.disabled = false; 
             if(data.success) { 
                 let existingIndex = window.allUsersList.findIndex(u => u.userId === id);
-                let newUserObj = { userId: id, name: name, password: pass, passkey: passkey, unit: unit, role: role };
+                let newUserObj = { userId: id, name: name, email: email, password: pass, passkey: passkey, unit: unit, role: role };
                 if(existingIndex > -1) { window.allUsersList[existingIndex] = newUserObj; } else { window.allUsersList.push(newUserObj); }
                 renderAdminUsers(window.allUsersList); showToast("User Configured Successfully!", "success"); clearUserForm(); 
             } else { alert("Error saving user."); }
-        }).catch(err => { btn.innerText = origText; btn.disabled = false; alert("System Error."); console.error(err); }); 
+        }).catch(err => { alert("System Error."); console.error(err); })
+        .finally(() => { btn.innerText = origText; btn.disabled = false; document.getElementById('globalLoader').style.display = 'none'; }); 
     }
 
     async function deleteUser(userId) {
@@ -1639,11 +1949,13 @@
         let isVerified = await verifyUserPasskey("User Deletion");
         if (!isVerified) return; 
 
+        document.getElementById('globalLoader').style.display = 'flex'; // LOCK UI
         window.allUsersList = window.allUsersList.filter(u => u.userId !== userId); renderAdminUsers(window.allUsersList);
 
         fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: "deleteUser", userId: userId }) })
         .then(() => { showToast("User Deleted!", "success"); })
-        .catch(() => { showToast("Error deleting in background", "error"); });
+        .catch(() => { showToast("Error deleting in background", "error"); })
+        .finally(() => { document.getElementById('globalLoader').style.display = 'none'; });
     }
 
     let parsedMasterData = []; let masterSyncSummary = { added: 0, updated: 0, skipped: 0 };
@@ -1730,7 +2042,8 @@
         let html = "";
         data.forEach(ind => {
             let isUrgent = ind.patient.includes("[URGENT]"); let cleanPatient = ind.patient.replace("[URGENT] ", "").trim();
-            let statusColor = ind.status === 'Dispatched' ? '#27ae60' : '#e74c3c';
+            let stUpper = normaliseStatus(ind.status);
+            let statusColor = (stUpper === 'DISPATCHED' || stUpper === 'VERIFIED') ? '#27ae60' : '#e74c3c';
             let timeParts = ind.time.split(" "); let displayTime = timeParts.length > 2 ? timeParts[1] + " " + timeParts[2] : ind.time;
             html += `<div class="indent-card ${isUrgent ? 'urgent' : ''}" onclick='showHistoryDetails("${ind.indentNo}")'><div class="indent-header"><span>${ind.indentNo}</span><span style="color:${statusColor}; font-size:12px;">${ind.status}</span></div><div style="color: #333; font-size: 14px;"><strong>${cleanPatient}</strong></div><div style="color: #7f8c8d; font-size: 12px; margin-top: 4px;">Time: ${displayTime}</div></div>`;
         });
@@ -1746,14 +2059,14 @@
         document.getElementById('h_detailsContainer').style.display = 'block';
         
         let cleanPatient = ind.patient.replace("[URGENT] ", "").trim();
-        let currentStat = String(ind.status).toLowerCase().trim();
+        let currentStat = normaliseStatus(ind.status);
         let badgeHtml = "";
         
-        if (currentStat === 'verified') {
+        if (currentStat === 'VERIFIED') {
             badgeHtml = `<span style="background:#15803d; color:white; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:bold;">✅ Received & Verified</span>`;
-        } else if (currentStat === 'dispatched') {
+        } else if (currentStat === 'DISPATCHED') {
             badgeHtml = `<span style="background:#27ae60; color:white; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:bold;">🚚 Dispatched at ${ind.dispatchTime}</span>`;
-        } else if (currentStat === 'ready for collection') {
+        } else if (currentStat === 'READY FOR COLLECTION' || currentStat === 'READY') {
             badgeHtml = `<span style="background:#f39c12; color:white; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:bold;">📦 Ready for Collection</span>`;
         } else {
             badgeHtml = `<span style="background:#e74c3c; color:white; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:bold;">⏳ Pending in Pharmacy</span>`;
@@ -1768,10 +2081,10 @@
         let btnVerify = document.getElementById('btnVerifyIndent'); 
         let btnReport = document.getElementById('btnReportLog');
         
-        if (currentStat === 'dispatched') {
+        if (currentStat === 'DISPATCHED') {
             btnVerify.disabled = false; btnVerify.style.opacity = "1"; btnVerify.style.cursor = "pointer"; btnVerify.title = "Received & Verified";
             btnReport.disabled = true; btnReport.style.opacity = "0.4"; btnReport.style.cursor = "not-allowed"; btnReport.title = "Please verify the indent first to report a safety log";
-        } else if (currentStat === 'verified') {
+        } else if (currentStat === 'VERIFIED') {
             btnVerify.disabled = true; btnVerify.style.opacity = "0.4"; btnVerify.style.cursor = "not-allowed"; btnVerify.title = "Already Verified";
             btnReport.disabled = false; btnReport.style.opacity = "1"; btnReport.style.cursor = "pointer"; btnReport.title = "Report Safety Log";
         } else {
@@ -1779,28 +2092,26 @@
             btnReport.disabled = true; btnReport.style.opacity = "0.4"; btnReport.style.cursor = "not-allowed"; btnReport.title = "Action disabled: Indent is not Verified yet";
         }
         
-        // 🔴 OPTIMIZATION FIX: लूपमध्ये DOM अपडेट न करता सर्व डेटा आधी मेमरीत बनवणे
         let tbody = document.getElementById('h_medicineTableBody'); 
-        let rowsHtml = ''; // एक तात्पुरती स्ट्रिंग तयार केली
+        let rowsHtml = ''; 
         
         ind.medicines.forEach((m, idx) => {
             let n = m.name; let opd = ""; 
             if(n.includes("[")) { let p = n.split("["); n = p[0].trim(); opd = `<br><span style="color:#ce936b; font-size:12px;">[${p[1]}</span>`; }
-            // इथे += वापरून डेटा स्ट्रिंगमध्ये ॲड करत आहोत, थेट स्क्रीनवर नाही.
             rowsHtml += `<tr><td style="border:1px solid #eee; padding:10px;">${idx+1}</td><td style="border:1px solid #eee; padding:10px;"><b>${n}</b> ${opd}</td><td style="border:1px solid #eee; padding:10px; text-align:center;">${m.qty}</td></tr>`;
         });
         
-        // लूप संपल्यावर फक्त एकदाच टेबल अपडेट केले, ज्यामुळे लोडिंग 10x फास्ट होईल.
         tbody.innerHTML = rowsHtml; 
     }
+
 	function printHistoryIndent() {
         let ind = currentHistoryIndent;
         if(!ind) return;
         let cleanPatient = ind.patient.replace("[URGENT] ", "").trim();
         
-        let stat = String(ind.status).toLowerCase().trim();
+        let stat = normaliseStatus(ind.status);
         let dispTime = null;
-        if (stat === 'dispatched' || stat === 'verified') {
+        if (stat === 'DISPATCHED' || stat === 'VERIFIED') {
             dispTime = ind.dispatchTime && ind.dispatchTime !== "-" ? ind.dispatchTime : "Dispatched";
         }
         
@@ -1808,31 +2119,7 @@
         populatePrint(cleanPatient, safeWard, ind.time, ind.indentNo, ind.doctor, ind.medicines, ind.submitUser, dispTime, ind.dispensedBy);
         executePrintIndent();
     }
-    function printAdminIndent(indentNo) {
-        let matches = globalAdminIndents.filter(i => i.indentNo === indentNo);
-        if(matches.length === 0) return;
-        let ind = matches[0]; 
 
-        let cleanPatient = String(ind.patient || ind.patientName || "").replace("[URGENT] ", "");
-        let reqTime = formatCDate(ind.dateStr || ind.date);
-
-        let dispTime = "-";
-        let stat = String(ind.status).toLowerCase().trim();
-        
-        if (stat === 'dispatched' || stat === 'verified') {
-            if (ind.dispatchTime) { dispTime = formatCDate(ind.dispatchTime); } 
-            else if (ind.responseTime) {
-                let parts = (ind.dateStr || ind.date).split(" "); let dp = parts[0].split("/"); let tp = parts[1] ? parts[1].split(":") : ["00", "00"];
-                let isPM = parts[2] && parts[2].toUpperCase() === 'PM'; let hrs = parseInt(tp[0], 10);
-                if (isPM && hrs < 12) hrs += 12; if (!isPM && hrs === 12) hrs = 0;
-                let reqMs = new Date(dp[2], parseInt(dp[1], 10) - 1, dp[0], hrs, parseInt(tp[1], 10)).getTime();
-                let dispMs = reqMs + (parseInt(ind.responseTime) * 60000); dispTime = formatCDate(dispMs);
-            } else { dispTime = "Dispatched"; }
-        }
-
-        populatePrint(cleanPatient, ind.ward, reqTime, ind.indentNo, ind.doctor, ind.medicines || matches, ind.submitUser, dispTime, ind.dispensedBy);
-        executePrintIndent();
-    }
     function toggleInformedName() {
         let selectVal = document.getElementById("incDoctorInformed").value; let divName = document.getElementById("divInformedName");
         if (selectVal === "Yes") { divName.style.display = "block"; } else { divName.style.display = "none"; document.getElementById("incInformedName").value = ""; }
@@ -1875,72 +2162,96 @@
     }
 
     async function verifyHistoryIndent(){
-        if(!currentHistoryIndent){ alert("Please select an indent first."); return; }
-        const result = await verifyUserPasskey("Received & Verified");
-        if(!result.verified){ return; }
+        try {
+            if(!currentHistoryIndent){ alert("Please select an indent first."); return; }
+            const result = await verifyUserPasskey("Received & Verified");
+            if(!result.verified){ return; }
 
-        const payload = { action: "verifyIndent", indentNo: currentHistoryIndent.indentNo, unit: loggedInUnit, ward: currentHistoryIndent.ward, patient: currentHistoryIndent.patient, userId: loggedInUserId, userName: result.userName, remarks: "" };
+            const payload = { action: "verifyIndent", indentNo: currentHistoryIndent.indentNo, unit: loggedInUnit, ward: currentHistoryIndent.ward, patient: currentHistoryIndent.patient, userId: loggedInUserId, userName: result.userName, remarks: "" };
 
-        fetch(SCRIPT_URL,{ method:"POST", body:JSON.stringify(payload) }).then(r => r.json()).then(res=>{
-            if(res.success){ alert("✅ Indent Verified Successfully\n\nVerified By : " + result.userName); openHistoryModal(); showHistoryDetails(currentHistoryIndent.indentNo); }
-            else{ alert(res.message); }
-        }).catch(err => { console.error(err); alert("Verification failed."); });
+            document.getElementById('globalLoader').style.display = 'flex'; // LOCK UI
+
+            let resRaw = await fetch(SCRIPT_URL,{ method:"POST", body:JSON.stringify(payload) });
+            let res = await resRaw.json();
+
+            if(res.success){ 
+                alert("✅ Indent Verified Successfully\n\nVerified By : " + result.userName); 
+                openHistoryModal(); 
+                showHistoryDetails(currentHistoryIndent.indentNo); 
+            } else{ 
+                alert(res.message); 
+            }
+        } catch(err) { 
+            console.error(err); alert("Verification failed."); 
+        } finally {
+            document.getElementById('globalLoader').style.display = 'none'; // UNLOCK UI
+        }
     }
 
     async function submitIncident() {
-        const rawWhen = document.getElementById("incWhen").value;
-        if (!rawWhen) { alert("❌ Please select the Date and Time (When Happened)."); return; }
-
-        let formattedWhen = "";
         try {
-            let parts = rawWhen.split("T"); let dateParts = parts[0].split("-"); let timeParts = parts[1].split(":");
-            let year = dateParts[0]; let month = dateParts[1]; let day = dateParts[2];
-            let hrs = parseInt(timeParts[0], 10); let mins = timeParts[1]; let ampm = hrs >= 12 ? 'PM' : 'AM';
-            hrs = hrs % 12; hrs = hrs ? hrs : 12; let hrsStr = String(hrs).padStart(2, '0');
-            formattedWhen = `${day}/${month}/${year} ${hrsStr}:${mins} ${ampm}`;
-        } catch (e) { formattedWhen = rawWhen; }
+            const rawWhen = document.getElementById("incWhen").value;
+            if (!rawWhen) { alert("❌ Please select the Date and Time (When Happened)."); return; }
 
-        const desc = document.getElementById("incDescription").value.trim();
-        if (desc === "") { alert("❌ Description is mandatory."); return; }
+            let formattedWhen = "";
+            try {
+                let parts = rawWhen.split("T"); let dateParts = parts[0].split("-"); let timeParts = parts[1].split(":");
+                let year = dateParts[0]; let month = dateParts[1]; let day = dateParts[2];
+                let hrs = parseInt(timeParts[0], 10); let mins = timeParts[1]; let ampm = hrs >= 12 ? 'PM' : 'AM';
+                hrs = hrs % 12; hrs = hrs ? hrs : 12; let hrsStr = String(hrs).padStart(2, '0');
+                formattedWhen = `${day}/${month}/${year} ${hrsStr}:${mins} ${ampm}`;
+            } catch (e) { formattedWhen = rawWhen; }
 
-        const informedStatus = document.getElementById("incDoctorInformed").value; let informedName = "";
-        if (informedStatus === "Yes") {
-            informedName = document.getElementById("incInformedName").value.trim();
-            if (informedName === "") { alert("❌ Please enter the Name and Designation of the informed staff."); return; }
+            const desc = document.getElementById("incDescription").value.trim();
+            if (desc === "") { alert("❌ Description is mandatory."); return; }
+
+            const informedStatus = document.getElementById("incDoctorInformed").value; let informedName = "";
+            if (informedStatus === "Yes") {
+                informedName = document.getElementById("incInformedName").value.trim();
+                if (informedName === "") { alert("❌ Please enter the Name and Designation of the informed staff."); return; }
+            }
+            
+            const btn = document.querySelector('.btn-submit-inc'); let origText = btn.innerText; btn.innerText = "Submitting..."; btn.disabled = true;
+            document.getElementById('globalLoader').style.display = 'flex'; // LOCK UI
+            
+            const files = document.getElementById("incPhoto").files;
+            const TOTAL_MAX_SIZE_MB = 5; 
+            const INDIVIDUAL_MAX_SIZE_MB = 2; 
+            let totalSize = 0; let photos = [];
+
+            for (let i = 0; i < files.length; i++) {
+                if (files[i].size > INDIVIDUAL_MAX_SIZE_MB * 1024 * 1024) { alert("❌ " + files[i].name + " खूप मोठी आहे (जास्तीत जास्त 2MB अलोउड आहे)."); btn.innerText = origText; btn.disabled = false; document.getElementById('globalLoader').style.display = 'none'; return; }
+                totalSize += files[i].size;
+            }
+
+            if (totalSize > TOTAL_MAX_SIZE_MB * 1024 * 1024) { alert("❌ सर्व फोटोंची एकत्रित साईझ 5MB पेक्षा जास्त होत आहे. कृपया कमी फोटो निवडा."); btn.innerText = origText; btn.disabled = false; document.getElementById('globalLoader').style.display = 'none'; return; }
+
+            for (let i = 0; i < files.length; i++) {
+                const base64 = await new Promise((resolve, reject) => {
+                    const reader = new FileReader(); reader.onload = e => resolve(e.target.result.split(",")[1]); reader.onerror = reject; reader.readAsDataURL(files[i]);
+                });
+                photos.push({ fileName: files[i].name, mimeType: files[i].type, fileData: base64 });
+            }
+            
+            const payload = {
+                action: "saveIncident", referenceNo: document.getElementById("incReference").value, when: formattedWhen, where: document.getElementById("incWhere").value,
+                department: document.getElementById("incDepartment").value, involvedStaff: document.getElementById("incStaff").value, patientId: document.getElementById("incPatientId").value,
+                description: desc, immediateAction: document.getElementById("incImmediateAction").value, informed: informedStatus, informedStaffDetails: informedStatus === "Yes" ? informedName : "N/A", 
+                reportedBy: loggedInUserId, reporterName: loggedInName, designation: currentRole, photos: photos
+            };
+
+            let resRaw = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
+            let res = await resRaw.json();
+            
+            if (res.success) { showToast("Safety Logged Successfully!", "success"); document.getElementById("incidentModal").style.display = "none"; } 
+            else { alert("❌ Failed: " + res.message); }
+            
+            btn.innerText = origText; btn.disabled = false;
+        } catch(err) {
+            alert("❌ Connection error while submitting report."); 
+        } finally {
+            document.getElementById('globalLoader').style.display = 'none'; // UNLOCK UI
         }
-        
-        const btn = document.querySelector('.btn-submit-inc'); let origText = btn.innerText; btn.innerText = "Submitting..."; btn.disabled = true;
-        
-        const files = document.getElementById("incPhoto").files;
-        const TOTAL_MAX_SIZE_MB = 5; 
-        const INDIVIDUAL_MAX_SIZE_MB = 2; 
-        let totalSize = 0; let photos = [];
-
-        for (let i = 0; i < files.length; i++) {
-            if (files[i].size > INDIVIDUAL_MAX_SIZE_MB * 1024 * 1024) { alert("❌ " + files[i].name + " खूप मोठी आहे (जास्तीत जास्त 2MB अलोउड आहे)."); btn.innerText = origText; btn.disabled = false; return; }
-            totalSize += files[i].size;
-        }
-
-        if (totalSize > TOTAL_MAX_SIZE_MB * 1024 * 1024) { alert("❌ सर्व फोटोंची एकत्रित साईझ 5MB पेक्षा जास्त होत आहे. कृपया कमी फोटो निवडा."); btn.innerText = origText; btn.disabled = false; return; }
-
-        for (let i = 0; i < files.length; i++) {
-            const base64 = await new Promise((resolve, reject) => {
-                const reader = new FileReader(); reader.onload = e => resolve(e.target.result.split(",")[1]); reader.onerror = reject; reader.readAsDataURL(files[i]);
-            });
-            photos.push({ fileName: files[i].name, mimeType: files[i].type, fileData: base64 });
-        }
-        
-        const payload = {
-            action: "saveIncident", referenceNo: document.getElementById("incReference").value, when: formattedWhen, where: document.getElementById("incWhere").value,
-            department: document.getElementById("incDepartment").value, involvedStaff: document.getElementById("incStaff").value, patientId: document.getElementById("incPatientId").value,
-            description: desc, immediateAction: document.getElementById("incImmediateAction").value, informed: informedStatus, informedStaffDetails: informedStatus === "Yes" ? informedName : "N/A", 
-            reportedBy: loggedInUserId, reporterName: loggedInName, designation: currentRole, photos: photos
-        };
-
-        fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) })
-        .then(r => r.json()).then(res => {
-            if (res.success) { showToast("Safety Logged Successfully!", "success"); document.getElementById("incidentModal").style.display = "none"; } else { alert("❌ Failed: " + res.message); }
-        }).catch(err => { alert("❌ Connection error while submitting report."); }).finally(() => { btn.innerText = origText; btn.disabled = false; });
     }
 
     function toggleSidebar() { const sidebar = document.querySelector('.pro-sidebar'); sidebar.classList.toggle('collapsed'); }
@@ -1961,10 +2272,12 @@
             let indDate = new Date(ind.timestamp).toISOString().split('T')[0];
             if (indDate === todayStr) {
                 raised++;
-                if (ind.status === 'Pending') pending++;
-                else if (ind.status === 'Ready for Collection') ready++;
-                else if (ind.status === 'Dispatched') dispatched++;
-                else if (ind.status === 'Verified') verified++;
+                let st = normaliseStatus(ind.status);
+                
+                if (st === 'PENDING') pending++;
+                else if (st === 'READY FOR COLLECTION' || st === 'READY') ready++;
+                else if (st === 'DISPATCHED') dispatched++;
+                else if (st === 'VERIFIED') verified++;
 
                 let tRaised = parseTatDate(ind.dateStr);
                 let tReady = parseTatDate(ind.readyTime);
@@ -2055,32 +2368,67 @@
 
     let globalIncidents = [];
     
+    // 🔴 1. Date Formatter (dd/MMM/yyyy hh:mm AM/PM)
+    function formatIncidentDate(dateStr) {
+        if (!dateStr) return "-";
+        try {
+            let str = String(dateStr).trim();
+            let parts = str.split(" ");
+            if (parts[0].includes("/")) {
+                let dp = parts[0].split("/");
+                if (dp.length === 3) {
+                    let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                    let d = dp[0].padStart(2, '0');
+                    let m = months[parseInt(dp[1], 10) - 1];
+                    let y = dp[2];
+                    let timeParts = parts.slice(1).join(" ");
+                    return `${d}/${m}/${y} <br><span style="font-size:11px; color:#64748b;">${timeParts}</span>`;
+                }
+            }
+            return str;
+        } catch(e) { return dateStr; }
+    }
+
+    // 🔴 2. Fetch and Render Tracker Data
     function fetchIncidentData() {
         let tbody = document.getElementById('incidentTrackerResults');
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">⏳ Loading incidents from Annex I...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px;">⏳ Loading Live Safety Tracker...</td></tr>';
         
         fetch(SCRIPT_URL + "?action=getIncidentData&t=" + new Date().getTime())
         .then(res => res.json())
         .then(data => {
             if(data.error || data.length === 0) { 
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">No records found or error fetching data.</td></tr>`; 
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:red;">No records found.</td></tr>`; 
                 return; 
             }
             
             globalIncidents = data;
             let html = "";
             data.forEach(inc => {
-                let desc = inc.description ? inc.description.substring(0, 50) + "..." : "-";
-                let photoBadge = inc.photos ? `<span style="font-size:10px; background:#e0f2fe; color:#2563eb; padding:2px 6px; border-radius:4px; margin-top:4px; display:inline-block;">📷 Photos Attached</span>` : "";
+                let formattedDate = formatIncidentDate(inc.when);
+                
+                // Smart Status Badges
+                let statusBadge = "";
+                let st = normaliseStatus(inc.status);
+                if (st.includes("OPEN") || st.includes("PENDING")) {
+                    statusBadge = `<span style="background:#fef2f2; color:#e11d48; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:bold; border:1px solid #fecdd3;">🔴 Pending RCA</span>`;
+                } else if (st.includes("REVIEW")) {
+                    statusBadge = `<span style="background:#fffbeb; color:#d97706; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:bold; border:1px solid #fde68a;">🟡 Under Review</span>`;
+                } else if (st.includes("CLOSED")) {
+                    statusBadge = `<span style="background:#f0fdf4; color:#16a534; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:bold; border:1px solid #bbf7d0;">🟢 Closed</span>`;
+                } else {
+                    statusBadge = `<span style="background:#f1f5f9; color:#475569; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:bold; border:1px solid #cbd5e1;">${inc.status}</span>`;
+                }
                 
                 html += `<tr style="transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
-                    <td><b>${inc.incidentNo}</b><br><span style="font-size:10px; color:#64748b;">Ref: ${inc.referenceNo || '-'}</span></td>
-                    <td style="color:#475569; font-size:13px;">${inc.when}</td>
-                    <td><span style="font-weight:600; color:#1e293b;">${inc.where}</span><br><span style="font-size:11px; color:#64748b;">${inc.department}</span></td>
-                    <td>${inc.reporterName}<br><span style="font-size:11px; color:#64748b;">${inc.designation}</span></td>
-                    <td style="max-width:200px; color:#334155;">${desc}<br>${photoBadge}</td>
+                    <td><b style="color:#1e293b; font-size:14px;">${inc.incidentNo}</b></td>
+                    <td style="color:#334155; font-size:13px; font-weight:500;">${formattedDate}</td>
+                    <td style="font-weight:600; color:#4276b6;">${inc.department}</td>
+                    <td><span style="font-weight:500; color:#334155;">${inc.reporterName}</span><br><span style="font-size:11px; color:#64748b;">${inc.designation}</span></td>
+                    <td>${statusBadge}</td>
+                    <td style="color:#475569; font-size:13px; font-weight:600;">${inc.reviewer || '-'}</td>
                     <td style="text-align:center;">
-                        <button class="icon-print-btn" style="background:#fff1f2; color:#e11d48; border-color:#ffe4e6;" onclick="printIncidentReport('${inc.incidentNo}')" title="Print Formal Report">
+                        <button class="icon-print-btn" style="background:#f0fdfa; color:#0d9488; border-color:#ccfbf1;" onclick="openPrintModal('${inc.incidentNo}', '${inc.status}')" title="Print Reports">
                             <span class="material-symbols-outlined">print</span>
                         </button>
                     </td>
@@ -2088,8 +2436,63 @@
             });
             tbody.innerHTML = html;
         }).catch(err => {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">Connection Error!</td></tr>`; 
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:red;">Connection Error!</td></tr>`; 
         });
+    }
+
+    // 🔴 2. FIX: Print Modal Logic (Allows Fill, Review, and Print safely)
+    let currentPrintIncNo = "";
+    function openPrintModal(incNo, status) {
+        currentPrintIncNo = incNo;
+        document.getElementById('printModalIncNo').innerText = incNo;
+        let st = normaliseStatus(status);
+        
+        let modalButtonsHtml = `
+            <button class="btn-dispatch" style="background:#e11d48; width:100%; padding:14px; font-size:14px; display:flex; justify-content:center; align-items:center; gap:8px;" onclick="executePrintAnnexI()">
+                <span class="material-symbols-outlined">description</span> Print Annexure I (Report)
+            </button>
+        `;
+
+        if (st.includes("OPEN") || st.includes("PENDING") || st === "UNDEFINED" || st === "") {
+            modalButtonsHtml += `<button class="btn-dispatch" style="background:#f39c12; width:100%; padding:14px; font-size:14px; display:flex; justify-content:center; align-items:center; gap:8px; margin-top:15px;" onclick="executeReviewAnnexII()"><span class="material-symbols-outlined">edit_document</span> Fill Annexure II (RCA)</button>`;
+        } else if (st.includes("REVIEW") || st.includes("UNDER REVIEW")) {
+            modalButtonsHtml += `<button class="btn-dispatch" style="background:#f39c12; width:100%; padding:14px; font-size:14px; display:flex; justify-content:center; align-items:center; gap:8px; margin-top:15px;" onclick="executeReviewAnnexII()"><span class="material-symbols-outlined">rate_review</span> Review Annexure II (RCA)</button>
+            <button class="btn-dispatch" style="background:#8e44ad; width:100%; padding:14px; font-size:14px; display:flex; justify-content:center; align-items:center; gap:8px; margin-top:15px;" onclick="executePrintAnnexII()"><span class="material-symbols-outlined">print</span> Print Annexure II (RCA)</button>`;
+        } else {
+            modalButtonsHtml += `<button class="btn-dispatch" style="background:#8e44ad; width:100%; padding:14px; font-size:14px; display:flex; justify-content:center; align-items:center; gap:8px; margin-top:15px;" onclick="executePrintAnnexII()"><span class="material-symbols-outlined">verified</span> Print Annexure II (RCA)</button>`;
+        }
+
+        let modalBodyDiv = document.querySelector('#printSelectModal .modalBody div:last-child');
+        if(modalBodyDiv) modalBodyDiv.innerHTML = modalButtonsHtml;
+        document.getElementById('printSelectModal').style.display = 'flex';
+    }
+
+    function executePrintAnnexI() {
+        document.getElementById('printSelectModal').style.display = 'none';
+        printIncidentReport(currentPrintIncNo); 
+    }
+
+    function executeReviewAnnexII() {
+        document.getElementById('printSelectModal').style.display = 'none';
+        let inc = globalIncidents.find(i => i.incidentNo === currentPrintIncNo);
+        let annexUrl = `https://pharmacymgrdhh.github.io/pharmacy_indentDHH/Annex%20II.html?incidentId=${encodeURIComponent(currentPrintIncNo)}`;
+        
+        if(inc && inc.rcaData) {
+            annexUrl += `&cat=${encodeURIComponent(inc.rcaData.category || '')}&harm=${encodeURIComponent(inc.rcaData.wasHarmed || '')}&rc=${encodeURIComponent(inc.rcaData.rootCause || '')}&nar=${encodeURIComponent(inc.rcaData.rcaNarrative || '')}&cor=${encodeURIComponent(inc.rcaData.correctiveAction || '')}&prev=${encodeURIComponent(inc.rcaData.preventiveAction || '')}&stat=${encodeURIComponent(inc.rcaData.status || '')}&rem=${encodeURIComponent(inc.rcaData.remarks || '')}`;
+        }
+        window.open(annexUrl, '_blank');
+    }
+
+    function executePrintAnnexII() {
+        document.getElementById('printSelectModal').style.display = 'none';
+        let inc = globalIncidents.find(i => i.incidentNo === currentPrintIncNo);
+        let annexUrl = `https://pharmacymgrdhh.github.io/pharmacy_indentDHH/Annex%20II.html?incidentId=${encodeURIComponent(currentPrintIncNo)}&mode=print`;
+        
+        // 🔴 FIX: Print करताना सुद्धा URL मध्ये डेटा पाठवणे आवश्यक आहे, नाहीतर "RCA Data Not Found" एरर येतो.
+        if(inc && inc.rcaData) {
+            annexUrl += `&cat=${encodeURIComponent(inc.rcaData.category || '')}&harm=${encodeURIComponent(inc.rcaData.wasHarmed || '')}&rc=${encodeURIComponent(inc.rcaData.rootCause || '')}&nar=${encodeURIComponent(inc.rcaData.rcaNarrative || '')}&cor=${encodeURIComponent(inc.rcaData.correctiveAction || '')}&prev=${encodeURIComponent(inc.rcaData.preventiveAction || '')}&stat=${encodeURIComponent(inc.rcaData.status || '')}&rem=${encodeURIComponent(inc.rcaData.remarks || '')}`;
+        }
+        window.open(annexUrl, '_blank');
     }
 
     function printIncidentReport(incidentNo) {
@@ -2105,7 +2508,6 @@
         document.getElementById('pi_desc').innerText = inc.description || "-";
         document.getElementById('pi_action').innerText = inc.immediateAction || "None stated";
         document.getElementById('pi_reporter').innerText = (inc.reporterName || "-") + " (" + (inc.designation || "-") + ")";
-        
         document.getElementById('pi_photos').innerText = inc.photos ? "Yes (Saved in Drive)" : "No";
 
         document.body.classList.remove('print-indent', 'canon-mode');
@@ -2113,45 +2515,81 @@
         window.print();
         setTimeout(() => document.body.classList.remove('print-incident'), 1000);
     }
-    // ==========================================
-    // 🔴 ADMIN EMAIL SETTINGS LOGIC
-    // ==========================================
-    function saveEmailSettings() {
-        let adminEmail = document.getElementById('set_adminEmail').value.trim();
-        let adminStatus = document.getElementById('set_adminToggle').checked ? "Active" : "Inactive";
-        
-        let pharmEmail = document.getElementById('set_pharmEmail').value.trim();
-        let pharmStatus = document.getElementById('set_pharmToggle').checked ? "Active" : "Inactive";
-
-        let btn = document.getElementById('btnSaveEmail');
+    
+    // 🔴 3. Save Dynamic Email Configuration
+    function saveDynamicEmailSettings() {
+        let btn = document.getElementById('btnSaveEmailMapping');
         let origText = btn.innerText; btn.innerText = "Saving..."; btn.disabled = true;
+        document.getElementById('globalLoader').style.display = 'flex'; // LOCK UI
 
-        // Create two separate requests mapping to the backend format
-        let p1 = fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "saveEmailConfig", department: "SAFETY_INCIDENT", status: adminStatus, toRole: "Admin", toEmail: adminEmail, ccRole: "", ccEmail: "", bccRole: "", bccEmail: "" }) });
-        let p2 = fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "saveEmailConfig", department: "PHARMACY_INDENT", status: pharmStatus, toRole: "Pharmacy", toEmail: pharmEmail, ccRole: "", ccEmail: "", bccRole: "", bccEmail: "" }) });
+        let payload = {
+            action: "saveEmailConfig",
+            department: document.getElementById('es_department').value,
+            status: document.getElementById('es_toggle').checked ? "ON" : "OFF",
+            toRole: document.getElementById('es_toRole').value,
+            toEmail: document.getElementById('es_toEmail').value,
+            ccRole: document.getElementById('es_ccRole').value,
+            ccEmail: document.getElementById('es_ccEmail').value,
+            bccRole: document.getElementById('es_bccRole').value,
+            bccEmail: document.getElementById('es_bccEmail').value
+        };
 
-        Promise.all([p1, p2])
-        .then(responses => Promise.all(responses.map(r => r.json())))
-        .then(results => {
-            if(results[0].success && results[1].success) { showToast("Email Settings Saved Successfully!", "success"); } 
-            else { alert("Partial Error: Check settings again."); }
-        })
-        .catch(err => alert("Connection error while saving settings."))
-        .finally(() => { btn.innerText = origText; btn.disabled = false; });
+        fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) })
+        .then(r => r.json()).then(res => {
+            if(res.success) showToast("Routing Config Saved Successfully!", "success"); 
+            else alert("Error: " + res.message);
+        }).catch(err => alert("Connection error."))
+        .finally(() => { 
+            btn.innerText = origText; btn.disabled = false; 
+            document.getElementById('globalLoader').style.display = 'none'; // UNLOCK UI
+        });
     }
+
     function switchSettingTab(tabId, btn) {
         document.querySelectorAll('.set-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.set-nav-btn').forEach(el => el.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
         btn.classList.add('active');
     }
-    function normaliseStatus(raw) {
-  return String(raw ?? "").trim().toUpperCase();
-}
+    // ==========================================
+    // 🔴 FLIP SWITCH LOGIC
+    // ==========================================
+    function flipMonitorView(viewType) {
+        const chartsView = document.getElementById('view-charts');
+        const tableView = document.getElementById('view-table');
+        const btnCharts = document.getElementById('btnViewCharts');
+        const btnTable = document.getElementById('btnViewTable');
 
-const STATUS_READY      = "READY FOR COLLECTION";
-const STATUS_DISPATCHED = "DISPATCHED";
-const STATUS_VERIFIED   = "VERIFIED";
+        if (viewType === 'charts') {
+            chartsView.style.display = 'grid';
+            tableView.style.display = 'none';
+            btnCharts.classList.add('active');
+            btnTable.classList.remove('active');
+        } else {
+            chartsView.style.display = 'none';
+            tableView.style.display = 'block';
+            btnCharts.classList.remove('active');
+            btnTable.classList.add('active');
+        }
+    }
+    // 🔴 एका क्लिकवर किट लोड करण्याचे लॉजिक
+    function loadSelectedKit() {
+        const selectedKit = document.getElementById('n_kitSelect').value;
+        if (!selectedKit) { alert("Please select a template to load first."); return; }
+        
+        const itemsToLoad = globalKits.filter(k => k.templateName === selectedKit);
+        if (itemsToLoad.length === 0) { alert("No items found in this template!"); return; }
+
+        itemsToLoad.forEach(item => {
+            let finalName = item.medicine;
+            if (item.instructions && item.instructions !== "-") { finalName += ` [${item.instructions}]`; }
+            indentList.push({ displayName: finalName, quantity: item.qty });
+        });
+
+        updateNTable();
+        document.getElementById('n_kitSelect').value = "";
+        showToast(`✅ Successfully loaded ${itemsToLoad.length} items from ${selectedKit}!`, "success");
+    }
 </script>
 </body>
 </html>
