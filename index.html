@@ -428,26 +428,23 @@
                         </div>
                     </div>
                     <div class="patient-info">
-                        <div><strong>Indent No:</strong> <span id="lblIndentNo" style="color: #333;"></span></div>
-                        <div><strong>Request Time:</strong> <span id="lblDate" style="color: #333;"></span></div>
-                        <div><strong>Patient Name:</strong> <span id="lblPatient" style="color: #333;"></span> <span id="p_urgentTag" style="display:none; color:white; font-size:12px; font-weight:bold; background:#e74c3c; padding:2px 6px; border-radius:4px; margin-left:5px;">URGENT</span></div>
-                        <div><strong>Prescribed By:</strong> <span id="lblDoctor" style="color: #333;"></span></div>
-                        <div style="grid-column: span 2;"><strong>Ward/Unit:</strong> <span id="lblWard" style="color: #333;"></span></div>
+                        <div style="grid-column: span 2;"><strong style="color: #e53e3e; font-size: 16px; display: none;" id="p_urgentTag">[URGENT ]</strong></div>
+                        <div><strong>Indent No:</strong> <span id="lblIndentNo" style="color: #333; font-weight: 400;"></span></div>
+                        <div><strong>Date Time:</strong> <span id="lblDate" style="color: #333; font-weight: 400;"></span></div>
+                        <div><strong>Unit/Ward:</strong> <span id="lblWard" style="color: #333; font-weight: 400;"></span></div>
+                        <div><strong>Patient Name:</strong> <span id="lblPatient" style="color: #333; font-weight: 400;"></span></div>
+                        <div style="grid-column: span 2;"><strong>Prescribed By:</strong> <span id="lblDoctor" style="color: #333; font-weight: 400;"></span></div>
                     </div>
-                    
                     <div class="table-scroll-container">
                         <table class="p-table">
-                            <thead>
-                                <tr>
-                                    <th>Sr. No.</th>
-                                    <th>Medicine / Consumable</th>
-                                    <th style="text-align:center;">Quantity</th>
-                                </tr>
-                            </thead>
+                            <thead><tr><th>Sr. No.</th><th>Medicine / Consumable</th><th>Quantity</th></tr></thead>
                             <tbody id="medicineTableBody"></tbody>
                         </table>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
 
     <div id="adminSection" style="display: none;">
         <div class="p-header">
