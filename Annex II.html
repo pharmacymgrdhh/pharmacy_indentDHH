@@ -608,6 +608,44 @@
             // Fetch from GAS and populate fields by IDs
             console.log("System is ready to fetch data for: ", incidentNo);
         }
-    </script>
+    
+    // तुझी ऍप्स स्क्रिप्टची लिंक इथे टाक
+    const SCRIPT_URL_API = 'https://script.google.com/macros/s/AKfycbzymM_BdjSLBvGuwwVDWk04P31MRV8jLa50nDpNWnnsdRGLva6IVjmEA0xxnAz4ywYS/exec';
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const incidentId = urlParams.get('incidentId');
+        const mode = urlParams.get('mode');
+
+        if (incidentId) {
+            // API ला कॉल करून शीटमधून थेट डेटा आणणे
+            fetch(SCRIPT_URL_API + "?action=getSingleIncident&incidentId=" + encodeURIComponent(incidentId))
+            .then(res => res.json())
+            .then(res => {
+                if (res.success && res.data) {
+                    let rca = res.data;
+                    
+                    // फॉर्ममध्ये डेटा ऑटो-फिल करणे
+                    if(document.getElementById('category')) document.getElementById('category').value = rca.category || "";
+                    if(document.getElementById('wasHarmed')) document.getElementById('wasHarmed').value = rca.wasHarmed || "";
+                    if(document.getElementById('rootCauseCategory')) document.getElementById('rootCauseCategory').value = rca.rootCause || "";
+                    if(document.getElementById('rcaNarrative')) document.getElementById('rcaNarrative').value = rca.rcaNarrative || "";
+                    if(document.getElementById('correctiveAction')) document.getElementById('correctiveAction').value = rca.correctiveAction || "";
+                    if(document.getElementById('preventiveAction')) document.getElementById('preventiveAction').value = rca.preventiveAction || "";
+                    if(document.getElementById('riskSeverity')) document.getElementById('riskSeverity').value = rca.riskSeverity || "";
+                    if(document.getElementById('riskProbability')) document.getElementById('riskProbability').value = rca.riskProbability || "";
+                    if(document.getElementById('status')) document.getElementById('status').value = rca.status || "";
+                    if(document.getElementById('remarks')) document.getElementById('remarks').value = rca.remarks || "";
+                }
+
+                // जर मोड 'Print' असेल तर पेज प्रिंट करणे
+                if(mode === 'print') {
+                    setTimeout(() => window.print(), 1000);
+                }
+            })
+            .catch(err => console.error("Error fetching RCA data from Server:", err));
+        }
+    });
+</script>
 </body>
 </html>
