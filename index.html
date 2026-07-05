@@ -172,17 +172,36 @@
             
             body.canon-mode #printTemplate { position: absolute !important; top: 180mm !important; left: 10mm !important; width: 180mm !important; max-width: 180mm !important; transform: rotate(-90deg) !important; transform-origin: top left !important; }
 
-            /* Print Incident Logic */
-            body.print-incident #printIncidentTemplate { display: block !important; width: 100%; padding: 15mm; box-sizing: border-box; position: static; }
+            /* ================= PROFESSIONAL INCIDENT PRINT LOGIC ================= */
+            body.print-incident #printIncidentTemplate { 
+                display: block !important; 
+                width: 100%; 
+                color: #000;
+                font-family: 'Arial', sans-serif;
+            }
             body.print-incident #printTemplate { display: none !important; }
             
-            .inc-prt-header { border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 25px; text-align: center; }
-            .inc-prt-title { font-size: 24px; font-weight: bold; text-transform: uppercase; margin: 5px 0 0 0; }
-            .inc-prt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
-            .inc-prt-box { border: 1px solid #94a3b8; padding: 12px; border-radius: 6px; background: #f8fafc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .inc-prt-label { font-size: 11px; color: #64748b; font-weight: bold; text-transform: uppercase; margin-bottom:4px; display:block; }
-            .inc-prt-val { font-size: 15px; font-weight: bold; color: #1e293b; }
-            .inc-prt-desc { border: 1px solid #94a3b8; padding: 15px; border-radius: 6px; min-height: 80px; margin-bottom: 25px; }
+            /* A4 Size Setup */
+            @page { size: A4 portrait; margin: 12mm; }
+            
+            .inc-prt-header { border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
+            .inc-prt-title-sec { text-align: center; flex: 1; }
+            .inc-prt-title { font-size: 20px; font-weight: bold; text-transform: uppercase; margin: 0; letter-spacing: 1px; color: #000; }
+            .inc-prt-subtitle { font-size: 13px; font-weight: bold; color: #333; margin-top: 4px;}
+            .inc-doc-no { font-size: 10px; text-align: left; font-weight: bold; border: 1px solid #000; padding: 5px; min-width: 120px;}
+            
+            .inc-section-title { background-color: #e2e8f0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 6px 10px; font-weight: bold; font-size: 12px; text-transform: uppercase; border: 1px solid #000; margin-top: 15px; margin-bottom: -1px; }
+            
+            .inc-prt-grid { display: grid; grid-template-columns: 1fr 1fr; border-left: 1px solid #000; border-top: 1px solid #000; margin-bottom: 15px; page-break-inside: avoid; }
+            .inc-prt-box { border-right: 1px solid #000; border-bottom: 1px solid #000; padding: 8px; display: flex; flex-direction: column; }
+            
+            .inc-prt-label { font-size: 10px; color: #444; font-weight: bold; text-transform: uppercase; margin-bottom: 4px; }
+            .inc-prt-val { font-size: 13px; font-weight: bold; color: #000; }
+            .inc-prt-val.normal-text { font-weight: normal; font-size: 13px; color: #222; }
+            
+            .inc-sig-container { display: flex; justify-content: space-between; margin-top: 50px; page-break-inside: avoid; }
+            .inc-sig-box { width: 30%; text-align: center; }
+            .inc-sig-line { border-top: 1px solid #000; margin-top: 40px; padding-top: 5px; font-weight: bold; font-size: 12px; color: #000; }
             
             @page { margin: 10mm; size: auto; }
         }
@@ -843,6 +862,29 @@
             <div class="inc-prt-box"><span class="inc-prt-label">Reported By</span><div class="inc-prt-val" id="pi_reporter">--</div></div>
             <div class="inc-prt-box"><span class="inc-prt-label">Photo Evidence Attached?</span><div class="inc-prt-val" id="pi_photos">--</div></div>
         </div>
+        <!-- 🔴 RCA SECTION (Annex II) -->
+        <h3 style="border-bottom: 2px solid #000; padding-bottom: 5px; margin-top: 40px; text-transform: uppercase; font-size: 16px;">Root Cause Analysis (Annexure II)</h3>
+        
+        <div class="inc-prt-grid">
+            <div class="inc-prt-box"><span class="inc-prt-label">Category of Error</span><div class="inc-prt-val" id="pi_rca_cat">--</div></div>
+            <div class="inc-prt-box"><span class="inc-prt-label">Root Cause (Primary)</span><div class="inc-prt-val" id="pi_rca_rc">--</div></div>
+            <div class="inc-prt-box"><span class="inc-prt-label">Severity & Probability</span><div class="inc-prt-val" id="pi_rca_risk">--</div></div>
+            <div class="inc-prt-box"><span class="inc-prt-label">Current Status</span><div class="inc-prt-val" id="pi_rca_stat" style="color:#e11d48;">--</div></div>
+        </div>
+
+        <span class="inc-prt-label">RCA Narrative / Investigation Details</span>
+        <div class="inc-prt-desc" id="pi_rca_nar" style="min-height: 40px;">--</div>
+
+        <span class="inc-prt-label">Corrective Action (Immediate)</span>
+        <div class="inc-prt-desc" id="pi_rca_ca" style="min-height: 40px;">--</div>
+
+        <span class="inc-prt-label">Preventive Action (System Level)</span>
+        <div class="inc-prt-desc" id="pi_rca_pa" style="min-height: 40px;">--</div>
+
+        <div class="inc-prt-grid" style="margin-bottom: 40px;">
+            <div class="inc-prt-box"><span class="inc-prt-label">Investigated By</span><div class="inc-prt-val" id="pi_rca_rev">--</div></div>
+            <div class="inc-prt-box"><span class="inc-prt-label">Approver Remarks</span><div class="inc-prt-val" id="pi_rca_rem">--</div></div>
+        </div>
 
         <div style="margin-top: 50px; display: flex; justify-content: space-between; text-align: center;">
             <div style="width: 200px; border-top: 1px solid #000; padding-top: 5px; font-weight: bold; font-size: 13px;">Signature of Reporter</div>
@@ -1097,7 +1139,7 @@
                 
                 let roleCheck = String(currentRole).toUpperCase().trim();
                 
-                if(roleCheck === "ADMIN" || roleCheck === "PURCHASE MANAGER") { 
+                if(roleCheck === "ADMIN" || roleCheck === "APPROVER" || roleCheck === "REVIEWER") { 
                     document.getElementById('adminSection').style.display = 'block'; initAdmin(); 
                 } else if(roleCheck === "RESIDENT" || roleCheck === "NURSING") { 
                     document.getElementById('nursingSection').style.display = 'block'; 
@@ -2473,22 +2515,13 @@
     function openPrintModal(incNo, status) {
         currentPrintIncNo = incNo;
         document.getElementById('printModalIncNo').innerText = incNo;
-        let st = normaliseStatus(status);
         
+        // आता फक्त एकच 'Print Full Report' बटण असेल
         let modalButtonsHtml = `
-            <button class="btn-dispatch" style="background:#e11d48; width:100%; padding:14px; font-size:14px; display:flex; justify-content:center; align-items:center; gap:8px;" onclick="executePrintAnnexI()">
-                <span class="material-symbols-outlined">description</span> Print Annexure I (Report)
+            <button class="btn-dispatch" style="background:#4f46e5; width:100%; padding:14px; font-size:15px; display:flex; justify-content:center; align-items:center; gap:8px;" onclick="printIncidentReport(currentPrintIncNo)">
+                <span class="material-symbols-outlined">print</span> Print Full Report (Annex I & II)
             </button>
         `;
-
-        if (st.includes("OPEN") || st.includes("PENDING") || st === "UNDEFINED" || st === "") {
-            modalButtonsHtml += `<button class="btn-dispatch" style="background:#f39c12; width:100%; padding:14px; font-size:14px; display:flex; justify-content:center; align-items:center; gap:8px; margin-top:15px;" onclick="executeReviewAnnexII()"><span class="material-symbols-outlined">edit_document</span> Fill Annexure II (RCA)</button>`;
-        } else if (st.includes("REVIEW") || st.includes("UNDER REVIEW")) {
-            modalButtonsHtml += `<button class="btn-dispatch" style="background:#f39c12; width:100%; padding:14px; font-size:14px; display:flex; justify-content:center; align-items:center; gap:8px; margin-top:15px;" onclick="executeReviewAnnexII()"><span class="material-symbols-outlined">rate_review</span> Review Annexure II (RCA)</button>
-            <button class="btn-dispatch" style="background:#8e44ad; width:100%; padding:14px; font-size:14px; display:flex; justify-content:center; align-items:center; gap:8px; margin-top:15px;" onclick="executePrintAnnexII()"><span class="material-symbols-outlined">print</span> Print Annexure II (RCA)</button>`;
-        } else {
-            modalButtonsHtml += `<button class="btn-dispatch" style="background:#8e44ad; width:100%; padding:14px; font-size:14px; display:flex; justify-content:center; align-items:center; gap:8px; margin-top:15px;" onclick="executePrintAnnexII()"><span class="material-symbols-outlined">verified</span> Print Annexure II (RCA)</button>`;
-        }
 
         let modalBodyDiv = document.querySelector('#printSelectModal .modalBody div:last-child');
         if(modalBodyDiv) modalBodyDiv.innerHTML = modalButtonsHtml;
@@ -2502,31 +2535,22 @@
 
     function executeReviewAnnexII() {
         document.getElementById('printSelectModal').style.display = 'none';
-        let inc = globalIncidents.find(i => i.incidentNo === currentPrintIncNo);
-        let annexUrl = `https://pharmacymgrdhh.github.io/pharmacy_indentDHH/Annex%20II.html?incidentId=${encodeURIComponent(currentPrintIncNo)}`;
-        
-        if(inc && inc.rcaData) {
-            annexUrl += `&cat=${encodeURIComponent(inc.rcaData.category || '')}&harm=${encodeURIComponent(inc.rcaData.wasHarmed || '')}&rc=${encodeURIComponent(inc.rcaData.rootCause || '')}&nar=${encodeURIComponent(inc.rcaData.rcaNarrative || '')}&cor=${encodeURIComponent(inc.rcaData.correctiveAction || '')}&prev=${encodeURIComponent(inc.rcaData.preventiveAction || '')}&stat=${encodeURIComponent(inc.rcaData.status || '')}&rem=${encodeURIComponent(inc.rcaData.remarks || '')}`;
-        }
+        let annexUrl = `https://pharmacymgrdhh.github.io/pharmacy_indentDHH/Annex%20II.html?incidentId=${encodeURIComponent(currentPrintIncNo)}&mode=review`;
         window.open(annexUrl, '_blank');
     }
 
     function executePrintAnnexII() {
         document.getElementById('printSelectModal').style.display = 'none';
-        let inc = globalIncidents.find(i => i.incidentNo === currentPrintIncNo);
         let annexUrl = `https://pharmacymgrdhh.github.io/pharmacy_indentDHH/Annex%20II.html?incidentId=${encodeURIComponent(currentPrintIncNo)}&mode=print`;
-        
-        // 🔴 FIX: Print करताना सुद्धा URL मध्ये डेटा पाठवणे आवश्यक आहे, नाहीतर "RCA Data Not Found" एरर येतो.
-        if(inc && inc.rcaData) {
-            annexUrl += `&cat=${encodeURIComponent(inc.rcaData.category || '')}&harm=${encodeURIComponent(inc.rcaData.wasHarmed || '')}&rc=${encodeURIComponent(inc.rcaData.rootCause || '')}&nar=${encodeURIComponent(inc.rcaData.rcaNarrative || '')}&cor=${encodeURIComponent(inc.rcaData.correctiveAction || '')}&prev=${encodeURIComponent(inc.rcaData.preventiveAction || '')}&stat=${encodeURIComponent(inc.rcaData.status || '')}&rem=${encodeURIComponent(inc.rcaData.remarks || '')}`;
-        }
         window.open(annexUrl, '_blank');
     }
 
     function printIncidentReport(incidentNo) {
+        document.getElementById('printSelectModal').style.display = 'none'; // Modal close करणे
         let inc = globalIncidents.find(i => i.incidentNo === incidentNo);
         if(!inc) return;
         
+        // Annex I डेटा भरणे
         document.getElementById('pi_no').innerText = inc.incidentNo;
         document.getElementById('pi_ref').innerText = inc.referenceNo || "-";
         document.getElementById('pi_when').innerText = inc.when || "-";
@@ -2537,6 +2561,23 @@
         document.getElementById('pi_action').innerText = inc.immediateAction || "None stated";
         document.getElementById('pi_reporter').innerText = (inc.reporterName || "-") + " (" + (inc.designation || "-") + ")";
         document.getElementById('pi_photos').innerText = inc.photos ? "Yes (Saved in Drive)" : "No";
+
+        // 🔴 Annex II (RCA) डेटा भरणे
+        if(inc.rcaData && inc.rcaData.status !== "Pending RCA" && inc.rcaData.status !== "") {
+            document.getElementById('pi_rca_cat').innerText = inc.rcaData.category || "-";
+            document.getElementById('pi_rca_rc').innerText = inc.rcaData.rootCause || "-";
+            document.getElementById('pi_rca_risk').innerText = (inc.rcaData.riskSeverity || "-") + " / " + (inc.rcaData.riskProbability || "-");
+            document.getElementById('pi_rca_stat').innerText = inc.rcaData.status || "-";
+            document.getElementById('pi_rca_nar').innerText = inc.rcaData.rcaNarrative || "-";
+            document.getElementById('pi_rca_ca').innerText = inc.rcaData.correctiveAction || "-";
+            document.getElementById('pi_rca_pa').innerText = inc.rcaData.preventiveAction || "-";
+            document.getElementById('pi_rca_rev').innerText = inc.rcaData.reviewer || "-";
+            document.getElementById('pi_rca_rem').innerText = inc.rcaData.remarks || "-";
+        } else {
+            // जर RCA भरलेला नसेल
+            document.getElementById('pi_rca_stat').innerText = "Pending RCA";
+            ['pi_rca_cat', 'pi_rca_rc', 'pi_rca_risk', 'pi_rca_nar', 'pi_rca_ca', 'pi_rca_pa', 'pi_rca_rev', 'pi_rca_rem'].forEach(id => document.getElementById(id).innerText = "Not submitted yet");
+        }
 
         document.body.classList.remove('print-indent', 'canon-mode');
         document.body.classList.add('print-incident');
