@@ -402,9 +402,8 @@
                     <div class="form-group">
                         <label>Status <span class="req">*</span></label>
                         <select id="investigationStatus" required>
-                            <option value="Open">Open</option>
-                            <option value="Under Review">Under Review</option>
-                            <option value="Closed">Closed</option>
+                            <option value="Under Review">Under Review (Save & Send to Approver)</option>
+                            <option value="Approved (Closed)">Approved & Closed (Final)</option>
                         </select>
                     </div>
                 </div>
@@ -437,182 +436,159 @@
     //             JAVASCRIPT                     
     // ==========================================
     
-    // --- १. नवीन फंक्शन: URL मधून Incident ID वाचण्यासाठी ---
+    // 🔴 तुझी फायनल आणि अचूक ऍप्स स्क्रिप्टची लिंक (दोन्ही कामांसाठी एकच)
+    const SCRIPT_URL_API = "https://script.google.com/macros/s/AKfycbzymM_BdjSLBvGuwwVDWk04P31MRV8jLa50nDpNWnnsdRGLva6IVjmEA0xxnAz4ywYS/exec"; 
+
+    // --- १. URL मधून Incident ID वाचण्यासाठी ---
     function getUrlParameter(name) {
         name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
         var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
         var results = regex.exec(location.search);
         return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
     }
-    // -----------------------------------------------------
-
-    document.addEventListener("DOMContentLoaded", () => {
-        init();
-    });
 
     function init() {
-        // Auto-fill today's date for convenience
         document.getElementById('incidentDate').valueAsDate = new Date();
-        
-        // --- २. नवीन कोड: URL मधला नंबर 'incidentNo' बॉक्समध्ये भरण्यासाठी ---
         var urlIncidentId = getUrlParameter('incidentId');
         if (urlIncidentId) {
             document.getElementById('incidentNo').value = urlIncidentId;
         } else {
-            // जर लिंकमध्ये ID नसेल, तर बॉक्स रिकामा राहील
             document.getElementById('incidentNo').value = "No ID Found"; 
         }
-        // ------------------------------------------------------------------
     }
 
-        // 2. Conditional Logic Handling (Google Form style Dynamic Show/Hide)
-        function toggleSections() {
-            // Category -> Other logic
-            const category = document.getElementById('incidentCategory').value;
-            const secOther = document.getElementById('secOtherCategory');
-            const otherInput = document.getElementById('otherCategoryDetails');
-            
-            if (category === 'Other') {
-                secOther.style.display = 'flex';
-                otherInput.setAttribute('required', 'true');
-            } else {
-                secOther.style.display = 'none';
-                otherInput.removeAttribute('required');
-                otherInput.value = '';
-                otherInput.classList.remove('error-field');
-            }
-
-            // Harmed -> Nature of harm logic
-            const isHarmed = document.querySelector('input[name="wasHarmed"]:checked').value;
-            const secHarm = document.getElementById('secHarmDetails');
-            const harmInput = document.getElementById('harmDetails');
-
-            if (isHarmed === 'Yes') {
-                secHarm.style.display = 'flex';
-                harmInput.setAttribute('required', 'true');
-            } else {
-                secHarm.style.display = 'none';
-                harmInput.removeAttribute('required');
-                harmInput.value = '';
-                harmInput.classList.remove('error-field');
-            }
+    // 2. Conditional Logic Handling (Google Form style Dynamic Show/Hide)
+    function toggleSections() {
+        const category = document.getElementById('incidentCategory').value;
+        const secOther = document.getElementById('secOtherCategory');
+        const otherInput = document.getElementById('otherCategoryDetails');
+        
+        if (category === 'Other') {
+            secOther.style.display = 'flex';
+            otherInput.setAttribute('required', 'true');
+        } else {
+            secOther.style.display = 'none';
+            otherInput.removeAttribute('required');
+            otherInput.value = '';
+            otherInput.classList.remove('error-field');
         }
 
-        // 3. Form Validation logic
-        function validateForm() {
-            let isValid = true;
-            const requiredFields = document.querySelectorAll('#investigationForm [required]');
+        const harmedRadio = document.querySelector('input[name="wasHarmed"]:checked');
+        const isHarmed = harmedRadio ? harmedRadio.value : "No";
+        const secHarm = document.getElementById('secHarmDetails');
+        const harmInput = document.getElementById('harmDetails');
 
-            // Remove existing error classes
-            document.querySelectorAll('.error-field').forEach(el => el.classList.remove('error-field'));
+        if (isHarmed === 'Yes') {
+            secHarm.style.display = 'flex';
+            harmInput.setAttribute('required', 'true');
+        } else {
+            secHarm.style.display = 'none';
+            harmInput.removeAttribute('required');
+            harmInput.value = '';
+            harmInput.classList.remove('error-field');
+        }
+    }
 
-            requiredFields.forEach(field => {
-                if (!field.value.trim()) {
-                    field.classList.add('error-field');
-                    isValid = false;
-                }
+    // 3. Form Validation logic
+    function validateForm() {
+        let isValid = true;
+        const requiredFields = document.querySelectorAll('#investigationForm [required]');
+        document.querySelectorAll('.error-field').forEach(el => el.classList.remove('error-field'));
+
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                field.classList.add('error-field');
+                isValid = false;
+            }
+        });
+
+        if (!isValid) {
+            alert("Please fill all mandatory fields marked with red asterisks (*).");
+        }
+        return isValid;
+    }
+
+    // 4. Save Logic (Actual API / GAS Call)
+    async function saveInvestigation() {
+        if (!validateForm()) return;
+
+        let radioHarmed = document.querySelector('input[name="wasHarmed"]:checked');
+        let harmedVal = radioHarmed ? radioHarmed.value : "No";
+
+        const formData = {
+            action: "saveAnnexureTwo", 
+            incidentNo: document.getElementById('incidentNo').value,
+            date: document.getElementById('incidentDate').value,
+            time: document.getElementById('incidentTime').value,
+            reportedBy: document.getElementById('reportedBy').value,
+            department: document.getElementById('incidentDepartment').value,
+            category: document.getElementById('incidentCategory').value,
+            categoryOther: document.getElementById('otherCategoryDetails').value,
+            description: document.getElementById('eventDescription').value,
+            wasHarmed: harmedVal,
+            harmDetails: document.getElementById('harmDetails').value,
+            rootCauseCategory: document.getElementById('rootCauseCategory').value,
+            rcaNarrative: document.getElementById('rcaNarrative').value,
+            riskSeverity: document.getElementById('riskSeverity').value,
+            riskProbability: document.getElementById('riskProbability').value,
+            correctiveAction: document.getElementById('correctiveAction').value,
+            preventiveAction: document.getElementById('preventiveAction').value,
+            reviewedBy: document.getElementById('reviewedBy').value,
+            status: document.getElementById('investigationStatus').value,
+            remarks: document.getElementById('reviewRemarks').value
+        };
+        
+        const btn = document.querySelector('.btn-save');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = `<span class="material-symbols-outlined">sync</span> Saving...`;
+        btn.disabled = true;
+
+        try {
+            const response = await fetch(SCRIPT_URL_API, {
+                method: 'POST',
+                body: JSON.stringify(formData)
             });
+            const result = await response.json();
 
-            if (!isValid) {
-                alert("Please fill all mandatory fields marked with red asterisks (*).");
-            }
-            return isValid;
-        }
-
-        // 4. Save Logic (Ready for GAS / Database)
-        // तुमचा Deployment URL इथे टाका
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzymM_BdjSLBvGuwwVDWk04P31MRV8jLa50nDpNWnnsdRGLva6IVjmEA0xxnAz4ywYS/exec"; 
-
-        // 4. Save Logic (Actual API / GAS Call)
-        async function saveInvestigation() {
-            if (!validateForm()) return;
-
-            // Collect Data
-            const formData = {
-                action: "saveAnnexureTwo", // हे Backend ला कळेल की काय करायचे आहे
-                incidentNo: document.getElementById('incidentNo').value,
-                date: document.getElementById('incidentDate').value,
-                time: document.getElementById('incidentTime').value,
-                reportedBy: document.getElementById('reportedBy').value,
-                department: document.getElementById('incidentDepartment').value,
-                category: document.getElementById('incidentCategory').value,
-                categoryOther: document.getElementById('otherCategoryDetails').value,
-                description: document.getElementById('eventDescription').value,
-                wasHarmed: document.querySelector('input[name="wasHarmed"]:checked').value,
-                harmDetails: document.getElementById('harmDetails').value,
-                rootCauseCategory: document.getElementById('rootCauseCategory').value,
-                rcaNarrative: document.getElementById('rcaNarrative').value,
-                riskSeverity: document.getElementById('riskSeverity').value,
-                riskProbability: document.getElementById('riskProbability').value,
-                correctiveAction: document.getElementById('correctiveAction').value,
-                preventiveAction: document.getElementById('preventiveAction').value,
-                reviewedBy: document.getElementById('reviewedBy').value,
-                status: document.getElementById('investigationStatus').value,
-                remarks: document.getElementById('reviewRemarks').value
-            };
-            
-            // Change Button State to Loading
-            const btn = document.querySelector('.btn-save');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = `<span class="material-symbols-outlined">sync</span> Saving...`;
-            btn.disabled = true;
-
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(formData)
-                });
-                
-                const result = await response.json();
-
-                if (result.success) {
-                    alert("✅ " + result.message);
-                    resetForm(); // यशस्वीरीत्या सेव्ह झाल्यावर फॉर्म क्लिअर करा
-                } else {
-                    alert("❌ Error: " + result.message);
+            if (result.success) {
+                alert("✅ " + result.message);
+                // जर Approver ने Approve केले असेल, तर टॅब बंद करा
+                if(formData.status === "Approved (Closed)") {
+                    window.close();
                 }
-            } catch (error) {
-                alert("❌ Network Error: Could not connect to the server.");
-                console.error("Save Error:", error);
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
+            } else {
+                alert("❌ Error: " + result.message);
             }
+        } catch (error) {
+            alert("❌ Network Error: Could not connect to the server.");
+            console.error("Save Error:", error);
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
         }
-        // 5. Reset Form
-        function resetForm() {
-            if(confirm("Are you sure you want to clear all data?")) {
-                document.getElementById('investigationForm').reset();
-                document.querySelectorAll('.error-field').forEach(el => el.classList.remove('error-field'));
-                document.getElementById('incidentDate').valueAsDate = new Date(); // reset to today
-                toggleSections(); // Hide conditionals
-            }
-        }
+    }
 
-        // 6. Professional A4 Print
-        function printReport() {
-            window.print();
+    function resetForm() {
+        if(confirm("Are you sure you want to clear all data?")) {
+            document.getElementById('investigationForm').reset();
+            document.querySelectorAll('.error-field').forEach(el => el.classList.remove('error-field'));
+            document.getElementById('incidentDate').valueAsDate = new Date(); 
+            toggleSections(); 
         }
+    }
 
-        // 7. Close Module
-        function closeModule() {
-            if(confirm("Exit without saving?")) {
-                // Logic to route back to ERP Dashboard
-                // window.location.href = 'dashboard.html';
-                console.log("Module closed.");
-            }
+    function printReport() { window.print(); }
+
+    function closeModule() {
+        if(confirm("Exit without saving?")) {
+            window.close();
         }
+    }
 
-        // 8. Future function placeholder for loading existing record
-        function loadExistingInvestigation(incidentNo) {
-            // Fetch from GAS and populate fields by IDs
-            console.log("System is ready to fetch data for: ", incidentNo);
-        }
-    
-    // तुझी ऍप्स स्क्रिप्टची लिंक इथे टाक
-    const SCRIPT_URL_API = 'https://script.google.com/macros/s/AKfycbzymM_BdjSLBvGuwwVDWk04P31MRV8jLa50nDpNWnnsdRGLva6IVjmEA0xxnAz4ywYS/exec';
-
+    // 🔴 5. Auto-Fill Data Logic (Catcher)
     window.addEventListener('DOMContentLoaded', () => {
+        init(); // URL मधून ID सेट करणे
+
         const urlParams = new URLSearchParams(window.location.search);
         const incidentId = urlParams.get('incidentId');
         const mode = urlParams.get('mode');
@@ -625,22 +601,43 @@
                 if (res.success && res.data) {
                     let rca = res.data;
                     
-                    // फॉर्ममध्ये डेटा ऑटो-फिल करणे
-                    if(document.getElementById('category')) document.getElementById('category').value = rca.category || "";
-                    if(document.getElementById('wasHarmed')) document.getElementById('wasHarmed').value = rca.wasHarmed || "";
-                    if(document.getElementById('rootCauseCategory')) document.getElementById('rootCauseCategory').value = rca.rootCause || "";
-                    if(document.getElementById('rcaNarrative')) document.getElementById('rcaNarrative').value = rca.rcaNarrative || "";
-                    if(document.getElementById('correctiveAction')) document.getElementById('correctiveAction').value = rca.correctiveAction || "";
-                    if(document.getElementById('preventiveAction')) document.getElementById('preventiveAction').value = rca.preventiveAction || "";
-                    if(document.getElementById('riskSeverity')) document.getElementById('riskSeverity').value = rca.riskSeverity || "";
-                    if(document.getElementById('riskProbability')) document.getElementById('riskProbability').value = rca.riskProbability || "";
-                    if(document.getElementById('status')) document.getElementById('status').value = rca.status || "";
-                    if(document.getElementById('remarks')) document.getElementById('remarks').value = rca.remarks || "";
-                }
+                    const fill = (id, val) => { let el = document.getElementById(id); if(el && val) el.value = val; };
+                    
+                    // 🔴 FIX: अचूक ID Mapping केले आहे
+                    fill('incidentCategory', rca.category);
+                    fill('otherCategoryDetails', rca.categoryOther);
+                    fill('rootCauseCategory', rca.rootCause);
+                    fill('rcaNarrative', rca.rcaNarrative);
+                    fill('correctiveAction', rca.correctiveAction);
+                    fill('preventiveAction', rca.preventiveAction);
+                    fill('riskSeverity', rca.riskSeverity);
+                    fill('riskProbability', rca.riskProbability);
+                    fill('investigationStatus', rca.status);
+                    fill('reviewRemarks', rca.remarks);
+                    fill('incidentDate', rca.date);
+                    fill('incidentTime', rca.time);
+                    fill('incidentDepartment', rca.department);
+                    fill('reportedBy', rca.reportedBy);
+                    fill('eventDescription', rca.description);
+                    fill('harmDetails', rca.harmDetails);
+                    fill('reviewedBy', rca.reviewer); 
+                    
+                    // 🔴 FIX: Radio Button साठी वेगळे लॉजिक
+                    if(rca.wasHarmed) {
+                        let radios = document.getElementsByName('wasHarmed');
+                        for(let i=0; i<radios.length; i++) {
+                            if(radios[i].value === rca.wasHarmed) {
+                                radios[i].checked = true;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    toggleSections(); // डेटा भरल्यावर लपलेले सेक्शन्स उघडण्यासाठी
 
-                // जर मोड 'Print' असेल तर पेज प्रिंट करणे
-                if(mode === 'print') {
-                    setTimeout(() => window.print(), 1000);
+                    if(mode === 'print') {
+                        setTimeout(() => window.print(), 1000);
+                    }
                 }
             })
             .catch(err => console.error("Error fetching RCA data from Server:", err));
