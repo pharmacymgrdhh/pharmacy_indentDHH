@@ -199,13 +199,13 @@
     /* 🔴 २. रॅपरच्या आतील डिझाईन (जे ९० डिग्री फिरवलेले असेल) */
     body.canon-mode .canon-rotated-content {
         position: absolute;
-        top: 209mm;    /* ९० डिग्री फिरवल्यामुळे डिझाईन फ्रेममध्ये आणण्यासाठी खाली ढकलले */
-        left: 0;
-        width: 209mm;  /* आडव्या कागदाची लांबी */
-        height: 148mm; /* आडव्या कागदाची उंची */
-        transform: rotate(0deg);
-        transform-origin: top left;
-        padding: 10mm; /* मार्जिन इथे द्या */
+        top: 0 !important;             /* 🚨 आधी 209mm होते, ते आता 0 केले */
+        left: 148mm !important;        /* 🚨 आधी 0 होते, ते आता 148mm केले */
+        width: 210mm !important;       /* A5 ची लांबी */
+        height: 148mm !important;      /* A5 ची रुंदी */
+        transform: rotate(90deg) !important; /* 🚨 -90deg ऐवजी 90deg केले (Clockwise Rotation) */
+        transform-origin: top left !important;
+        padding: 10mm;
         box-sizing: border-box;
     }
 }
