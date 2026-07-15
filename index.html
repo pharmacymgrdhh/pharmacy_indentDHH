@@ -170,7 +170,45 @@
             .prt-signatures { display: flex; justify-content: space-between; margin-top: 60px; text-align: center; font-size: 12px; font-weight: bold; }
             .sig-line { border-top: 1px solid #000; width: 28%; padding-top: 5px; color: #333; }
             
-            body.canon-mode #printTemplate { position: absolute !important; top: 180mm !important; left: 10mm !important; width: 180mm !important; max-width: 180mm !important; transform: rotate(-90deg) !important; transform-origin: top left !important; }
+            /* ================= DHIMSR CANON PRINTER (MULTI-PAGE ROTATION FIXED) ================= */
+@media print {
+    /* मुख्य टेम्पलेटला absolute मधून बाहेर काढा */
+    body.canon-mode #printTemplate { 
+        display: block !important; 
+        position: static !important;
+        transform: none !important; 
+        width: 100% !important;
+    }
+
+    /* 🔴 १. कॅनोन पेज रॅपर (हा A5 Portrait च्या आकाराचा असेल आणि आपोआप नवीन पेज घेईल) */
+    body.canon-mode .canon-print-page {
+        width: 148mm;  /* A5 ची रुंदी (उभा कागद) */
+        height: 209mm; /* A5 ची उंची (उभा कागद) */
+        position: relative;
+        page-break-after: always; /* 🚨 प्रत्येक बॉक्स नंतर नवीन पान घेईल */
+        overflow: hidden;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* शेवटच्या पानानंतर रिकामे पान येऊ नये म्हणून */
+    body.canon-mode .canon-print-page:last-child {
+        page-break-after: auto;
+    }
+
+    /* 🔴 २. रॅपरच्या आतील डिझाईन (जे ९० डिग्री फिरवलेले असेल) */
+    body.canon-mode .canon-rotated-content {
+        position: absolute;
+        top: 209mm;    /* ९० डिग्री फिरवल्यामुळे डिझाईन फ्रेममध्ये आणण्यासाठी खाली ढकलले */
+        left: 0;
+        width: 209mm;  /* आडव्या कागदाची लांबी */
+        height: 148mm; /* आडव्या कागदाची उंची */
+        transform: rotate(-90deg);
+        transform-origin: top left;
+        padding: 10mm; /* मार्जिन इथे द्या */
+        box-sizing: border-box;
+    }
+}
 
             /* ================= PROFESSIONAL INCIDENT PRINT LOGIC ================= */
             body.print-incident #printIncidentTemplate { 
