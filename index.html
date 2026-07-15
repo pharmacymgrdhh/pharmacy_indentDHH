@@ -169,43 +169,10 @@
             .prt-med-table td { padding: 8px 10px !important; border: 1px solid #333 !important; color: #000 !important; }
             .prt-signatures { display: flex; justify-content: space-between; margin-top: 60px; text-align: center; font-size: 12px; font-weight: bold; }
             .sig-line { border-top: 1px solid #000; width: 28%; padding-top: 5px; color: #333; }
+
             
-            /* ================= DHIMSR CANON PRINTER (A4 PORTRAIT + ROTATION FIX) ================= */
-@media print {
-    body.canon-mode #printTemplate { 
-        display: block !important; 
-        position: static !important;
-        transform: none !important; 
-        width: 100% !important;
-        margin: 0; padding: 0;
-    }
 
-    /* 🔴 १. A4 कागदाचा मुख्य रॅपर (प्रत्येक रॅपर नवीन A4 पान घेईल) */
-    body.canon-mode .canon-print-page {
-        width: 210mm;  /* A4 ची रुंदी */
-        height: 296mm; /* A4 ची उंची (थोडी कमी ठेवली जेणेकरून कोरा कागद येऊ नये) */
-        position: relative;
-        page-break-after: always; /* 🚨 १५ औषधे संपली की आपोआप दुसरे A4 पान घेईल */
-        overflow: hidden;
-        background: white;
-    }
-
-    body.canon-mode .canon-print-page:last-child {
-        page-break-after: auto;
-    }
-
-    /* 🔴 २. तुझी जुनी 'Rotate' वाली डिझाईन (जी आता प्रत्येक पानावर रिपीट होईल) */
-    body.canon-mode .canon-rotated-content {
-        position: absolute;
-        top: 180mm !important;         /* तुझी जुनी सेटिंग (यामुळे डिझाईन वरच्या अर्ध्यात येईल) */
-        left: 10mm !important;         /* तुझी जुनी सेटिंग */
-        width: 180mm !important;       /* तुझी जुनी सेटिंग */
-        max-width: 180mm !important;
-        transform: rotate(-90deg) !important; /* तुझी जुनी सेटिंग */
-        transform-origin: top left !important;
-        padding: 0;
-    }
-}
+            body.canon-mode #printTemplate { position: absolute !important; top: 180mm !important; left: 10mm !important; width: 180mm !important; max-width: 180mm !important; transform: rotate(-90deg) !important; transform-origin: top left !important; }
 
             /* ================= PROFESSIONAL INCIDENT PRINT LOGIC ================= */
             body.print-incident #printIncidentTemplate { 
