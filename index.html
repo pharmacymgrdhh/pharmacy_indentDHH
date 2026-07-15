@@ -170,43 +170,40 @@
             .prt-signatures { display: flex; justify-content: space-between; margin-top: 60px; text-align: center; font-size: 12px; font-weight: bold; }
             .sig-line { border-top: 1px solid #000; width: 28%; padding-top: 5px; color: #333; }
             
-            /* ================= DHIMSR CANON PRINTER (MULTI-PAGE ROTATION FIXED) ================= */
+            /* ================= DHIMSR CANON PRINTER (A4 PORTRAIT + ROTATION FIX) ================= */
 @media print {
-    /* मुख्य टेम्पलेटला absolute मधून बाहेर काढा */
     body.canon-mode #printTemplate { 
         display: block !important; 
         position: static !important;
         transform: none !important; 
         width: 100% !important;
+        margin: 0; padding: 0;
     }
 
-    /* 🔴 १. कॅनोन पेज रॅपर (हा A5 Portrait च्या आकाराचा असेल आणि आपोआप नवीन पेज घेईल) */
+    /* 🔴 १. A4 कागदाचा मुख्य रॅपर (प्रत्येक रॅपर नवीन A4 पान घेईल) */
     body.canon-mode .canon-print-page {
-        width: 148mm;  /* A5 ची रुंदी (उभा कागद) */
-        height: 209mm; /* A5 ची उंची (उभा कागद) */
+        width: 210mm;  /* A4 ची रुंदी */
+        height: 296mm; /* A4 ची उंची (थोडी कमी ठेवली जेणेकरून कोरा कागद येऊ नये) */
         position: relative;
-        page-break-after: always; /* 🚨 प्रत्येक बॉक्स नंतर नवीन पान घेईल */
+        page-break-after: always; /* 🚨 १५ औषधे संपली की आपोआप दुसरे A4 पान घेईल */
         overflow: hidden;
-        margin: 0;
-        padding: 0;
+        background: white;
     }
 
-    /* शेवटच्या पानानंतर रिकामे पान येऊ नये म्हणून */
     body.canon-mode .canon-print-page:last-child {
         page-break-after: auto;
     }
 
-    /* 🔴 २. रॅपरच्या आतील डिझाईन (जे ९० डिग्री फिरवलेले असेल) */
+    /* 🔴 २. तुझी जुनी 'Rotate' वाली डिझाईन (जी आता प्रत्येक पानावर रिपीट होईल) */
     body.canon-mode .canon-rotated-content {
         position: absolute;
-        top: 0 !important;             /* 🚨 आधी 209mm होते, ते आता 0 केले */
-        left: 148mm !important;        /* 🚨 आधी 0 होते, ते आता 148mm केले */
-        width: 210mm !important;       /* A5 ची लांबी */
-        height: 148mm !important;      /* A5 ची रुंदी */
-        transform: rotate(90deg) !important; /* 🚨 -90deg ऐवजी 90deg केले (Clockwise Rotation) */
+        top: 180mm !important;         /* तुझी जुनी सेटिंग (यामुळे डिझाईन वरच्या अर्ध्यात येईल) */
+        left: 10mm !important;         /* तुझी जुनी सेटिंग */
+        width: 180mm !important;       /* तुझी जुनी सेटिंग */
+        max-width: 180mm !important;
+        transform: rotate(-90deg) !important; /* तुझी जुनी सेटिंग */
         transform-origin: top left !important;
-        padding: 10mm;
-        box-sizing: border-box;
+        padding: 0;
     }
 }
 
