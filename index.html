@@ -1243,8 +1243,20 @@
             let uniqueWards = new Set();
             if(data.wards) {
                 data.wards.forEach(w => { 
-                    let wName = typeof w === 'object' ? w.name : w; let wUnit = typeof w === 'object' ? w.unit : loggedInUnit; 
-                    if (wUnit === loggedInUnit && !uniqueWards.has(wName.trim())) { uniqueWards.add(wName.trim()); wardSelect.innerHTML += `<option value="${wName}">${wName}</option>`; }
+                    let wName = typeof w === 'object' ? w.name : w; 
+                    let wUnit = typeof w === 'object' ? w.unit : loggedInUnit; 
+                    
+                    // 🚨 1. वॉर्ड 'Active' असल्याची खात्री करणे
+                    let wStatus = typeof w === 'object' && w.status ? String(w.status).toUpperCase().trim() : 'ACTIVE'; 
+                    
+                    // 🚨 2. Trim() आणि toUpperCase() मुळे Space किंवा स्पेलिंगचा प्रॉब्लेम येणार नाही
+                    if (wStatus === 'ACTIVE' && 
+                        String(wUnit).trim().toUpperCase() === String(loggedInUnit).trim().toUpperCase() && 
+                        !uniqueWards.has(String(wName).trim())) { 
+                        
+                        uniqueWards.add(String(wName).trim()); 
+                        wardSelect.innerHTML += `<option value="${String(wName).trim()}">${String(wName).trim()}</option>`; 
+                    }
                 });
             }
             const docList = document.getElementById('doctorList'); docList.innerHTML = ''; 
