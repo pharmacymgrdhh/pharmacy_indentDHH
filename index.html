@@ -2147,6 +2147,21 @@
                 fetchAdminData();
             } else { showToast("Refreshing Data...", "success"); }
             return; 
+        }document.addEventListener('keydown', function(e) {
+        if (e.key === 'F5' || (e.ctrlKey && (e.key === 'r' || e.key === 'R'))) {
+            e.preventDefault(); 
+            let roleCheck = String(currentRole).toUpperCase().trim();
+            if (roleCheck === "PHARMACY" && typeof fetchPendingIndents === "function") {
+                showToast("Refreshing Pharmacy Data...", "success"); fetchPendingIndents(true);
+            } else if ((roleCheck === "ADMIN" || roleCheck === "PURCHASE MANAGER") && typeof fetchAdminData === "function") {
+                fetchAdminData();
+            } else if (roleCheck === "RESIDENT" || roleCheck === "NURSING" || roleCheck === "NURSING STAFF") { 
+                showToast("Refreshing Nursing Data...", "success"); 
+                fetchMasterData(); // 🔴 FIX: नर्सिंगमध्ये F5 दाबल्यावर डेटा रिफ्रेश होईल
+            } else { 
+                showToast("Refreshing Data...", "success"); 
+            }
+            return; 
         }
         if(e.key === 'Escape') {
             let modals = ['passkeyModal', 'nursingHistoryOverlay', 'tatModal', 'incidentModal'];
