@@ -1230,6 +1230,7 @@
 
     function logoutUser() {
         if(!confirm("Are you sure you want to log out?")) return;
+		sessionStorage.removeItem('careSync_session'); // 🔴 NEW: क्लिअर सेशन
         loggedInUnit = ""; currentRole = ""; loggedInName = ""; loggedInPasskey = ""; 
         document.getElementById('adminSection').style.display = 'none'; document.getElementById('nursingSection').style.display = 'none'; document.getElementById('pharmacySection').style.display = 'none';
         document.getElementById('userIdInput').value = ''; document.getElementById('passwordInput').value = '';
