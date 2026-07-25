@@ -1166,6 +1166,11 @@
         .then(res => res.json())
         .then(data => {
             if (data.success) {
+				// 🔴 NEW: सेव्ह सेशन इन ब्राउझर
+                sessionStorage.setItem('careSync_session', JSON.stringify({
+                    unit: data.unit, role: data.role, name: data.name,
+                    passkey: data.passkey, userId: uid
+                }));
                 loggedInUnit = data.unit; currentRole = data.role; loggedInName = data.name; loggedInPasskey = data.passkey; loggedInUserId = uid; 
                 document.getElementById('loginOverlay').style.display = 'none';
                 
