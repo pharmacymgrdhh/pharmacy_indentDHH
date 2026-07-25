@@ -2868,6 +2868,47 @@
         
         document.getElementById('printTemplate').innerHTML = finalPrintHTML;
     }
+	// ==========================================
+    // 🔴 AUTO-RESTORE SESSION ON PAGE REFRESH (F5 FIX)
+    // ==========================================
+    window.addEventListener('DOMContentLoaded', () => {
+        let savedSession = sessionStorage.getItem('careSync_session');
+        if(savedSession) {
+            let data = JSON.parse(savedSession);
+            loggedInUnit = data.unit; currentRole = data.role; loggedInName = data.name; 
+            loggedInPasskey = data.passkey; loggedInUserId = data.userId;
+            
+            document.getElementById('loginOverlay').style.display = 'none';
+            let roleCheck = String(currentRole).toUpperCase().trim();
+            
+            if(roleCheck === "ADMIN" || roleCheck === "APPROVER" || roleCheck === "REVIEWER") { 
+                document.getElementById('adminSection').style.display = 'block'; initAdmin(); 
+            } else if(roleCheck === "RESIDENT" || roleCheck === "NURSING" || roleCheck === "NURSING STAFF") { 
+                document.getElementById('nursingSection').style.display = 'block'; 
+                document.getElementById('n_unitName').innerHTML = `<option value="${loggedInUnit}">${loggedInUnit}</option>`; 
+                initNursing(); 
+                
+                // नर्सिंग स्टाफसाठी सबमिट बटण लपवण्याचे लॉजिक
+                let submitBtn = document.getElementById('n_submitBtn');
+                let warningDiv = document.getElementById('nursingStaffWarning');
+                if (roleCheck === "NURSING STAFF") {
+                    if(submitBtn) submitBtn.style.display = 'none';
+                    if(warningDiv) warningDiv.style.display = 'block';
+                } else {
+                    if(submitBtn) submitBtn.style.display = 'block';
+                    if(warningDiv) warningDiv.style.display = 'none';
+                }
+            } else { 
+                document.getElementById('pharmacySection').style.display = 'block'; 
+                document.getElementById('p_displayUnitName').innerText = loggedInUnit; initPharmacy(); 
+            }
+            
+            let displayStr = `👤 ${loggedInName} <span style="opacity:0.8; font-size:12px; margin-left:5px;">| ${currentRole}</span>`;
+            if(document.getElementById('n_userDisplay')) document.getElementById('n_userDisplay').innerHTML = displayStr;
+            if(document.getElementById('p_userDisplay')) document.getElementById('p_userDisplay').innerHTML = displayStr;
+            if(document.getElementById('a_userDisplay')) document.getElementById('a_userDisplay').innerHTML = displayStr;
+        }
+    });
 </script>
 </body>
 </html> 
