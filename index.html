@@ -626,6 +626,11 @@
                                 <span class="material-symbols-outlined" style="font-size:16px;">search</span> Search
                             </button>
                             <button style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 0 15px; height: 36px; border-radius: 6px; cursor: pointer; font-weight: 600; transition:0.2s;" onclick="clearMasterMonitor()">Clear</button>
+                            
+                            <!-- 🔴 NEW: Custom Medicines Report Button -->
+                            <button class="btn-dispatch" style="background-color: #f59e0b; padding: 0 15px; height: 36px; border-radius: 6px; display:flex; align-items:center; gap:6px; font-weight:600; color:white; border:none; cursor:pointer; margin-left:10px;" onclick="generateCustomMedReport()" title="View medicines typed manually">
+                                <span class="material-symbols-outlined" style="font-size:16px;">warning</span> Custom Meds Report
+                            </button>
                         </div>
 
                         <!-- 🔴 THE FLIP SWITCH (Right Corner below filters) -->
@@ -983,6 +988,43 @@
                     <table class="p-table" style="width: 100%; border-collapse: separate; border-spacing: 0;">
                         <thead><tr><th style="background:#4276b6; color:white; padding:10px;">Sr. No.</th><th style="background:#4276b6; color:white; padding:10px;">Medicine / Consumable</th><th style="background:#4276b6; color:white; padding:10px; text-align:center;">Quantity</th></tr></thead>
                         <tbody id="h_medicineTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔴 NEW: CUSTOM MEDS REPORT MODAL -->
+    <div id="customMedModal" class="modalOverlay" style="display:none; z-index: 30000;">
+        <div class="modalBox" style="width: 850px; max-width: 95%;">
+            <div class="modalHeader" style="background:#fff7ed; border-bottom:1px solid #fed7aa;">
+                <h3 style="color:#c2410c; margin:0; display:flex; align-items:center; gap:8px;">
+                    <span class="material-symbols-outlined">warning</span> Non-Master (Custom) Medicines Report
+                </h3>
+                <button class="modalCloseBtn" onclick="document.getElementById('customMedModal').style.display='none'">✕</button>
+            </div>
+            <div class="modalBody" style="background: #f8fafc; padding: 20px;">
+                <div style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items:center;">
+                    <span style="font-size:13px; color:#64748b;">Showing custom medicines from currently loaded/filtered indents.</span>
+                    <button class="compact-btn" style="width:auto; background:#10b981; padding:8px 15px; display:flex; align-items:center; gap:5px;" onclick="downloadCustomMedExcel()">
+                        <span class="material-symbols-outlined" style="font-size:16px;">download</span> Export Excel
+                    </button>
+                </div>
+                <div style="max-height: 400px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 6px;">
+                    <table class="p-table" style="font-size: 13px; margin-top: 0; border: none; width: 100%;">
+                        <thead style="background-color: #ffedd5; color: #9a3412;">
+                            <tr>
+                                <th>Date</th>
+                                <th>Indent No</th>
+                                <th>Ward</th>
+                                <th>User (Resident)</th>
+                                <th>Custom Medicine Typed</th>
+                                <th>Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customMedTableBody">
+                            <!-- Data will inject here -->
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -1749,9 +1791,15 @@
         fetchAdminData(); 
     }
 
-    function fetchAdminData() {
+    function fetchAdminData(startDate = '', endDate = '') {
         showToast("Fetching Admin Data...", "success");
-        fetch(SCRIPT_URL + "?action=getAdminDashboardData&t=" + new Date().getTime())
+        document.getElementById('globalLoader').style.display = 'flex'; // LOCK UI while fetching
+
+        let url = SCRIPT_URL + "?action=getAdminDashboardData&t=" + new Date().getTime();
+        if(startDate) url += "&from=" + encodeURIComponent(startDate);
+        if(endDate) url += "&to=" + encodeURIComponent(endDate);
+
+        fetch(url)
         .then(res => res.json())
         .then(data => {
             let rawIndents = data.indents || []; let grouped = {};
@@ -1773,15 +1821,18 @@
             });
             globalAdminIndents = Object.values(grouped);
             
-            updateExecutiveDashboard(globalAdminIndents);
-            populateAdminDropdowns(data.settings.wards); 
-            renderAdminWards(data.settings.wards); 
-            if(data.settings.users && typeof renderAdminUsers === "function") { renderAdminUsers(data.settings.users); }
+            // Dashboard KPI Update (फक्त जेव्हा डिफॉल्ट डेटा लोड होईल)
+            if(!startDate && !endDate) {
+                updateExecutiveDashboard(globalAdminIndents);
+                populateAdminDropdowns(data.settings.wards); 
+                renderAdminWards(data.settings.wards); 
+                if(data.settings.users && typeof renderAdminUsers === "function") { renderAdminUsers(data.settings.users); }
+            }
             
-            let tbody = document.getElementById('adminSearchResults');
-            if(tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#7f8c8d; padding:20px;">Please apply Date/Unit filters and click Search to view records.</td></tr>';
-            showToast("Admin Data Loaded. Users & Wards are ready.", "success");
-        }).catch(err => { showToast("Error loading data", "error"); console.error(err); });
+            applyLocalFilters(); // 🔴 थेट लोकल फिल्टर लावणे
+            showToast("Admin Data Loaded.", "success");
+        }).catch(err => { showToast("Error loading data", "error"); console.error(err); })
+        .finally(() => { document.getElementById('globalLoader').style.display = 'none'; });
     }
 
     function populateAdminDropdowns(activeWardsData) {
@@ -1828,7 +1879,7 @@
         document.getElementById('m_ward').value = '';
         document.getElementById('m_patientName').value = '';
         document.getElementById('m_indentNo').value = '';
-        executeMasterMonitor(); // Clear केल्यावर सर्व डेटा पुन्हा लोड करेल
+        fetchAdminData(); // 🔴 रिसेट करण्यासाठी पुन्हा सर्व्हरवरून डिफॉल्ट डेटा लोड करा
     }
 
     // ही फंक्शन्स सुरुवातीला ऍडमिन लोड होताना ड्रॉपडाऊन भरायला लागतील
@@ -1845,22 +1896,29 @@
     function executeMasterMonitor() {
         let sDate = document.getElementById('m_startDate').value; 
         let eDate = document.getElementById('m_endDate').value;
+        
+        // 🚨 जर तारखा निवडल्या असतील, तर थेट सर्व्हरवरून ऐतिहासिक डेटा आणेल
+        if(sDate || eDate) {
+            fetchAdminData(sDate, eDate);
+        } else {
+            // तारखा नसतील तर तात्काळ मेमरीमधील डेटा फिल्टर करेल
+            applyLocalFilters();
+        }
+    }
+
+    function applyLocalFilters() {
         let unit = document.getElementById('m_unit').value.toUpperCase(); 
         let ward = document.getElementById('m_ward').value.toUpperCase();
         let patient = document.getElementById('m_patientName').value.toUpperCase(); 
         let indentNo = document.getElementById('m_indentNo').value.toUpperCase();
-        
-        let sTime = sDate ? new Date(sDate + "T00:00:00").getTime() : 0; 
-        let eTime = eDate ? new Date(eDate + "T23:59:59").getTime() : Infinity;
-        
+
         // 1. FILTERING DATA
         let filtered = globalAdminIndents.filter(ind => {
-            let t = ind.timestamp || 0; 
             let uMatch = unit === "" || String(ind.ward).toUpperCase().includes(unit); 
             let wMatch = ward === "" || String(ind.ward).toUpperCase().includes(ward); 
             let pMatch = patient === "" || String(ind.patient).toUpperCase().includes(patient); 
             let iMatch = indentNo === "" || String(ind.indentNo).toUpperCase().includes(indentNo);
-            return (t >= sTime && t <= eTime && uMatch && wMatch && pMatch && iMatch);
+            return (uMatch && wMatch && pMatch && iMatch);
         });
 
         // 2. UPDATE RECORD COUNT
@@ -1872,7 +1930,6 @@
             if(normaliseStatus(ind.status) === 'DISPATCHED' || normaliseStatus(ind.status) === 'VERIFIED') {
                 dispatched++;
                 
-                // TAT Calculation for Line Chart
                 let tRaised = parseTatDate(ind.dateStr);
                 let tEnd = normaliseStatus(ind.status) === 'VERIFIED' ? parseTatDate(ind.verifiedTime) : parseTatDate(ind.dispatchTime);
                 let actualTat = 0;
@@ -2921,6 +2978,103 @@
             if(document.getElementById('a_userDisplay')) document.getElementById('a_userDisplay').innerHTML = displayStr;
         }
     });
+    // ==========================================
+    // 🔴 CUSTOM MEDICINES REPORT LOGIC
+    // ==========================================
+    function generateCustomMedReport() {
+        if(!globalMedicines || globalMedicines.length === 0) {
+            alert("Master medicine list is not loaded yet. Please wait or refresh the page.");
+            return;
+        }
+
+        // 1. मास्टर मेडिसिन लिस्टचा एक Set बनवणे (फक्त Base Name घेण्यासाठी)
+        let masterMedSet = new Set(globalMedicines.map(m => m.split('|')[0].trim().toUpperCase()));
+        
+        let customRecords = [];
+
+        // 2. ॲडमिनने जे फिल्टर (Date/Unit) लावले असतील, त्यातूनच डेटा शोधणे
+        let sDate = document.getElementById('m_startDate').value; 
+        let eDate = document.getElementById('m_endDate').value;
+        let unit = document.getElementById('m_unit').value.toUpperCase(); 
+        let sTime = sDate ? new Date(sDate + "T00:00:00").getTime() : 0; 
+        let eTime = eDate ? new Date(eDate + "T23:59:59").getTime() : Infinity;
+
+        globalAdminIndents.forEach(ind => {
+            let t = ind.timestamp || 0;
+            let uMatch = unit === "" || String(ind.ward).toUpperCase().includes(unit); 
+            
+            if(t >= sTime && t <= eTime && uMatch) {
+                ind.medicines.forEach(med => {
+                    let rawName = med.name || "";
+                    
+                    // OPD चे डोस टॅग्स काढून टाकणे (उदा. "PARACETAMOL [Dose: M-A-N]" -> "PARACETAMOL")
+                    let baseTypedName = rawName.split('[')[0].trim().toUpperCase();
+                    
+                    if(baseTypedName !== "") {
+                        // 3. जर टाईप केलेले औषध 'Master Set' मध्ये नसेल, तर ते कस्टम आहे!
+                        if(!masterMedSet.has(baseTypedName)) {
+                            customRecords.push({
+                                date: ind.dateStr,
+                                indentNo: ind.indentNo,
+                                ward: ind.ward,
+                                user: ind.submitUser || ind.submitBy || "Unknown",
+                                medName: rawName, // जसे टाईप केले तसे दाखवण्यासाठी
+                                qty: med.qty
+                            });
+                        }
+                    }
+                });
+            }
+        });
+
+        // 4. रिझल्ट टेबलमध्ये टाकणे
+        let tbody = document.getElementById('customMedTableBody');
+        if(customRecords.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px; color:#10b981; font-weight:bold; font-size:15px;">✅ No custom medicines found!<br>Everyone is following the Master List perfectly. 🎉</td></tr>';
+        } else {
+            let html = "";
+            customRecords.forEach(rec => {
+                html += `<tr style="background: white; border-bottom: 1px solid #f1f5f9;">
+                    <td style="color:#64748b;">${formatCDate(rec.date)}</td>
+                    <td style="font-weight:bold; color:#1e293b;">${rec.indentNo}</td>
+                    <td>${rec.ward}</td>
+                    <td style="color:#4f46e5; font-weight:600;">${rec.user}</td>
+                    <td style="color:#e11d48; font-weight:bold;">${rec.medName}</td>
+                    <td style="text-align:center; font-weight:bold;">${rec.qty}</td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+
+        // रिपोर्ट ओपन करणे
+        document.getElementById('customMedModal').style.display = 'flex';
+    }
+
+    // 🔴 Excel Export Function
+    function downloadCustomMedExcel() {
+        let table = document.getElementById("customMedTableBody");
+        if(table.rows.length === 0 || table.innerText.includes("No custom medicines found")) {
+            alert("No data to download!"); return;
+        }
+        let csv = "Date,Indent No,Ward,User (Resident),Custom Medicine Typed,Qty\n";
+        for(let i=0; i<table.rows.length; i++) {
+            let row = table.rows[i];
+            let rowData = [];
+            for(let j=0; j<row.cells.length; j++) {
+                rowData.push('"' + row.cells[j].innerText.replace(/"/g, '""') + '"');
+            }
+            csv += rowData.join(",") + "\n";
+        }
+        let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        let link = document.createElement("a");
+        let url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", "Custom_Medicines_Report.csv");
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
 </script>
 </body>
 </html> 
