@@ -1329,6 +1329,10 @@
             }
             
             document.querySelectorAll('.loading-text').forEach(el => el.style.display = 'none');
+        }).catch(err => {
+            console.error('fetchMasterData failed:', err);
+            document.querySelectorAll('.loading-text').forEach(el => el.style.display = 'none');
+            if (typeof showToast === 'function') showToast('Master data लोड होण्यात अडचण आली, पुन्हा Refresh करा', 'error');
         });
     }
 
@@ -1774,6 +1778,9 @@
             allIndents = Object.values(grouped);
             let filterText = loggedInUnit.replace("-PHARMACY", "").replace("-pharmacy", "").trim();
             renderPList(allIndents.filter(ind => String(ind.ward).toUpperCase().includes(filterText.toUpperCase())));
+        }).catch(err => {
+            console.error('fetchPendingIndents failed:', err);
+            if (isManual) document.getElementById('indentListContainer').innerHTML = '<p style="text-align:center; color:red;">Data load होत नाहीये, पुन्हा प्रयत्न करा.</p>';
         });
     }
 
@@ -3236,7 +3243,7 @@
         document.body.removeChild(link);
     }
 </script>
-<!--  NEW: POST-SUBMIT CUSTOM MEDS POPUP -->
+<!-- 🔴 NEW: POST-SUBMIT CUSTOM MEDS POPUP -->
     <div id="postSubmitCustomModal" class="modalOverlay" style="display:none; z-index: 30000;">
         <div class="modalBox" style="width: 550px; max-width: 95%;">
             <div class="modalHeader" style="background:#fff7ed; border-bottom:1px solid #fed7aa;">
