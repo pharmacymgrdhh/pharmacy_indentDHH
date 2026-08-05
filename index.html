@@ -1225,22 +1225,14 @@
     
     btn.innerText = "Authenticating..."; btn.disabled = true; errorMsg.style.display = 'none';
 
-    // 🔴 अचूक POST Payload (uid आणि pwd व्हेरिएबल्स वापरून)
-    let payload = {
-        action: "verifyLogin",
-        userId: uid,
-        password: pwd
-    };
+    // 🔴 GET Request (CORS आणि Redirect Error 100% टाळण्यासाठी)
+    const loginUrl = SCRIPT_URL + "?action=verifyLogin&userId=" + encodeURIComponent(uid) + "&password=" + encodeURIComponent(pwd);
 
-    // 🔴 सुरक्षित POST Request
-    fetch(SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify(payload)
-    })
+    fetch(loginUrl)
     .then(res => res.json())
     .then(data => {
         if(data.success) {
-            // 🔴 Login Success Logic (Session Storage & Routing)
+            // Login Success Logic
             sessionStorage.setItem('careSync_session', JSON.stringify({
                 unit: data.unit, role: data.role, name: data.name,
                 passkey: data.passkey, userId: uid
@@ -1252,12 +1244,10 @@
             loggedInPasskey = data.passkey; 
             loggedInUserId = uid; 
             
-            // Login स्क्रीन लपवणे (तुमच्या जुन्या कोडनुसार loginOverlay किंवा login-wrapper)
             let overlay = document.getElementById('loginOverlay') || document.querySelector('.login-wrapper');
             if(overlay) overlay.style.display = 'none';
             
             let roleCheck = String(currentRole).toUpperCase().trim();
-            
             if(roleCheck === "ADMIN" || roleCheck === "APPROVER" || roleCheck === "REVIEWER") { 
                 document.getElementById('adminSection').style.display = 'block'; initAdmin(); 
             } else if(roleCheck === "RESIDENT" || roleCheck === "NURSING") { 
@@ -1275,7 +1265,7 @@
             
             if(typeof showToast === "function") showToast(`Welcome ${loggedInName}!`, "success"); 
         } else {
-            // 🔴 Invalid Credentials Logic
+            // Invalid Credentials
             errorMsg.innerText = "❌ " + (data.message || "Invalid Credentials");
             errorMsg.style.display = 'block';
             document.getElementById('passwordInput').value = '';
@@ -1284,19 +1274,19 @@
         }
     })
     .catch(err => {
-        // 🔴 System Crash / Network Error Logic
+        // System Crash / Network Error
         errorMsg.innerText = "❌ Connection Error!";
         errorMsg.style.display = 'block';
         document.getElementById('passwordInput').value = '';
         btn.innerText = "SECURE LOGIN"; 
         btn.disabled = false;
         
-        // 🔴 तुमचा ईमेल ट्रिगर
         if(typeof logSystemError === "function") {
             logSystemError("Login Attempt", "Server/Network Error: " + err.message);
         }
     });
 }
+
     function verifyUserPasskey(actionName) {
         return new Promise((resolve) => {
             let modal = document.getElementById('passkeyModal');
