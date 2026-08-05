@@ -1675,63 +1675,73 @@
     // 🔴 Helper function to populate the Print Template accurately
     function populatePrint(patient, ward, date, indentNo, doctor, items, submitUser, dispatchTime = null, dispensedBy = null) {
         
-        // 🚨 1. NEW LOGIC: जर DHIMSR-PHARMACY असेल, तर थेट आपले Canon चे १५-तुकडे करणारे फंक्शन रन करा!
+        // 🚨 1. DHIMSR-PHARMACY (Canon Print Logic)
         if (loggedInUnit && loggedInUnit.toUpperCase() === 'DHIMSR-PHARMACY') {
             let patientData = { 
-                indentNo: indentNo, 
-                patient: patient, 
-                ward: ward, 
-                date: date, 
-                doctor: doctor,
-                submitUser: submitUser || "-",
-                dispensedBy: dispensedBy || "-",
-                dispatchTime: dispatchTime // 🔴 Grid मध्ये दाखवण्यासाठी
+                indentNo: indentNo, patient: patient, ward: ward, date: date, doctor: doctor,
+                submitUser: submitUser || "-", dispensedBy: dispensedBy || "-", dispatchTime: dispatchTime 
             };
-            
-            // डेटा मॅच करणे (generateCanonPrint ला जसा हवा तसा)
-            let medicineList = items.map(m => ({ 
-                name: m.name || m.displayName, 
-                qty: m.qty || m.quantity || "-" 
-            }));
-            
+            let medicineList = items.map(m => ({ name: m.name || m.displayName, qty: m.qty || m.quantity || "-" }));
             generateCanonPrint(patientData, medicineList);
             return; 
         }
 
-        // 🚨 2. NORMAL PRINT LOGIC (इतर सर्व युनिट्ससाठी जुने डिझाईन)
-        document.getElementById('prtPatient').innerText = patient.replace("[URGENT] ", ""); 
-        document.getElementById('prtWard').innerText = ward || "-"; 
-        document.getElementById('prtDate').innerText = date || "-";
-        document.getElementById('prtIndentNo').innerText = indentNo || "-"; 
-        document.getElementById('prtDoctor').innerText = doctor || "-";
-        
-        let dispEl = document.getElementById('prtDispatchTime'); 
-        if(dispEl) { 
-            if(dispatchTime && dispatchTime !== "Pending") {
-                dispEl.innerText = dispatchTime; 
-                dispEl.style.color = "#27ae60";
-            } else {
-                dispEl.innerText = "Pending"; 
-                dispEl.style.color = "#e67e22";
-            }
-        }
+        // 🚨 2. NORMAL PRINT LOGIC (Dynamic Regeneration - 100% Crash Proof)
+        let cleanPatient = patient.replace("[URGENT] ", ""); 
+        let dispTimeHtml = (dispatchTime && dispatchTime !== "Pending") ? 
+                           `<span style="color: #27ae60;">${dispatchTime}</span>` : 
+                           `<span style="color: #e67e22;">Pending</span>`;
 
-        let createdByEl = document.getElementById('prtCreatedBy');
-        if(createdByEl) { createdByEl.innerText = submitUser && submitUser !== "-" ? submitUser : "-"; }
-        
-        let dispensedByEl = document.getElementById('prtDispensedBy');
-        if(dispensedByEl) { dispensedByEl.innerText = dispensedBy || "-"; }
-
-        const tbody = document.getElementById('prtMedicineList'); tbody.innerHTML = '';
+        // औषधांच्या लिस्टचा HTML बनवणे
+        let medRows = '';
         items.forEach(med => {
             let n = med.name || med.displayName;
             let q = med.qty || med.quantity || "-"; 
             let opd = ""; 
             if(n.includes("[")) { let p = n.split("["); n = p[0].trim(); opd = `<br><span style="font-size:13px; color:#555;">[${p[1]}</span>`; }
-            tbody.innerHTML += `<tr><td colspan="3" style="font-weight:500; border:1px solid #b2ebf2; padding:8px;">${n} ${opd}</td><td style="text-align:center; font-weight:500; border:1px solid #b2ebf2; padding:8px;">${q}</td></tr>`;
+            medRows += `<tr><td colspan="3" style="font-weight:500; border:1px solid #b2ebf2; padding:8px;">${n} ${opd}</td><td style="text-align:center; font-weight:500; border:1px solid #b2ebf2; padding:8px;">${q}</td></tr>`;
         });
-    }
 
+        // संपूर्ण प्रिंटचा नवीन साचा (जुने टॅग्ज गायब असले तरीही काम करेल)
+        let normalPrintHTML = `
+            <div class="prt-header-container">
+                <img src="dhh.png" alt="Logo" class="prt-logo">
+                <div class="prt-header-text">
+                    <h2>Dr. Hedgewar Hospital & Bharani Critical Care Unit</h2>
+                    <p>Amravati, Maharashtra &nbsp;|&nbsp; <strong>Pharmacy Indent Slip</strong></p>
+                </div>
+            </div>
+            <div class="prt-details-grid">
+                <div><span class="prt-lbl">Patient Name:</span> <span class="prt-val">${cleanPatient}</span></div>
+                <div><span class="prt-lbl">Indent No:</span> <span class="prt-val">${indentNo || "-"}</span></div>
+                <div><span class="prt-lbl">Ward / Unit:</span> <span class="prt-val">${ward || "-"}</span></div>
+                <div><span class="prt-lbl">Request Time:</span> <span class="prt-val">${date || "-"}</span></div>
+                <div><span class="prt-lbl">Prescribed By:</span> <span class="prt-val">${doctor || "-"}</span></div>
+                <div><span class="prt-lbl">Dispatch Time:</span> <span class="prt-val" style="font-weight: bold;">${dispTimeHtml}</span></div>
+            </div>
+            <table class="prt-med-table">
+                <thead><tr><th colspan="3" style="text-align: left;">Medicine / Consumables Description</th><th style="width: 15%; text-align: center;">Qty</th></tr></thead>
+                <tbody>${medRows}</tbody>
+            </table>
+            <div class="prt-signatures">
+                <div style="width: 28%; text-align: center;">
+                    <div style="font-weight: bold; font-size: 14px; margin-bottom: 5px; color: #333; min-height: 20px;">${submitUser && submitUser !== "-" ? submitUser : "-"}</div>
+                    <div class="sig-line" style="width: 100%;">Indent Created by (Resident)</div>
+                </div>
+                <div class=""></div>
+                <div style="width: 28%; text-align: center;">
+                    <div style="font-weight: bold; font-size: 14px; margin-bottom: 5px; color: #333; min-height: 20px;">${dispensedBy || "-"}</div>
+                    <div class="sig-line" style="width: 100%;">Dispensed By (Pharmacist)</div>
+                </div>
+            </div>
+            <div class="footer">© 2026 Dr. Hedgewar Hospital, Amravati. All Rights Reserved. | Powered by <b>CareSync</b></div>
+        `;
+        
+        let printContainer = document.getElementById('printTemplate');
+        if(printContainer) {
+            printContainer.innerHTML = normalPrintHTML;
+        }
+    }
     // 🔴 Master Print Function (Fixes layout bugs)
     function executePrintIndent() {
         document.body.classList.remove('canon-mode', 'print-incident');
