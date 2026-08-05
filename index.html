@@ -1288,38 +1288,61 @@
 }
 
     function verifyUserPasskey(actionName) {
-        return new Promise((resolve) => {
-            let modal = document.getElementById('passkeyModal');
-            let input = document.getElementById('customPasskeyInput');
-            let errorText = document.getElementById('passkeyErrorText');
-            let btnConfirm = document.getElementById('btnConfirmPasskey');
+    return new Promise((resolve) => {
+        let modal = document.getElementById('passkeyModal');
+        let input = document.getElementById('customPasskeyInput');
+        let errorText = document.getElementById('passkeyErrorText');
+        let btnConfirm = document.getElementById('btnConfirmPasskey');
 
-            document.getElementById('passkeyActionText').innerText = actionName;
-            input.value = ''; errorText.style.display = 'none';
-            btnConfirm.innerText = 'Confirm'; btnConfirm.disabled = false;
-            modal.style.display = 'flex'; setTimeout(() => input.focus(), 100);
+        document.getElementById('passkeyActionText').innerText = actionName;
+        input.value = ''; errorText.style.display = 'none';
+        btnConfirm.innerText = 'Confirm'; btnConfirm.disabled = false;
+        modal.style.display = 'flex'; setTimeout(() => input.focus(), 100);
 
-            const processPasskey = () => {
-                let enteredKey = input.value.trim(); if(enteredKey.length === 0) return;
-                btnConfirm.innerText = 'Checking...'; btnConfirm.disabled = true; errorText.style.display = 'none';
+        const processPasskey = () => {
+            let enteredKey = input.value.trim(); if(enteredKey.length === 0) return;
+            btnConfirm.innerText = 'Checking...'; btnConfirm.disabled = true; errorText.style.display = 'none';
 
-                fetch(SCRIPT_URL + "?action=verifyActionPasskey&passkey=" + encodeURIComponent(enteredKey) + "&t=" + new Date().getTime())
-                .then(res => res.json()).then(data => {
-                    if(data.success) { modal.style.display = 'none'; resolve({ verified: true, userName: data.userName }); } 
-                    else { errorText.innerText = "❌ Incorrect Passkey!"; errorText.style.display = 'block'; input.value = ''; input.focus(); btnConfirm.innerText = 'Confirm'; btnConfirm.disabled = false; }
-                }).catch(err => { 
-                    errorText.innerText = "❌ Connection Error!"; 
+            // 🔴 नवीन सुरक्षित Fetch (HTML Error क्रॅश टाळण्यासाठी)
+            const passkeyUrl = SCRIPT_URL + "?action=verifyActionPasskey&passkey=" + encodeURIComponent(enteredKey) + "&t=" + new Date().getTime();
+
+            fetch(passkeyUrl)
+            .then(res => res.text()) // 🔴 आधी Text म्हणून वाचणे (JSON डायरेक्ट घेण्याऐवजी)
+            .then(text => {
+                // जर गुगलने चुकून HTML पेज पाठवले (Unexpected token <), तर ते इथेच पकडले जाईल
+                if (text.trim().startsWith("<")) {
+                    throw new Error("Google Security Block (Please use Incognito Mode)");
+                }
+                
+                let data = JSON.parse(text); // सुरक्षितपणे JSON मध्ये बदलणे
+                if(data.success) { 
+                    modal.style.display = 'none'; 
+                    resolve({ verified: true, userName: data.userName }); 
+                } 
+                else { 
+                    errorText.innerText = "❌ Incorrect Passkey!"; 
                     errorText.style.display = 'block'; 
+                    input.value = ''; input.focus(); 
                     btnConfirm.innerText = 'Confirm'; btnConfirm.disabled = false; 
-                    logSystemError("Passkey Verification Modal", "Network/Fetch Error: " + err.message); 
-                });
-            };
+                }
+            })
+            .catch(err => { 
+                errorText.innerText = "❌ Connection Error! (Use Incognito)"; 
+                errorText.style.display = 'block'; 
+                btnConfirm.innerText = 'Confirm'; btnConfirm.disabled = false; 
+                // ईमेल ट्रिगर
+                if(typeof logSystemError === "function") {
+                    logSystemError("Passkey Verification Modal", err.message); 
+                }
+            });
+        };
 
-            btnConfirm.onclick = processPasskey;
-            document.getElementById('btnCancelPasskey').onclick = function() { modal.style.display = 'none'; resolve({ verified: false }); };
-            input.onkeydown = function(e) { if(e.key === 'Enter') { e.preventDefault(); processPasskey(); } };
-        });
-    }
+        btnConfirm.onclick = processPasskey;
+        document.getElementById('btnCancelPasskey').onclick = function() { modal.style.display = 'none'; resolve({ verified: false }); };
+        input.onkeydown = function(e) { if(e.key === 'Enter') { e.preventDefault(); processPasskey(); } };
+    });
+}
+
 
     function logoutUser() {
         if(!confirm("Are you sure you want to log out?")) return;
