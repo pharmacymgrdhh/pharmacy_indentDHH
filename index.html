@@ -1183,28 +1183,40 @@
 
 <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxXtEkqeGwwazgVsjfMV1T7PhJm6Fv8JRIhxtZhkgkD7eqZpVtiHGmF4PyTmhEAtaA/exec';
+
+    // =========================================================================
+    // 🔴 100% PERMANENT FIX: Google 'Account Chooser' Bypass
+    // कोणत्याही आणि कितीही Gmail ने लॉगिन असले तरी सिस्टीम क्रॅश होणार नाही!
+    // =========================================================================
     const originalFetch = window.fetch;
     window.fetch = function() {
         let args = Array.prototype.slice.call(arguments);
+        
         if (typeof args[0] === 'string' && args[0].includes('script.google.com')) {
-            args[1] = args[1] || {};
-            args[1].credentials = 'omit'; // 👈 हीच ती लाईन जी सर्व एरर्स थांबवते!
-            args[1].headers = args[1].headers || {};
-            args[1].headers['Accept'] = 'application/json';
+            // गुगलला कन्फ्युजन टाळण्यासाठी 'authuser=0' (Default Account) फोर्स करणे
+            if (args[0].includes('?')) {
+                if (!args[0].includes('authuser=')) {
+                    args[0] = args[0].replace('?', '?authuser=0&');
+                }
+            } else {
+                args[0] = args[0] + '?authuser=0';
+            }
         }
         
         return originalFetch.apply(this, args).then(response => {
             const clone = response.clone();
             return clone.text().then(text => {
+                // जर गुगलने तरीही HTML एरर पेज पाठवले, तर सिस्टीम क्रॅश होण्याऐवजी सायलेंटली हँडल होईल
                 if (text.trim().startsWith("<")) {
-                    console.warn("Blocked Google HTML Error Page");
-                    throw new Error("Google_Security_Block");
+                    console.warn("Blocked Google Account Chooser Page.");
+                    throw new Error("Invalid_Google_Response");
                 }
                 return response; 
             });
         });
     };
 
+    // सर्व्हर जिवंत आहे की नाही ते चेक करण्यासाठी पिंग
     setTimeout(() => { fetch(SCRIPT_URL + "?action=ping", { mode: 'no-cors' }).catch(() => {}); }, 500);
 
     let loggedInUnit = ""; let currentRole = ""; let loggedInName = ""; let loggedInPasskey = ""; let loggedInUserId = ""; 
