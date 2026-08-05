@@ -1216,87 +1216,87 @@
     document.getElementById('passwordInput').addEventListener("keypress", function(e) { if (e.key === "Enter") masterLogin(); });
 
     function masterLogin() {
-        const uid = document.getElementById('userIdInput').value.trim();
-        const pwd = document.getElementById('passwordInput').value.trim();
-        const errorMsg = document.getElementById('loginError'); 
-        const btn = document.getElementById('loginBtn');
+    const uid = document.getElementById('userIdInput').value.trim();
+    const pwd = document.getElementById('passwordInput').value.trim();
+    const errorMsg = document.getElementById('loginError'); 
+    const btn = document.getElementById('loginBtn');
+    
+    if(!uid || !pwd) return; 
+    
+    btn.innerText = "Authenticating..."; btn.disabled = true; errorMsg.style.display = 'none';
+
+    // 🔴 अचूक POST Payload (uid आणि pwd व्हेरिएबल्स वापरून)
+    let payload = {
+        action: "verifyLogin",
+        userId: uid,
+        password: pwd
+    };
+
+    // 🔴 सुरक्षित POST Request
+    fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) {
+            // 🔴 Login Success Logic (Session Storage & Routing)
+            sessionStorage.setItem('careSync_session', JSON.stringify({
+                unit: data.unit, role: data.role, name: data.name,
+                passkey: data.passkey, userId: uid
+            }));
+            
+            loggedInUnit = data.unit; 
+            currentRole = data.role; 
+            loggedInName = data.name; 
+            loggedInPasskey = data.passkey; 
+            loggedInUserId = uid; 
+            
+            // Login स्क्रीन लपवणे (तुमच्या जुन्या कोडनुसार loginOverlay किंवा login-wrapper)
+            let overlay = document.getElementById('loginOverlay') || document.querySelector('.login-wrapper');
+            if(overlay) overlay.style.display = 'none';
+            
+            let roleCheck = String(currentRole).toUpperCase().trim();
+            
+            if(roleCheck === "ADMIN" || roleCheck === "APPROVER" || roleCheck === "REVIEWER") { 
+                document.getElementById('adminSection').style.display = 'block'; initAdmin(); 
+            } else if(roleCheck === "RESIDENT" || roleCheck === "NURSING") { 
+                document.getElementById('nursingSection').style.display = 'block'; 
+                document.getElementById('n_unitName').innerHTML = `<option value="${loggedInUnit}">${loggedInUnit}</option>`; initNursing(); 
+            } else { 
+                document.getElementById('pharmacySection').style.display = 'block'; 
+                document.getElementById('p_displayUnitName').innerText = loggedInUnit; initPharmacy(); 
+            }
+            
+            let displayStr = `👤 ${loggedInName} <span style="opacity:0.8; font-size:12px; margin-left:5px;">| ${currentRole}</span>`;
+            if(document.getElementById('n_userDisplay')) document.getElementById('n_userDisplay').innerHTML = displayStr;
+            if(document.getElementById('p_userDisplay')) document.getElementById('p_userDisplay').innerHTML = displayStr;
+            if(document.getElementById('a_userDisplay')) document.getElementById('a_userDisplay').innerHTML = displayStr;
+            
+            if(typeof showToast === "function") showToast(`Welcome ${loggedInName}!`, "success"); 
+        } else {
+            // 🔴 Invalid Credentials Logic
+            errorMsg.innerText = "❌ " + (data.message || "Invalid Credentials");
+            errorMsg.style.display = 'block';
+            document.getElementById('passwordInput').value = '';
+            btn.innerText = "SECURE LOGIN"; 
+            btn.disabled = false;
+        }
+    })
+    .catch(err => {
+        // 🔴 System Crash / Network Error Logic
+        errorMsg.innerText = "❌ Connection Error!";
+        errorMsg.style.display = 'block';
+        document.getElementById('passwordInput').value = '';
+        btn.innerText = "SECURE LOGIN"; 
+        btn.disabled = false;
         
-        if(!uid || !pwd) return; 
-        
-        btn.innerText = "Authenticating..."; btn.disabled = true; errorMsg.style.display = 'none';
-
-        // नवीन POST Payload
-            let payload = {
-                action: "verifyLogin",
-                userId: u,
-                password: p
-            };
-
-            // सुरक्षित POST Request
-            fetch(SCRIPT_URL, {
-                method: "POST",
-                body: JSON.stringify(payload)
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success) {
-                    // Login Success Logic
-                    loggedInName = data.name; 
-                    loggedInUnit = data.unit;
-                    document.querySelector('.login-wrapper').style.display = 'none';
-                    // (येथे तुमचे पुढील ड्रॉपडाऊन लोड करणारे फंक्शन असेल ते राहू द्या)
-                } else {
-                    errorMsg.innerText = "❌ " + data.message;
-                    errorMsg.style.display = 'block';
-                    btn.innerText = "SECURE LOGIN"; 
-                    btn.disabled = false;
-                }
-            })
-            .catch(err => {
-                errorMsg.innerText = "❌ Connection Error!";
-                errorMsg.style.display = 'block';
-                btn.innerText = "SECURE LOGIN"; 
-                btn.disabled = false;
-                // इथे आपला ट्रिगर होतो तो ईमेल
-                logSystemError("Login Attempt", "Server/Network Error: " + err.message);
-            });
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-				// 🔴 NEW: सेव्ह सेशन इन ब्राउझर
-                sessionStorage.setItem('careSync_session', JSON.stringify({
-                    unit: data.unit, role: data.role, name: data.name,
-                    passkey: data.passkey, userId: uid
-                }));
-                loggedInUnit = data.unit; currentRole = data.role; loggedInName = data.name; loggedInPasskey = data.passkey; loggedInUserId = uid; 
-                document.getElementById('loginOverlay').style.display = 'none';
-                
-                let roleCheck = String(currentRole).toUpperCase().trim();
-                
-                if(roleCheck === "ADMIN" || roleCheck === "APPROVER" || roleCheck === "REVIEWER") { 
-                    document.getElementById('adminSection').style.display = 'block'; initAdmin(); 
-                } else if(roleCheck === "RESIDENT" || roleCheck === "NURSING") { 
-                    document.getElementById('nursingSection').style.display = 'block'; 
-                    document.getElementById('n_unitName').innerHTML = `<option value="${loggedInUnit}">${loggedInUnit}</option>`; initNursing(); 
-                } else { 
-                    document.getElementById('pharmacySection').style.display = 'block'; 
-                    document.getElementById('p_displayUnitName').innerText = loggedInUnit; initPharmacy(); 
-                }
-                
-                let displayStr = `👤 ${loggedInName} <span style="opacity:0.8; font-size:12px; margin-left:5px;">| ${currentRole}</span>`;
-                if(document.getElementById('n_userDisplay')) document.getElementById('n_userDisplay').innerHTML = displayStr;
-                if(document.getElementById('p_userDisplay')) document.getElementById('p_userDisplay').innerHTML = displayStr;
-                if(document.getElementById('a_userDisplay')) document.getElementById('a_userDisplay').innerHTML = displayStr;
-                
-                showToast(`Welcome ${loggedInName}!`, "success"); 
-            } else { throw new Error("Invalid Credentials"); }
-        }).catch(err => { 
-            errorMsg.style.display = 'block'; document.getElementById('passwordInput').value = ''; 
-            btn.innerText = "SECURE LOGIN"; btn.disabled = false; 
-            logSystemError("Login Attempt", "Server/Network Error: " + err.message); 
-        });
-    }
-
+        // 🔴 तुमचा ईमेल ट्रिगर
+        if(typeof logSystemError === "function") {
+            logSystemError("Login Attempt", "Server/Network Error: " + err.message);
+        }
+    });
+}
     function verifyUserPasskey(actionName) {
         return new Promise((resolve) => {
             let modal = document.getElementById('passkeyModal');
