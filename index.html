@@ -1225,7 +1225,41 @@
         
         btn.innerText = "Authenticating..."; btn.disabled = true; errorMsg.style.display = 'none';
 
-        fetch(SCRIPT_URL + "?action=verifyLogin&userId=" + encodeURIComponent(uid) + "&password=" + encodeURIComponent(pwd) + "&t=" + new Date().getTime())
+        // नवीन POST Payload
+            let payload = {
+                action: "verifyLogin",
+                userId: u,
+                password: p
+            };
+
+            // सुरक्षित POST Request
+            fetch(SCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    // Login Success Logic
+                    loggedInName = data.name; 
+                    loggedInUnit = data.unit;
+                    document.querySelector('.login-wrapper').style.display = 'none';
+                    // (येथे तुमचे पुढील ड्रॉपडाऊन लोड करणारे फंक्शन असेल ते राहू द्या)
+                } else {
+                    errorMsg.innerText = "❌ " + data.message;
+                    errorMsg.style.display = 'block';
+                    btn.innerText = "SECURE LOGIN"; 
+                    btn.disabled = false;
+                }
+            })
+            .catch(err => {
+                errorMsg.innerText = "❌ Connection Error!";
+                errorMsg.style.display = 'block';
+                btn.innerText = "SECURE LOGIN"; 
+                btn.disabled = false;
+                // इथे आपला ट्रिगर होतो तो ईमेल
+                logSystemError("Login Attempt", "Server/Network Error: " + err.message);
+            });
         .then(res => res.json())
         .then(data => {
             if (data.success) {
