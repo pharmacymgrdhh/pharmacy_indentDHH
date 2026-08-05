@@ -1183,11 +1183,32 @@
 
 <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxXtEkqeGwwazgVsjfMV1T7PhJm6Fv8JRIhxtZhkgkD7eqZpVtiHGmF4PyTmhEAtaA/exec';
-	setTimeout(() => { fetch(SCRIPT_URL + "?action=ping", { mode: 'no-cors' }).catch(() => {}); }, 500);
+    const originalFetch = window.fetch;
+    window.fetch = function() {
+        let args = Array.prototype.slice.call(arguments);
+        if (typeof args[0] === 'string' && args[0].includes('script.google.com')) {
+            args[1] = args[1] || {};
+            args[1].credentials = 'omit'; // 👈 हीच ती लाईन जी सर्व एरर्स थांबवते!
+            args[1].headers = args[1].headers || {};
+            args[1].headers['Accept'] = 'application/json';
+        }
+        
+        return originalFetch.apply(this, args).then(response => {
+            const clone = response.clone();
+            return clone.text().then(text => {
+                if (text.trim().startsWith("<")) {
+                    console.warn("Blocked Google HTML Error Page");
+                    throw new Error("Google_Security_Block");
+                }
+                return response; 
+            });
+        });
+    };
+
+    setTimeout(() => { fetch(SCRIPT_URL + "?action=ping", { mode: 'no-cors' }).catch(() => {}); }, 500);
 
     let loggedInUnit = ""; let currentRole = ""; let loggedInName = ""; let loggedInPasskey = ""; let loggedInUserId = ""; 
-
-    // 🔴 NEW: Global System Error Logger
+    
     function logSystemError(location, errMsg) {
         // User Errors (Wrong passkey/password/custom med) इग्नोर करण्यासाठी
         if (!errMsg || errMsg.includes("Incorrect Passkey") || errMsg.includes("Invalid Login")) return;
@@ -1225,24 +1246,28 @@
     
     btn.innerText = "Authenticating..."; btn.disabled = true; errorMsg.style.display = 'none';
 
-    // 🔴 GET Request (CORS आणि Redirect Error 100% टाळण्यासाठी)
-    const loginUrl = SCRIPT_URL + "?action=verifyLogin&userId=" + encodeURIComponent(uid) + "&password=" + encodeURIComponent(pwd);
+    // 🔴 सुरक्षित POST Payload
+    let payload = {
+        action: "verifyLogin",
+        userId: uid,
+        password: pwd
+    };
 
-    fetch(loginUrl)
+    fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+    })
     .then(res => res.json())
     .then(data => {
         if(data.success) {
-            // Login Success Logic
             sessionStorage.setItem('careSync_session', JSON.stringify({
                 unit: data.unit, role: data.role, name: data.name,
                 passkey: data.passkey, userId: uid
             }));
             
-            loggedInUnit = data.unit; 
-            currentRole = data.role; 
-            loggedInName = data.name; 
-            loggedInPasskey = data.passkey; 
-            loggedInUserId = uid; 
+            loggedInUnit = data.unit; currentRole = data.role; loggedInName = data.name; 
+            loggedInPasskey = data.passkey; loggedInUserId = uid; 
             
             let overlay = document.getElementById('loginOverlay') || document.querySelector('.login-wrapper');
             if(overlay) overlay.style.display = 'none';
@@ -1250,7 +1275,7 @@
             let roleCheck = String(currentRole).toUpperCase().trim();
             if(roleCheck === "ADMIN" || roleCheck === "APPROVER" || roleCheck === "REVIEWER") { 
                 document.getElementById('adminSection').style.display = 'block'; initAdmin(); 
-            } else if(roleCheck === "RESIDENT" || roleCheck === "NURSING") { 
+            } else if(roleCheck === "RESIDENT" || roleCheck === "NURSING" || roleCheck === "NURSING STAFF") { 
                 document.getElementById('nursingSection').style.display = 'block'; 
                 document.getElementById('n_unitName').innerHTML = `<option value="${loggedInUnit}">${loggedInUnit}</option>`; initNursing(); 
             } else { 
@@ -1265,25 +1290,18 @@
             
             if(typeof showToast === "function") showToast(`Welcome ${loggedInName}!`, "success"); 
         } else {
-            // Invalid Credentials
             errorMsg.innerText = "❌ " + (data.message || "Invalid Credentials");
             errorMsg.style.display = 'block';
             document.getElementById('passwordInput').value = '';
-            btn.innerText = "SECURE LOGIN"; 
-            btn.disabled = false;
+            btn.innerText = "SECURE LOGIN"; btn.disabled = false;
         }
     })
     .catch(err => {
-        // System Crash / Network Error
         errorMsg.innerText = "❌ Connection Error!";
         errorMsg.style.display = 'block';
         document.getElementById('passwordInput').value = '';
-        btn.innerText = "SECURE LOGIN"; 
-        btn.disabled = false;
-        
-        if(typeof logSystemError === "function") {
-            logSystemError("Login Attempt", "Server/Network Error: " + err.message);
-        }
+        btn.innerText = "SECURE LOGIN"; btn.disabled = false;
+        if(typeof logSystemError === "function") logSystemError("Login Attempt", "Server/Network Error: " + err.message);
     });
 }
 
@@ -1303,23 +1321,23 @@
             let enteredKey = input.value.trim(); if(enteredKey.length === 0) return;
             btnConfirm.innerText = 'Checking...'; btnConfirm.disabled = true; errorText.style.display = 'none';
 
-            // 🔴 नवीन सुरक्षित Fetch (HTML Error क्रॅश टाळण्यासाठी)
-            const passkeyUrl = SCRIPT_URL + "?action=verifyActionPasskey&passkey=" + encodeURIComponent(enteredKey) + "&t=" + new Date().getTime();
+            // 🔴 सुरक्षित POST Payload
+            let payload = {
+                action: "verifyActionPasskey",
+                passkey: enteredKey
+            };
 
-            fetch(passkeyUrl)
-            .then(res => res.text()) // 🔴 आधी Text म्हणून वाचणे (JSON डायरेक्ट घेण्याऐवजी)
-            .then(text => {
-                // जर गुगलने चुकून HTML पेज पाठवले (Unexpected token <), तर ते इथेच पकडले जाईल
-                if (text.trim().startsWith("<")) {
-                    throw new Error("Google Security Block (Please use Incognito Mode)");
-                }
-                
-                let data = JSON.parse(text); // सुरक्षितपणे JSON मध्ये बदलणे
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
                 if(data.success) { 
                     modal.style.display = 'none'; 
                     resolve({ verified: true, userName: data.userName }); 
-                } 
-                else { 
+                } else { 
                     errorText.innerText = "❌ Incorrect Passkey!"; 
                     errorText.style.display = 'block'; 
                     input.value = ''; input.focus(); 
@@ -1327,13 +1345,10 @@
                 }
             })
             .catch(err => { 
-                errorText.innerText = "❌ Connection Error! (Use Incognito)"; 
+                errorText.innerText = "❌ Connection Error!"; 
                 errorText.style.display = 'block'; 
                 btnConfirm.innerText = 'Confirm'; btnConfirm.disabled = false; 
-                // ईमेल ट्रिगर
-                if(typeof logSystemError === "function") {
-                    logSystemError("Passkey Verification Modal", err.message); 
-                }
+                if(typeof logSystemError === "function") logSystemError("Passkey Verification Modal", err.message); 
             });
         };
 
@@ -1802,7 +1817,7 @@
         } finally {
             const btn = document.getElementById('n_submitBtn'); 
             if(btn) { btn.innerHTML = "Send to Pharmacy"; btn.disabled = false; }
-            document.getElementById('globalLoader').style.display = 'none'; // UNLOCK UI
+            document.getElementById('globalLoader').style.display = 'none';
         }
     }
 
