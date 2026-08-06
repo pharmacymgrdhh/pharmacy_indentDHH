@@ -1354,22 +1354,21 @@
     function initNursing() { fetchMasterData(); }
     
     function fetchMasterData() {
-        fetch(SCRIPT_URL + "?action=getDropdownData&t=" + new Date().getTime()).then(res => res.json()).then(data => {
+        // 🔴 सुरक्षित POST पद्धत वापरून डेटा आणणे
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: "getDropdownData" })
+        }).then(res => res.json()).then(data => {
             const wardSelect = document.getElementById('n_wardName'); wardSelect.innerHTML = '<option value="">-- Select --</option>'; 
             let uniqueWards = new Set();
             if(data.wards) {
                 data.wards.forEach(w => { 
                     let wName = typeof w === 'object' ? w.name : w; 
                     let wUnit = typeof w === 'object' ? w.unit : loggedInUnit; 
-                    
-                    // 🚨 1. वॉर्ड 'Active' असल्याची खात्री करणे
                     let wStatus = typeof w === 'object' && w.status ? String(w.status).toUpperCase().trim() : 'ACTIVE'; 
                     
-                    // 🚨 2. Trim() आणि toUpperCase() मुळे Space किंवा स्पेलिंगचा प्रॉब्लेम येणार नाही
-                    if (wStatus === 'ACTIVE' && 
-                        String(wUnit).trim().toUpperCase() === String(loggedInUnit).trim().toUpperCase() && 
-                        !uniqueWards.has(String(wName).trim())) { 
-                        
+                    if (wStatus === 'ACTIVE' && String(wUnit).trim().toUpperCase() === String(loggedInUnit).trim().toUpperCase() && !uniqueWards.has(String(wName).trim())) { 
                         uniqueWards.add(String(wName).trim()); 
                         wardSelect.innerHTML += `<option value="${String(wName).trim()}">${String(wName).trim()}</option>`; 
                     }
@@ -1379,19 +1378,15 @@
             if(data.doctors) data.doctors.forEach(d => { docList.innerHTML += `<option value="${d}">`; });
             if(data.medicines) globalMedicines = data.medicines;
             
-            // 🔴 FIX: Kits ड्रॉपडाऊनमध्ये भरणे
             if(data.kits && data.kits.length > 0) {
                 globalKits = data.kits;
                 let uniqueKits = new Set(globalKits.map(k => k.templateName));
                 const kitSelect = document.getElementById('n_kitSelect');
                 if(kitSelect) {
                     kitSelect.innerHTML = '<option value="">-- Select Template --</option>';
-                    uniqueKits.forEach(kName => {
-                        kitSelect.innerHTML += `<option value="${kName}">${kName}</option>`;
-                    });
+                    uniqueKits.forEach(kName => { kitSelect.innerHTML += `<option value="${kName}">${kName}</option>`; });
                 }
             }
-            
             document.querySelectorAll('.loading-text').forEach(el => el.style.display = 'none');
         }).catch(err => {
             console.error('fetchMasterData failed:', err);
@@ -1819,7 +1814,13 @@
 
     function fetchPendingIndents(isManual = false) {
         if(isManual) document.getElementById('indentListContainer').innerHTML = '<p style="text-align:center; color: #7f8c8d;">Loading data...</p>';
-        fetch(SCRIPT_URL + "?action=getPendingIndents&t=" + new Date().getTime()).then(res => res.json()).then(data => {
+        
+        // 🔴 सुरक्षित POST पद्धत वापरून डेटा आणणे
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: "getPendingIndents" })
+        }).then(res => res.json()).then(data => {
             let grouped = {};
             data.forEach(row => {
                 let currentStatus = normaliseStatus(row.status);
@@ -1833,8 +1834,7 @@
                         indentNo: row.indentNo, date: row.date, ward: row.ward, 
                         patientName: row.patient, doctor: row.doctor, 
                         submitUser: row.submitUser || row.submitBy || "-", 
-                        status: currentStatus, 
-                        medicines: [] 
+                        status: currentStatus, medicines: [] 
                     };
                 }
                 if(row.medicine) grouped[row.indentNo].medicines.push({ name: row.medicine, qty: row.qty });
@@ -1847,7 +1847,6 @@
             if (isManual) document.getElementById('indentListContainer').innerHTML = '<p style="text-align:center; color:red;">Data load होत नाहीये, पुन्हा प्रयत्न करा.</p>';
         });
     }
-
     function formatCDate(dateStr) {
         try {
             if(!dateStr) return "-";
