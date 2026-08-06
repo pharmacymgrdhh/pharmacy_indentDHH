@@ -1216,127 +1216,108 @@
     document.getElementById('passwordInput').addEventListener("keypress", function(e) { if (e.key === "Enter") masterLogin(); });
 
     function masterLogin() {
-    const uid = document.getElementById('userIdInput').value.trim();
-    const pwd = document.getElementById('passwordInput').value.trim();
-    const errorMsg = document.getElementById('loginError'); 
-    const btn = document.getElementById('loginBtn');
-    
-    if(!uid || !pwd) return; 
-    
-    btn.innerText = "Authenticating..."; btn.disabled = true; errorMsg.style.display = 'none';
+        const uid = document.getElementById('userIdInput').value.trim();
+        const pwd = document.getElementById('passwordInput').value.trim();
+        const errorMsg = document.getElementById('loginError'); 
+        const btn = document.getElementById('loginBtn');
+        
+        if(!uid || !pwd) return; 
+        
+        btn.innerText = "Authenticating..."; btn.disabled = true; errorMsg.style.display = 'none';
 
-    // 🔴 सुरक्षित POST Payload
-    let payload = {
-        action: "verifyLogin",
-        userId: uid,
-        password: pwd
-    };
+        // 🔴 पुन्हा GET पद्धत (हॉस्पिटल PC साठी सर्वात सुरक्षित)
+        let url = `${SCRIPT_URL}?action=verifyLogin&userId=${encodeURIComponent(uid)}&password=${encodeURIComponent(pwd)}`;
 
-    fetch(SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(payload)
-    })
-    .then(res => res.json())
-    .then(data => {
-        if(data.success) {
-            sessionStorage.setItem('careSync_session', JSON.stringify({
-                unit: data.unit, role: data.role, name: data.name,
-                passkey: data.passkey, userId: uid
-            }));
-            
-            loggedInUnit = data.unit; currentRole = data.role; loggedInName = data.name; 
-            loggedInPasskey = data.passkey; loggedInUserId = uid; 
-            
-            let overlay = document.getElementById('loginOverlay') || document.querySelector('.login-wrapper');
-            if(overlay) overlay.style.display = 'none';
-            
-            let roleCheck = String(currentRole).toUpperCase().trim();
-            if(roleCheck === "ADMIN" || roleCheck === "APPROVER" || roleCheck === "REVIEWER") { 
-                document.getElementById('adminSection').style.display = 'block'; initAdmin(); 
-            } else if(roleCheck === "RESIDENT" || roleCheck === "NURSING" || roleCheck === "NURSING STAFF") { 
-                document.getElementById('nursingSection').style.display = 'block'; 
-                document.getElementById('n_unitName').innerHTML = `<option value="${loggedInUnit}">${loggedInUnit}</option>`; initNursing(); 
-            } else { 
-                document.getElementById('pharmacySection').style.display = 'block'; 
-                document.getElementById('p_displayUnitName').innerText = loggedInUnit; initPharmacy(); 
+        fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                sessionStorage.setItem('careSync_session', JSON.stringify({
+                    unit: data.unit, role: data.role, name: data.name,
+                    passkey: data.passkey, userId: uid
+                }));
+                
+                loggedInUnit = data.unit; currentRole = data.role; loggedInName = data.name; 
+                loggedInPasskey = data.passkey; loggedInUserId = uid; 
+                
+                let overlay = document.getElementById('loginOverlay') || document.querySelector('.login-wrapper');
+                if(overlay) overlay.style.display = 'none';
+                
+                let roleCheck = String(currentRole).toUpperCase().trim();
+                if(roleCheck === "ADMIN" || roleCheck === "APPROVER" || roleCheck === "REVIEWER") { 
+                    document.getElementById('adminSection').style.display = 'block'; initAdmin(); 
+                } else if(roleCheck === "RESIDENT" || roleCheck === "NURSING" || roleCheck === "NURSING STAFF") { 
+                    document.getElementById('nursingSection').style.display = 'block'; 
+                    document.getElementById('n_unitName').innerHTML = `<option value="${loggedInUnit}">${loggedInUnit}</option>`; initNursing(); 
+                } else { 
+                    document.getElementById('pharmacySection').style.display = 'block'; 
+                    document.getElementById('p_displayUnitName').innerText = loggedInUnit; initPharmacy(); 
+                }
+                
+                let displayStr = `👤 ${loggedInName} <span style="opacity:0.8; font-size:12px; margin-left:5px;">| ${currentRole}</span>`;
+                if(document.getElementById('n_userDisplay')) document.getElementById('n_userDisplay').innerHTML = displayStr;
+                if(document.getElementById('p_userDisplay')) document.getElementById('p_userDisplay').innerHTML = displayStr;
+                if(document.getElementById('a_userDisplay')) document.getElementById('a_userDisplay').innerHTML = displayStr;
+                
+                if(typeof showToast === "function") showToast(`Welcome ${loggedInName}!`, "success"); 
+            } else {
+                errorMsg.innerText = "❌ " + (data.message || "Invalid Credentials");
+                errorMsg.style.display = 'block';
+                document.getElementById('passwordInput').value = '';
+                btn.innerText = "SECURE LOGIN"; btn.disabled = false;
             }
-            
-            let displayStr = `👤 ${loggedInName} <span style="opacity:0.8; font-size:12px; margin-left:5px;">| ${currentRole}</span>`;
-            if(document.getElementById('n_userDisplay')) document.getElementById('n_userDisplay').innerHTML = displayStr;
-            if(document.getElementById('p_userDisplay')) document.getElementById('p_userDisplay').innerHTML = displayStr;
-            if(document.getElementById('a_userDisplay')) document.getElementById('a_userDisplay').innerHTML = displayStr;
-            
-            if(typeof showToast === "function") showToast(`Welcome ${loggedInName}!`, "success"); 
-        } else {
-            errorMsg.innerText = "❌ " + (data.message || "Invalid Credentials");
+        })
+        .catch(err => {
+            errorMsg.innerText = "❌ Connection Error!";
             errorMsg.style.display = 'block';
             document.getElementById('passwordInput').value = '';
             btn.innerText = "SECURE LOGIN"; btn.disabled = false;
-        }
-    })
-    .catch(err => {
-        errorMsg.innerText = "❌ Connection Error!";
-        errorMsg.style.display = 'block';
-        document.getElementById('passwordInput').value = '';
-        btn.innerText = "SECURE LOGIN"; btn.disabled = false;
-        if(typeof logSystemError === "function") logSystemError("Login Attempt", "Server/Network Error: " + err.message);
-    });
-}
+        });
+    }
+	function verifyUserPasskey(actionName) {
+        return new Promise((resolve) => {
+            let modal = document.getElementById('passkeyModal');
+            let input = document.getElementById('customPasskeyInput');
+            let errorText = document.getElementById('passkeyErrorText');
+            let btnConfirm = document.getElementById('btnConfirmPasskey');
 
-    function verifyUserPasskey(actionName) {
-    return new Promise((resolve) => {
-        let modal = document.getElementById('passkeyModal');
-        let input = document.getElementById('customPasskeyInput');
-        let errorText = document.getElementById('passkeyErrorText');
-        let btnConfirm = document.getElementById('btnConfirmPasskey');
+            document.getElementById('passkeyActionText').innerText = actionName;
+            input.value = ''; errorText.style.display = 'none';
+            btnConfirm.innerText = 'Confirm'; btnConfirm.disabled = false;
+            modal.style.display = 'flex'; setTimeout(() => input.focus(), 100);
 
-        document.getElementById('passkeyActionText').innerText = actionName;
-        input.value = ''; errorText.style.display = 'none';
-        btnConfirm.innerText = 'Confirm'; btnConfirm.disabled = false;
-        modal.style.display = 'flex'; setTimeout(() => input.focus(), 100);
+            const processPasskey = () => {
+                let enteredKey = input.value.trim(); if(enteredKey.length === 0) return;
+                btnConfirm.innerText = 'Checking...'; btnConfirm.disabled = true; errorText.style.display = 'none';
 
-        const processPasskey = () => {
-            let enteredKey = input.value.trim(); if(enteredKey.length === 0) return;
-            btnConfirm.innerText = 'Checking...'; btnConfirm.disabled = true; errorText.style.display = 'none';
+                // 🔴 पुन्हा GET पद्धत
+                let url = `${SCRIPT_URL}?action=verifyActionPasskey&passkey=${encodeURIComponent(enteredKey)}`;
 
-            // 🔴 सुरक्षित POST Payload
-            let payload = {
-                action: "verifyActionPasskey",
-                passkey: enteredKey
+                fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) { 
+                        modal.style.display = 'none'; 
+                        resolve({ verified: true, userName: data.userName }); 
+                    } else { 
+                        errorText.innerText = "❌ Incorrect Passkey!"; 
+                        errorText.style.display = 'block'; 
+                        input.value = ''; input.focus(); 
+                        btnConfirm.innerText = 'Confirm'; btnConfirm.disabled = false; 
+                    }
+                })
+                .catch(err => { 
+                    errorText.innerText = "❌ Connection Error!"; 
+                    errorText.style.display = 'block'; 
+                    btnConfirm.innerText = 'Confirm'; btnConfirm.disabled = false; 
+                });
             };
 
-            fetch(SCRIPT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify(payload)
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success) { 
-                    modal.style.display = 'none'; 
-                    resolve({ verified: true, userName: data.userName }); 
-                } else { 
-                    errorText.innerText = "❌ Incorrect Passkey!"; 
-                    errorText.style.display = 'block'; 
-                    input.value = ''; input.focus(); 
-                    btnConfirm.innerText = 'Confirm'; btnConfirm.disabled = false; 
-                }
-            })
-            .catch(err => { 
-                errorText.innerText = "❌ Connection Error!"; 
-                errorText.style.display = 'block'; 
-                btnConfirm.innerText = 'Confirm'; btnConfirm.disabled = false; 
-                if(typeof logSystemError === "function") logSystemError("Passkey Verification Modal", err.message); 
-            });
-        };
-
-        btnConfirm.onclick = processPasskey;
-        document.getElementById('btnCancelPasskey').onclick = function() { modal.style.display = 'none'; resolve({ verified: false }); };
-        input.onkeydown = function(e) { if(e.key === 'Enter') { e.preventDefault(); processPasskey(); } };
-    });
-}
-
+            btnConfirm.onclick = processPasskey;
+            document.getElementById('btnCancelPasskey').onclick = function() { modal.style.display = 'none'; resolve({ verified: false }); };
+            input.onkeydown = function(e) { if(e.key === 'Enter') { e.preventDefault(); processPasskey(); } };
+        });
+    }
 
     function logoutUser() {
         if(!confirm("Are you sure you want to log out?")) return;
@@ -1354,12 +1335,10 @@
     function initNursing() { fetchMasterData(); }
     
     function fetchMasterData() {
-        // 🔴 सुरक्षित POST पद्धत वापरून डेटा आणणे
-        fetch(SCRIPT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ action: "getDropdownData" })
-        }).then(res => res.json()).then(data => {
+        // 🔴 पुन्हा GET पद्धत (हॉस्पिटल PC साठी)
+        fetch(SCRIPT_URL + "?action=getDropdownData&t=" + new Date().getTime())
+        .then(res => res.json())
+        .then(data => {
             const wardSelect = document.getElementById('n_wardName'); wardSelect.innerHTML = '<option value="">-- Select --</option>'; 
             let uniqueWards = new Set();
             if(data.wards) {
@@ -1815,12 +1794,10 @@
     function fetchPendingIndents(isManual = false) {
         if(isManual) document.getElementById('indentListContainer').innerHTML = '<p style="text-align:center; color: #7f8c8d;">Loading data...</p>';
         
-        // 🔴 सुरक्षित POST पद्धत वापरून डेटा आणणे
-        fetch(SCRIPT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ action: "getPendingIndents" })
-        }).then(res => res.json()).then(data => {
+        // 🔴 पुन्हा GET पद्धत
+        fetch(SCRIPT_URL + "?action=getPendingIndents&t=" + new Date().getTime())
+        .then(res => res.json())
+        .then(data => {
             let grouped = {};
             data.forEach(row => {
                 let currentStatus = normaliseStatus(row.status);
