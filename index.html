@@ -1598,7 +1598,14 @@
             if (delBtn) delBtn.focus();
         }
     }
-    // 🔴 एका क्लिकवर पूर्ण लिस्ट रिकामी करण्यासाठी
+	function updateItemQty(index, newQty) {
+        if(newQty && newQty > 0) {
+            indentList[index].quantity = newQty;
+        } else {
+            indentList[index].quantity = 1; // जर कुणी 0 किंवा रिकामे सोडले तर 1 घेईल
+            updateNTable(); // व्हॅल्यू 1 करून टेबल रिफ्रेश करेल
+        }
+    }
     function clearIndentList() {
         if (indentList.length === 0) {
             alert("The list is already empty!");
