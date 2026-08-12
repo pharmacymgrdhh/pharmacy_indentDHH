@@ -1182,7 +1182,7 @@
     </div>
 
 <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzvDjFvMuZ46swQhtIcfIC1dl412bMUiZcrXIBw5UT3vHwvULHRQDrNMEpKqjaC1InJ/exec/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzvDjFvMuZ46swQhtIcfIC1dl412bMUiZcrXIBw5UT3vHwvULHRQDrNMEpKqjaC1InJ/exec';
 
     setTimeout(() => { fetch(SCRIPT_URL + "?action=ping", { mode: 'no-cors' }).catch(() => {}); }, 500);
 
@@ -1903,7 +1903,6 @@
         populatePrint(cleanPatient, ind.ward, formatCDate(ind.date), ind.indentNo, ind.doctor, ind.medicines, ind.submitUser, st2 === 'DISPATCHED' ? ind.dispatchTime : null, ind.dispensedBy);
     }
 
-    // 🔴 2. Error-Proof 'Mark as Dispatched' Logic
     async function markAsDispatched() {
         try {
             if(!currentSelectedIndent) return; 
@@ -1929,7 +1928,11 @@
             btn.disabled = true;
             document.getElementById('globalLoader').style.display = 'flex'; // LOCK UI
             
-            let response = await fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: "markDispatched", indentNo: currentSelectedIndent, pharmacyLogin: loggedInName, dispatchBy: actualPharmacist }) });
+            // 🔴 FIX: GET पद्धत
+            let payload = { action: "markDispatched", indentNo: currentSelectedIndent, pharmacyLogin: loggedInName, dispatchBy: actualPharmacist };
+            let url = `${SCRIPT_URL}?action=markDispatched&data=${encodeURIComponent(JSON.stringify(payload))}`;
+            
+            let response = await fetch(url);
             if(!response.ok) throw new Error("Server Status: " + response.status);
             
             let data = await response.json();
@@ -1954,7 +1957,6 @@
         }
     }
 
-    // 🔴 3. Error-Proof 'Mark as Ready' Logic
     async function markAsReady() {
         try {
             if(!currentSelectedIndent) return; 
@@ -1967,7 +1969,11 @@
             btn.disabled = true;
             document.getElementById('globalLoader').style.display = 'flex'; // LOCK UI
             
-            let response = await fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: "markReadyForDispatch", indentNo: currentSelectedIndent, readyBy: actualPharmacist }) });
+            // 🔴 FIX: GET पद्धत
+            let payload = { action: "markReadyForDispatch", indentNo: currentSelectedIndent, readyBy: actualPharmacist };
+            let url = `${SCRIPT_URL}?action=markReadyForDispatch&data=${encodeURIComponent(JSON.stringify(payload))}`;
+            
+            let response = await fetch(url);
             if(!response.ok) throw new Error("Server Status: " + response.status);
             
             let data = await response.json();
@@ -1975,7 +1981,7 @@
             if(data.success) { 
                 showToast("Marked as Ready!", "success"); 
                 let ind = allIndents.find(i => i.indentNo === currentSelectedIndent);
-                if (ind) ind.status = 'READY FOR COLLECTION'; // Local Tracking
+                if (ind) ind.status = 'READY FOR COLLECTION'; 
                 
                 btn.innerText = "Ready ✓";
                 btn.style.backgroundColor = '#95a5a6';
@@ -1989,10 +1995,7 @@
             console.error("Ready Status Error:", err);
             showToast("Error: Connection Failed", "error"); 
             const btn = document.getElementById('p_readyBtn');
-            if(btn && btn.innerText !== "Ready ✓") { 
-                btn.innerHTML = "Ready for Collection"; 
-                btn.disabled = false; 
-            }
+            if(btn && btn.innerText !== "Ready ✓") { btn.innerHTML = "Ready for Collection"; btn.disabled = false; }
         } finally {
             document.getElementById('globalLoader').style.display = 'none'; // UNLOCK UI
         }
