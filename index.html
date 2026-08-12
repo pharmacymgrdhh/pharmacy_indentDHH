@@ -1701,8 +1701,6 @@
         setTimeout(() => { document.body.classList.remove('canon-mode', 'print-indent'); }, 1000);
     }
 
-    // 🔴 1. Error-Proof 'Send to Pharmacy' Logic
-    // 🔴 Error-Proof 'Send to Pharmacy' Logic (With Doctor Passkey & Custom Meds Popup)
     async function submitIndent() {
         try {
             const ward = document.getElementById('n_wardName').value; 
@@ -1714,10 +1712,8 @@
             if(!doc) { alert("❌ Please select 'Prescribed By' (Doctor Name)."); return; }
             if (indentList.length === 0) { alert("❌ Please add at least one medicine."); return; }
 
-            // 🚨 ROLE CHECK: जर नर्सिंग स्टाफ असेल तर पासकी पॉपअपमध्ये वॉर्निंग दाखवा
             let roleCheck = String(currentRole).toUpperCase().trim();
             let passkeyMsg = "Send Indent to Pharmacy";
-            
             if(roleCheck === "NURSING STAFF") {
                 passkeyMsg = `Doctor Authorization Required<br><span style="font-size:12px; color:#e74c3c; font-weight:normal; margin-top:5px; display:block;">Only Resident Doctor's Passkey is valid here.</span>`;
             }
@@ -1744,11 +1740,10 @@
                 items: indentList.map(i => ({ name: i.displayName, qty: i.quantity })) 
             };
             
-            let response = await fetch(SCRIPT_URL, { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-                body: JSON.stringify(payload) 
-            });
+            // 🔴 FIX: POST ऐवजी GET पद्धत वापरली
+            let url = `${SCRIPT_URL}?action=submitIndent&data=${encodeURIComponent(JSON.stringify(payload))}`;
+            
+            let response = await fetch(url);
             
             if(!response.ok) throw new Error("Server responded with status: " + response.status);
             let data = await response.json();
@@ -1759,17 +1754,13 @@
                 populatePrint(pName, loggedInUnit + " - " + ward, formatCDate(new Date().toISOString()), newIndentNo, doc, indentList, actualSubmitter, null, null);
                 document.getElementById('n_printBtn').style.display = 'block';
                 
-                // 🔴 SHOW POST-SUBMIT CUSTOM MEDS POPUP (जर कस्टम मेडिसिन असेल तरच उघडेल)
                 let customMeds = indentList.filter(m => m.isCustom);
                 if(customMeds.length > 0) {
                     document.getElementById('postSubmitIndentNo').innerText = newIndentNo;
                     let tbody = document.getElementById('postSubmitCustomTableBody');
                     tbody.innerHTML = '';
                     customMeds.forEach(m => {
-                        tbody.innerHTML += `<tr>
-                            <td style="font-weight:bold; color:#c2410c;">${m.displayName}</td>
-                            <td style="text-align:center; font-weight:bold;">${m.quantity}</td>
-                        </tr>`;
+                        tbody.innerHTML += `<tr><td style="font-weight:bold; color:#c2410c;">${m.displayName}</td><td style="text-align:center; font-weight:bold;">${m.quantity}</td></tr>`;
                     });
                     document.getElementById('postSubmitCustomModal').style.display = 'flex';
                 }
@@ -1903,7 +1894,6 @@
         populatePrint(cleanPatient, ind.ward, formatCDate(ind.date), ind.indentNo, ind.doctor, ind.medicines, ind.submitUser, st2 === 'DISPATCHED' ? ind.dispatchTime : null, ind.dispensedBy);
     }
 
-    // 🔴 2. Error-Proof 'Mark as Dispatched' Logic
     async function markAsDispatched() {
         try {
             if(!currentSelectedIndent) return; 
@@ -1929,7 +1919,11 @@
             btn.disabled = true;
             document.getElementById('globalLoader').style.display = 'flex'; // LOCK UI
             
-            let response = await fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: "markDispatched", indentNo: currentSelectedIndent, pharmacyLogin: loggedInName, dispatchBy: actualPharmacist }) });
+            // 🔴 FIX: GET पद्धत वापरली (हॉस्पिटल नेटवर्कसाठी सुरक्षित)
+            let payload = { action: "markDispatched", indentNo: currentSelectedIndent, pharmacyLogin: loggedInName, dispatchBy: actualPharmacist };
+            let url = `${SCRIPT_URL}?action=markDispatched&data=${encodeURIComponent(JSON.stringify(payload))}`;
+            
+            let response = await fetch(url);
             if(!response.ok) throw new Error("Server Status: " + response.status);
             
             let data = await response.json();
@@ -1953,9 +1947,7 @@
             document.getElementById('globalLoader').style.display = 'none'; // UNLOCK UI
         }
     }
-
-    // 🔴 3. Error-Proof 'Mark as Ready' Logic
-    async function markAsReady() {
+	async function markAsReady() {
         try {
             if(!currentSelectedIndent) return; 
             let passkeyResult = await verifyUserPasskey("Ready for Collection");
@@ -1967,7 +1959,11 @@
             btn.disabled = true;
             document.getElementById('globalLoader').style.display = 'flex'; // LOCK UI
             
-            let response = await fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: "markReadyForDispatch", indentNo: currentSelectedIndent, readyBy: actualPharmacist }) });
+            // 🔴 FIX: GET पद्धत वापरली (हॉस्पिटल नेटवर्कसाठी सुरक्षित)
+            let payload = { action: "markReadyForDispatch", indentNo: currentSelectedIndent, readyBy: actualPharmacist };
+            let url = `${SCRIPT_URL}?action=markReadyForDispatch&data=${encodeURIComponent(JSON.stringify(payload))}`;
+            
+            let response = await fetch(url);
             if(!response.ok) throw new Error("Server Status: " + response.status);
             
             let data = await response.json();
