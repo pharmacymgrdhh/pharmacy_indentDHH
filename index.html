@@ -1182,11 +1182,34 @@
     </div>
 
 <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxvzeIha5GgnVPPXB6E8FVL_XyN70d6a5UMC_tiKwpYtb1DNPwx2osFwykuyDwwbpaJ/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxan7xrAiPpO_2FCRdRtcbA7FH0wGcJG5uoBILTze8R38d9Kv0--1TOJuRdbOxO_zDD/exec';
 
     setTimeout(() => { fetch(SCRIPT_URL + "?action=ping", { mode: 'no-cors' }).catch(() => {}); }, 500);
 
     let loggedInUnit = ""; let currentRole = ""; let loggedInName = ""; let loggedInPasskey = ""; let loggedInUserId = ""; 
+
+	// 🔴 NEW: Master Fetch Function (Safe POST Wrapper)
+async function safeFetch(payload) {
+    try {
+        let response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+        });
+        
+        let text = await response.text();
+        
+        // जर गुगलने 404 किंवा HTML पेज फेकलं, तर आपण JSON Parse Error थांबवू
+        if (text.trim().startsWith("<!DOCTYPE") || text.trim().startsWith("<html")) {
+            console.error("Google Server Error / Redirect Issue:", text.substring(0, 100));
+            throw new Error("Server returned an HTML error page. (Check Deployment)");
+        }
+        return JSON.parse(text);
+    } catch (error) {
+        console.error("safeFetch Error:", error);
+        throw error;
+    }
+}
     
     function logSystemError(location, errMsg) {
         // User Errors (Wrong passkey/password/custom med) इग्नोर करण्यासाठी
@@ -1225,12 +1248,8 @@
         
         btn.innerText = "Authenticating..."; btn.disabled = true; errorMsg.style.display = 'none';
 
-        // 🔴 पुन्हा GET पद्धत (हॉस्पिटल PC साठी सर्वात सुरक्षित)
-        let url = `${SCRIPT_URL}?action=verifyLogin&userId=${encodeURIComponent(uid)}&password=${encodeURIComponent(pwd)}`;
-
-        fetch(url)
-        .then(res => res.json())
-        .then(data => {
+        safeFetch({ action: "verifyLogin", userId: uid, password: pwd })
+		.then(data => {
             if(data.success) {
                 sessionStorage.setItem('careSync_session', JSON.stringify({
                     unit: data.unit, role: data.role, name: data.name,
@@ -1293,9 +1312,8 @@
                 // 🔴 पुन्हा GET पद्धत
                 let url = `${SCRIPT_URL}?action=verifyActionPasskey&passkey=${encodeURIComponent(enteredKey)}`;
 
-                fetch(url)
-                .then(res => res.json())
-                .then(data => {
+                safeFetch({ action: "verifyActionPasskey", passkey: enteredKey })
+				.then(data => {
                     if(data.success) { 
                         modal.style.display = 'none'; 
                         resolve({ verified: true, userName: data.userName }); 
@@ -1335,44 +1353,44 @@
     function initNursing() { fetchMasterData(); }
     
     function fetchMasterData() {
-        // 🔴 पुन्हा GET पद्धत (हॉस्पिटल PC साठी)
-        fetch(SCRIPT_URL + "?action=getDropdownData&t=" + new Date().getTime())
-        .then(res => res.json())
-        .then(data => {
-            const wardSelect = document.getElementById('n_wardName'); wardSelect.innerHTML = '<option value="">-- Select --</option>'; 
-            let uniqueWards = new Set();
-            if(data.wards) {
-                data.wards.forEach(w => { 
-                    let wName = typeof w === 'object' ? w.name : w; 
-                    let wUnit = typeof w === 'object' ? w.unit : loggedInUnit; 
-                    let wStatus = typeof w === 'object' && w.status ? String(w.status).toUpperCase().trim() : 'ACTIVE'; 
-                    
-                    if (wStatus === 'ACTIVE' && String(wUnit).trim().toUpperCase() === String(loggedInUnit).trim().toUpperCase() && !uniqueWards.has(String(wName).trim())) { 
-                        uniqueWards.add(String(wName).trim()); 
-                        wardSelect.innerHTML += `<option value="${String(wName).trim()}">${String(wName).trim()}</option>`; 
-                    }
-                });
-            }
-            const docList = document.getElementById('doctorList'); docList.innerHTML = ''; 
-            if(data.doctors) data.doctors.forEach(d => { docList.innerHTML += `<option value="${d}">`; });
-            if(data.medicines) globalMedicines = data.medicines;
-            
-            if(data.kits && data.kits.length > 0) {
-                globalKits = data.kits;
-                let uniqueKits = new Set(globalKits.map(k => k.templateName));
-                const kitSelect = document.getElementById('n_kitSelect');
-                if(kitSelect) {
-                    kitSelect.innerHTML = '<option value="">-- Select Template --</option>';
-                    uniqueKits.forEach(kName => { kitSelect.innerHTML += `<option value="${kName}">${kName}</option>`; });
+    safeFetch({ action: "getDropdownData" })
+    .then(data => {
+        const wardSelect = document.getElementById('n_wardName'); 
+        if (wardSelect) wardSelect.innerHTML = '<option value="">-- Select --</option>'; 
+        let uniqueWards = new Set();
+        if(data.wards) {
+            data.wards.forEach(w => { 
+                let wName = typeof w === 'object' ? w.name : w; 
+                let wUnit = typeof w === 'object' ? w.unit : loggedInUnit; 
+                let wStatus = typeof w === 'object' && w.status ? String(w.status).toUpperCase().trim() : 'ACTIVE'; 
+                
+                if (wStatus === 'ACTIVE' && String(wUnit).trim().toUpperCase() === String(loggedInUnit).trim().toUpperCase() && !uniqueWards.has(String(wName).trim())) { 
+                    uniqueWards.add(String(wName).trim()); 
+                    if (wardSelect) wardSelect.innerHTML += `<option value="${String(wName).trim()}">${String(wName).trim()}</option>`; 
                 }
+            });
+        }
+        const docList = document.getElementById('doctorList'); 
+        if (docList) { docList.innerHTML = ''; if(data.doctors) data.doctors.forEach(d => { docList.innerHTML += `<option value="${d}">`; }); }
+        
+        if(data.medicines) globalMedicines = data.medicines;
+        
+        if(data.kits && data.kits.length > 0) {
+            globalKits = data.kits;
+            let uniqueKits = new Set(globalKits.map(k => k.templateName));
+            const kitSelect = document.getElementById('n_kitSelect');
+            if(kitSelect) {
+                kitSelect.innerHTML = '<option value="">-- Select Template --</option>';
+                uniqueKits.forEach(kName => { kitSelect.innerHTML += `<option value="${kName}">${kName}</option>`; });
             }
-            document.querySelectorAll('.loading-text').forEach(el => el.style.display = 'none');
-        }).catch(err => {
-            console.error('fetchMasterData failed:', err);
-            document.querySelectorAll('.loading-text').forEach(el => el.style.display = 'none');
-            if (typeof showToast === 'function') showToast('Master data लोड होण्यात अडचण आली, पुन्हा Refresh करा', 'error');
-        });
-    }
+        }
+        document.querySelectorAll('.loading-text').forEach(el => el.style.display = 'none');
+    }).catch(err => {
+        console.error('fetchMasterData failed:', err);
+        document.querySelectorAll('.loading-text').forEach(el => el.style.display = 'none');
+        if (typeof showToast === 'function') showToast('Master data लोड होण्यात अडचण आली, पुन्हा Refresh करा', 'error');
+    });
+}
 
     const medInput = document.getElementById('n_medicineName'); const medDropdown = document.getElementById('medDropdown');
     // 🔴 1. CURSOR JUMP: Search (Tab) -> Table Qty Edit
@@ -1799,38 +1817,35 @@
     }
 
     function fetchPendingIndents(isManual = false) {
-        if(isManual) document.getElementById('indentListContainer').innerHTML = '<p style="text-align:center; color: #7f8c8d;">Loading data...</p>';
-        
-        // 🔴 पुन्हा GET पद्धत
-        fetch(SCRIPT_URL + "?action=getPendingIndents&t=" + new Date().getTime())
-        .then(res => res.json())
-        .then(data => {
-            let grouped = {};
-            data.forEach(row => {
-                let currentStatus = normaliseStatus(row.status);
-                let existingIndent = allIndents.find(i => i.indentNo === row.indentNo);
-                if (existingIndent && existingIndent.status === 'READY FOR COLLECTION' && currentStatus !== 'DISPATCHED' && currentStatus !== 'VERIFIED') {
-                    currentStatus = 'READY FOR COLLECTION'; 
-                }
-
-                if(!grouped[row.indentNo]) {
-                    grouped[row.indentNo] = { 
-                        indentNo: row.indentNo, date: row.date, ward: row.ward, 
-                        patientName: row.patient, doctor: row.doctor, 
-                        submitUser: row.submitUser || row.submitBy || "-", 
-                        status: currentStatus, medicines: [] 
-                    };
-                }
-                if(row.medicine) grouped[row.indentNo].medicines.push({ name: row.medicine, qty: row.qty });
-            });
-            allIndents = Object.values(grouped);
-            let filterText = loggedInUnit.replace("-PHARMACY", "").replace("-pharmacy", "").trim();
-            renderPList(allIndents.filter(ind => String(ind.ward).toUpperCase().includes(filterText.toUpperCase())));
-        }).catch(err => {
-            console.error('fetchPendingIndents failed:', err);
-            if (isManual) document.getElementById('indentListContainer').innerHTML = '<p style="text-align:center; color:red;">Data load होत नाहीये, पुन्हा प्रयत्न करा.</p>';
+    if(isManual) document.getElementById('indentListContainer').innerHTML = '<p style="text-align:center; color: #7f8c8d;">Loading data...</p>';
+    
+    safeFetch({ action: "getPendingIndents" })
+    .then(data => {
+        let grouped = {};
+        data.forEach(row => {
+            let currentStatus = normaliseStatus(row.status);
+            let existingIndent = allIndents.find(i => i.indentNo === row.indentNo);
+            if (existingIndent && existingIndent.status === 'READY FOR COLLECTION' && currentStatus !== 'DISPATCHED' && currentStatus !== 'VERIFIED') {
+                currentStatus = 'READY FOR COLLECTION'; 
+            }
+            if(!grouped[row.indentNo]) {
+                grouped[row.indentNo] = { 
+                    indentNo: row.indentNo, date: row.date, ward: row.ward, 
+                    patientName: row.patient, doctor: row.doctor, 
+                    submitUser: row.submitUser || row.submitBy || "-", 
+                    status: currentStatus, medicines: [] 
+                };
+            }
+            if(row.medicine) grouped[row.indentNo].medicines.push({ name: row.medicine, qty: row.qty });
         });
-    }
+        allIndents = Object.values(grouped);
+        let filterText = loggedInUnit.replace("-PHARMACY", "").replace("-pharmacy", "").trim();
+        renderPList(allIndents.filter(ind => String(ind.ward).toUpperCase().includes(filterText.toUpperCase())));
+    }).catch(err => {
+        console.error('fetchPendingIndents failed:', err);
+        if (isManual) document.getElementById('indentListContainer').innerHTML = '<p style="text-align:center; color:red;">Data load होत नाहीये, पुन्हा प्रयत्न करा.</p>';
+    });
+}
     function formatCDate(dateStr) {
         try {
             if(!dateStr) return "-";
@@ -1928,14 +1943,8 @@
             btn.disabled = true;
             document.getElementById('globalLoader').style.display = 'flex'; // LOCK UI
             
-            // 🔴 FIX: GET पद्धत
             let payload = { action: "markDispatched", indentNo: currentSelectedIndent, pharmacyLogin: loggedInName, dispatchBy: actualPharmacist };
-            let url = `${SCRIPT_URL}?action=markDispatched&data=${encodeURIComponent(JSON.stringify(payload))}`;
-            
-            let response = await fetch(url);
-            if(!response.ok) throw new Error("Server Status: " + response.status);
-            
-            let data = await response.json();
+            let data = await safeFetch(payload);
 
             if(data.success) { 
                 showToast("Dispatched successfully!", "success"); 
@@ -1969,14 +1978,8 @@
             btn.disabled = true;
             document.getElementById('globalLoader').style.display = 'flex'; // LOCK UI
             
-            // 🔴 FIX: GET पद्धत
             let payload = { action: "markReadyForDispatch", indentNo: currentSelectedIndent, readyBy: actualPharmacist };
-            let url = `${SCRIPT_URL}?action=markReadyForDispatch&data=${encodeURIComponent(JSON.stringify(payload))}`;
-            
-            let response = await fetch(url);
-            if(!response.ok) throw new Error("Server Status: " + response.status);
-            
-            let data = await response.json();
+            let data = await safeFetch(payload);
 
             if(data.success) { 
                 showToast("Marked as Ready!", "success"); 
@@ -2012,7 +2015,7 @@
     }
 
     function initAdmin() { 
-        fetchMasterData(); // 🔴 ही नवीन लाईन ॲड करा
+        fetchMasterData(); 
         fetchAdminData(); 
     }
 
@@ -2020,12 +2023,10 @@
         showToast("Fetching Admin Data...", "success");
         document.getElementById('globalLoader').style.display = 'flex'; // LOCK UI while fetching
 
-        let url = SCRIPT_URL + "?action=getAdminDashboardData&t=" + new Date().getTime();
-        if(startDate) url += "&from=" + encodeURIComponent(startDate);
-        if(endDate) url += "&to=" + encodeURIComponent(endDate);
+        // 🔴 GET काढून POST (safeFetch) टाकले
+        let payload = { action: "getAdminDashboardData", from: startDate, to: endDate };
 
-        fetch(url)
-        .then(res => res.json())
+        safeFetch(payload)
         .then(data => {
             let rawIndents = data.indents || []; let grouped = {};
             rawIndents.forEach(row => {
@@ -2450,8 +2451,9 @@
         document.getElementById('nursingHistoryOverlay').style.display = 'flex'; document.getElementById('h_placeholder').style.display = 'block'; document.getElementById('h_detailsContainer').style.display = 'none';
         document.getElementById('h_indentListContainer').innerHTML = '<p style="text-align:center; padding:20px; color:#7f8c8d;">Loading today\'s records...</p>'; document.getElementById('h_patientSearch').value = '';
         
-        fetch(SCRIPT_URL + "?action=getNursingHistory&ward=" + encodeURIComponent(fullWardName) + "&t=" + new Date().getTime())
-        .then(res => res.json()).then(data => { nursingHistoryData = data; renderHistoryList(nursingHistoryData); })
+        // 🔴 safeFetch वापरले
+        safeFetch({ action: "getNursingHistory", ward: fullWardName })
+        .then(data => { nursingHistoryData = data; renderHistoryList(nursingHistoryData); })
         .catch(err => { document.getElementById('h_indentListContainer').innerHTML = '<p style="color:red; text-align:center;">Error fetching history.</p>'; });
     }
 
@@ -2827,8 +2829,8 @@
         let tbody = document.getElementById('incidentTrackerResults');
         tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px;">⏳ Loading Live Safety Tracker...</td></tr>';
         
-        fetch(SCRIPT_URL + "?action=getIncidentData&t=" + new Date().getTime())
-        .then(res => res.json())
+        // 🔴 safeFetch वापरले
+        safeFetch({ action: "getIncidentData" })
         .then(data => {
             if(data.error || data.length === 0) { 
                 tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:red;">No records found.</td></tr>`; 
