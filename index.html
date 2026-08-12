@@ -1189,25 +1189,37 @@
     let loggedInUnit = ""; let currentRole = ""; let loggedInName = ""; let loggedInPasskey = ""; let loggedInUserId = ""; 
 
 	// 🔴 NEW: Master Fetch Function (Safe POST Wrapper)
-async function safeFetch(payload) {
-    try {
-        let response = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify(payload)
-        });
-        
-        let text = await response.text();
-        
-        // जर गुगलने 404 किंवा HTML पेज फेकलं, तर आपण JSON Parse Error थांबवू
-        if (text.trim().startsWith("<!DOCTYPE") || text.trim().startsWith("<html")) {
-            console.error("Google Server Error / Redirect Issue:", text.substring(0, 100));
-            throw new Error("Server returned an HTML error page. (Check Deployment)");
+// 🔴 NEW: Super Safe Auto-Retry Fetch Function
+async function safeFetch(payload, retries = 2) {
+    for (let i = 0; i < retries; i++) {
+        try {
+            let response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            });
+            
+            let text = await response.text();
+            
+            // जर गुगलने 404 किंवा HTML पेज फेकलं
+            if (text.trim().startsWith("<!DOCTYPE") || text.trim().startsWith("<html")) {
+                if (i < retries - 1) {
+                    console.warn(`⚠️ Server warming up (Attempt ${i+1}), retrying in 1 second...`);
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // १ सेकंद थांबा
+                    continue;
+                }
+                throw new Error("Server returned an HTML error page. (Check Deployment)");
+            }
+            
+            let parsed = JSON.parse(text);
+            return parsed;
+        } catch (error) {
+            if (i === retries - 1) {
+                console.error("safeFetch Final Error:", error);
+                throw error;
+            }
+            await new Promise(resolve => setTimeout(resolve, 1000));
         }
-        return JSON.parse(text);
-    } catch (error) {
-        console.error("safeFetch Error:", error);
-        throw error;
     }
 }
     
@@ -1821,6 +1833,12 @@ async function safeFetch(payload) {
     
     safeFetch({ action: "getPendingIndents" })
     .then(data => {
+        // 🔴 सुरक्षा: जर data ॲरे नसेल तर फंक्शन इथेच थांबेल आणि क्रॅश रोखेल
+        if (!Array.isArray(data)) {
+            console.warn("⚠️ Expected Array but got:", data);
+            return; 
+        }
+
         let grouped = {};
         data.forEach(row => {
             let currentStatus = normaliseStatus(row.status);
